@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "78275778064-nhoq431tt82ebmofdfr24tmd2cva5ois.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.rd.uniprint",
+            "certificate_hash": "34f453591bbffd08c1cfb635e77c43a48f8f5006"
+          }
+        },
+        {
           "client_id": "78275778064-e969go4f0bs47efjctq4quu9k7jrfbj2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -38,6 +46,13 @@
             {
               "client_id": "78275778064-hsag61ibc6u9bfeabtvul2iurdd3lpp8.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "78275778064-gmrp2f48l98rhi2b4hghhb8vr8f33irf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.rd.uniprint"
+              }
             }
           ]
         }
@@ -45,9 +60,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:78275778064:android:48691f13c93b7921fa9c95",
+        "mobilesdk_app_id": "1:78275778064:android:ccd232a6448a3dc3fa9c95",
         "android_client_info": {
-          "package_name": "app.rd.uniprint.g"
+          "package_name": "app.rd.uniprint.uniprintgestao"
         }
       },
       "oauth_client": [
@@ -67,6 +82,13 @@
             {
               "client_id": "78275778064-hsag61ibc6u9bfeabtvul2iurdd3lpp8.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "78275778064-gmrp2f48l98rhi2b4hghhb8vr8f33irf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.rd.uniprint"
+              }
             }
           ]
         }

@@ -5,7 +5,8 @@ import androidx.multidex.MultiDex
 import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugins.GeneratedPluginRegistrant
-import io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService
+
+//import io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService
 
 
 class MyApplication : FlutterApplication(), PluginRegistry.PluginRegistrantCallback {
@@ -15,7 +16,7 @@ class MyApplication : FlutterApplication(), PluginRegistry.PluginRegistrantCallb
 
     override fun onCreate() {
         super.onCreate()
-        FlutterFirebaseMessagingService.setPluginRegistrant(this);
+        //      FlutterFirebaseMessagingService.setPluginRegistrant(this);
     }
 
     override fun attachBaseContext(base: Context) {

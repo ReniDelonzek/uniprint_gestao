@@ -1,15 +1,17 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/utils/UtilsLogin.dart';
+import 'package:uniprintgestao/src/utils/UtilsNotification.dart';
 
-import 'login/ScreenLogin.dart';
-import 'mainpage.dart';
-
-void main() => runApp(new SplashScreen());
+void main() {
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  runApp(new SplashScreen());
+}
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -19,7 +21,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
-  FirebaseMessaging _firebaseMessaging;
   int opacity = 0;
   var buildContext;
   double width = 0, height = 0;
@@ -27,8 +28,7 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _firebaseMessaging = FirebaseMessaging();
-    firebaseCloudMessaging_Listeners();
+
     Future.delayed(Duration(milliseconds: 100), () {
       setState(() {
         opacity = 1;
@@ -37,7 +37,18 @@ class SplashScreenState extends State<SplashScreen> {
       });
     });
     Future.delayed(Duration(seconds: 3), () {
-      verificarLogin(buildContext);
+      /*File file = File('');
+      PDFDocument.fromFile(file).then((doc) {
+        var a = doc.count;
+        print(a);
+      });*/
+      //setState(() {
+      //Route route = MaterialPageRoute(builder: (context) => ScreenLoginEmail());
+      //Navigator.pushReplacement(context, route);
+      //verificarLogin(buildContext);
+      //});
+      //Route route = MaterialPageRoute(builder: (context) => ScreenLoginEmail());
+      //Navigator.pushReplacement(context, route);
     });
   }
 
@@ -48,6 +59,9 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration(seconds: 3), () {
+      verificarLogin(buildContext);
+    });
     return new MaterialApp(
         theme: Tema.getTema(context),
         home: Builder(builder: ((context) {
@@ -84,47 +98,32 @@ class SplashScreenState extends State<SplashScreen> {
         })));
   }
 
-  void verificarLogin(context) {
-    FirebaseAuth.instance.currentUser().then((user) {
-      setState(() {
-        if (user == null) {
-          Route route = MaterialPageRoute(builder: (context) => ScreenLogin());
-          Navigator.pushReplacement(context, route);
-        } else {
-          Route route = MaterialPageRoute(builder: (context) => MainPage());
-          Navigator.pushReplacement(context, route);
-        }
-      });
-    }).catchError((onError) {
-      print(onError);
-    });
-  }
+  /*void _firebaseCloudMessagingListeners() {
+    if (Platform.isIOS) _iOSPermission();
 
-  void firebaseCloudMessaging_Listeners() {
-    if (Platform.isIOS) iOS_Permission();
-
-    _firebaseMessaging.getToken().then((token) {
-      print('token: ' + token);
-    });
+    String action;
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-        //_showItemDialog(message);
+        action = getAction(message);
+        shoNotification(message['notification']['title'],
+            message['notification']['body'], action, context);
       },
       onBackgroundMessage: myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-        //_navigateToItemDetail(message);
+        action = getAction(message);
+        shoNotification(message['notification']['title'],
+            message['notification']['body'], action, context);
       },
       onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        //_navigateToItemDetail(message);
+        action = getAction(message);
+        shoNotification(message['notification']['title'],
+            message['notification']['body'], action, context);
       },
     );
-  }
-
-  void iOS_Permission() {
+  }*/
+/*
+  void _iOSPermission() {
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
@@ -132,18 +131,24 @@ class SplashScreenState extends State<SplashScreen> {
       print("Settings registered: $settings");
     });
   }
-}
+}*/
 
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
+  String getAction(Map message) {
+    if (message.containsKey('data')) {
+      return message['data']['action'];
+    }
+    return '';
   }
 
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-  }
+// ignore: missing_return
+  Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+    String action = getAction(message);
+    if (message.containsKey('notification')) {
+      // Handle notification message
+      final dynamic not = message['notification'];
+      shoNotification(not['title'], not['body'], action, context);
+    }
 
-  // Or do other work.
+    // Or do other work.
+  }
 }

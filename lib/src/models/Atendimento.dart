@@ -1,26 +1,28 @@
-//import 'package:json_annotation/json_annotation.dart';
-
-//@JsonSerializable()
 class Atendimento {
-  String codUsuario;
+  String id;
+  String codSolicitante;
   DateTime dataSolicitacao;
   String codPonto;
   int status;
-  String codAprovador;
-  String comentario;
-  int tipo;
   int satisfacao;
-  double precoTotal;
+  DateTime dataAtendimento;
 
   Map<String, dynamic> toJson() => {
-        'codUsuario': codUsuario,
+    'codSolicitante': codSolicitante,
         'dataSolicitacao': dataSolicitacao,
         'codPonto': codPonto,
         'status': status,
-        'codAprovador': codAprovador,
-        'comentario': comentario,
-        'tipo': tipo,
         'satisfacao': satisfacao,
-        'precoTotal': precoTotal,
       };
+
+  static Atendimento fromJson(Map<String, dynamic> map) {
+    Atendimento atendimento = Atendimento();
+    atendimento.codSolicitante = map['codSolicitante'];
+    atendimento.dataSolicitacao = map['dataSolicitacao'] ?? DateTime.now();
+    atendimento.codPonto = map['codPonto'];
+    atendimento.status = map['status'];
+    atendimento.satisfacao = map['satisfacao'];
+    atendimento.dataAtendimento = map['dataAtendimento'] ?? DateTime.now();
+    return atendimento;
+  }
 }
