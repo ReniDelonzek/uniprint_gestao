@@ -11,7 +11,6 @@ class GraphQlObject {
     //var box = await Hive.openBox('myBox');
     //Token token = Token.fromMap(box.get('auth_token'));
     var a = await PreferencesStore.create();
-
     return "Bearer ${a.refreshToken ?? ''}";
   });
 

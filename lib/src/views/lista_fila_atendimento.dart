@@ -9,7 +9,8 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/models/Atendimento.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
-import 'package:uniprintgestao/src/views/test.dart';
+
+import 'lista_fila_impressao.dart';
 
 class ListaFilaAtendimento extends StatefulWidget {
   @override
@@ -51,6 +52,15 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                 style: new TextStyle(color: Colors.black),
               ),
               backgroundColor: Colors.white,
+            ),
+            floatingActionButton: new FloatingActionButton(
+              onPressed: () {
+                Navigator.of(buildContext).push(new MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                    new ListaFilaImpressao()));
+              },
+              heroTag: "impressoes",
+              child: Icon(Icons.print),
             ),
             backgroundColor: Colors.white,
             body: _getBodyAtendimento()));
@@ -119,8 +129,8 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                   //CabecalhoDetalhesUsuario(atendimento.codSolicitante),
                   InkWell(
                     onTap: () {
-                      Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (BuildContext context) => new Test()));
+                      //Navigator.of(context).push(new MaterialPageRoute(
+                      //  builder: (BuildContext context) => new Test()));
                     },
                     child: new Container(
                       width: 200,
@@ -140,6 +150,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           FloatingActionButton(
+                            heroTag: 'chamar_novamente',
                             tooltip: 'Chamar novamente',
                             child: Image.asset(
                               'imagens/chamar_icone.png',
@@ -148,7 +159,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              Firestore.instance
+                              /*Firestore.instance
                                   .collection('Empresas')
                                   .document('Uniguacu')
                                   .collection('Pontos')
@@ -167,23 +178,24 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                                 Scaffold.of(buildContext).showSnackBar(new SnackBar(
                                     content: Text(
                                         'Ops, houve uma falha ao notificar o usuário')));
-                              });
+                              });*/
                             },
                           ),
                           FloatingActionButton(
+                            heroTag: 'finalizar_atendimento',
                             tooltip: 'Finalizar atendimento',
                             onPressed: () {
-                              /*Firestore.instance
+                              Firestore.instance
                                   .collection('Empresas')
                                   .document('Uniguacu')
                                   .collection('Pontos')
                                   .document("1")
                                   .collection("Atendimentos")
                                   .document(atendimento.id)
-                                  .updateData({
+                                  .update({
                                 "status": 2,
                                 "dataAtendimento":
-                                    DateTime.now().millisecondsSinceEpoch
+                                DateTime.now().millisecondsSinceEpoch
                               }).then((sucess) {
                                 Scaffold.of(buildContext).showSnackBar(SnackBar(
                                   content: Text(
@@ -194,7 +206,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                                   content: Text(
                                       'Ops, houve um erro ao finalizar o atendimento'),
                                 ));
-                              });*/
+                              });
                             },
                             child: Icon(Icons.done),
                           ),

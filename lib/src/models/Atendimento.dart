@@ -8,7 +8,7 @@ class Atendimento {
   DateTime dataAtendimento;
 
   Map<String, dynamic> toJson() => {
-    'codSolicitante': codSolicitante,
+        'codSolicitante': codSolicitante,
         'dataSolicitacao': dataSolicitacao,
         'codPonto': codPonto,
         'status': status,
