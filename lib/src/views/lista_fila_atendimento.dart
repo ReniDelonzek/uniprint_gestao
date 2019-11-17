@@ -9,6 +9,7 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/models/Atendimento.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 import 'lista_fila_impressao.dart';
 
@@ -73,7 +74,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
 
     for (var data in doc) {
       Atendimento atendimento = Atendimento.fromJson(data.map);
-      //atendimento.id = data.documentID;
+      atendimento.id = data.id;
       atendimentos.add(atendimento);
     }
     if (atendimentos.isNotEmpty) {
@@ -126,7 +127,8 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  //CabecalhoDetalhesUsuario(atendimento.codSolicitante),
+                  CabecalhoDetalhesUsuario(atendimento.codSolicitante,
+                      currentPageValue == currentPageValue.roundToDouble()),
                   InkWell(
                     onTap: () {
                       //Navigator.of(context).push(new MaterialPageRoute(
@@ -159,11 +161,11 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              /*Firestore.instance
+                              Firestore.instance
                                   .collection('Empresas')
                                   .document('Uniguacu')
                                   .collection('Pontos')
-                                  .document('1')
+                                  .document(atendimento.codPonto)
                                   .collection('Atendimentos')
                                   .document(atendimento.id)
                                   .collection('Chamadas')
@@ -178,7 +180,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                                 Scaffold.of(buildContext).showSnackBar(new SnackBar(
                                     content: Text(
                                         'Ops, houve uma falha ao notificar o usuário')));
-                              });*/
+                              });
                             },
                           ),
                           FloatingActionButton(
@@ -195,7 +197,9 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                                   .update({
                                 "status": 2,
                                 "dataAtendimento":
-                                DateTime.now().millisecondsSinceEpoch
+                                DateTime
+                                    .now()
+                                    .millisecondsSinceEpoch
                               }).then((sucess) {
                                 Scaffold.of(buildContext).showSnackBar(SnackBar(
                                   content: Text(

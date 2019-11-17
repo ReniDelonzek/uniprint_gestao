@@ -1,4 +1,3 @@
-/*
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -52,4 +51,3 @@ class TestScreenState extends State<Test> {
 }""";
   }
 }
-*/

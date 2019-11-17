@@ -8,6 +8,8 @@ import 'package:uniprintgestao/src/models/Impressao.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/UtilsImpressao.dart';
+import 'package:uniprintgestao/src/views/test.dart';
+import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class ListaFilaImpressao extends StatefulWidget {
   @override
@@ -43,11 +45,24 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
         theme: Tema.getTema(context),
         home: new Scaffold(
             appBar: new AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
               title: new Text(
                 "Lista de Impressões",
                 style: new TextStyle(color: Colors.black),
               ),
               backgroundColor: Colors.white,
+            ),
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () {
+                Navigator.of(buildContext).push(new MaterialPageRoute(
+                    builder: (BuildContext context) => new Test()));
+              },
             ),
             backgroundColor: Colors.white,
             body: _getBodyImpressoes()));
@@ -114,8 +129,8 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  /*CabecalhoDetalhesUsuario(atendimento.codSolicitante,
-                      currentPageValue == currentPageValue.roundToDouble()),*/
+                  CabecalhoDetalhesUsuario(impressao.codSolicitante,
+                      currentPageValue == currentPageValue.roundToDouble()),
                   InkWell(
                       onTap: () {},
                       child: Container(
@@ -218,29 +233,32 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                                   bool sucess =
                                       UtilsImpressao.imprimirArquivos(files);
                                   print('Sucesso');
-                                  /*Firestore.instance
-                                      .collection('Empresas')
-                                      .document('Uniguacu')
-                                      .collection('Pontos')
-                                      .document("1")
-                                      .collection("Impressoes")
-                                      .document(atendimento.id)
-                                      .update({
-                                    "status": 2,
-                                    "dataAtendimento": DateTime.now()
-                                  }).then((sucess) {
-                                    Scaffold.of(buildContext)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Atendimento finalizado com sucesso'),
-                                    ));
-                                  }).catchError((error) {
-                                    Scaffold.of(buildContext)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Ops, houve um erro ao finalizar o atendimento'),
-                                    ));
-                                  });*/
+                                  if (sucess) {
+                                    Firestore.instance
+                                        .collection('Empresas')
+                                        .document('Uniguacu')
+                                        .collection('Pontos')
+                                        .document(impressao.codPonto)
+                                        .collection("Impressoes")
+                                        .document(impressao.id)
+                                        .update({
+                                      "status": Constants
+                                          .STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
+                                      "dataAtendimento": DateTime.now()
+                                    }).then((sucess) {
+                                      Scaffold.of(buildContext)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Atendimento finalizado com sucesso'),
+                                      ));
+                                    }).catchError((error) {
+                                      Scaffold.of(buildContext)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Ops, houve um erro ao finalizar o atendimento'),
+                                      ));
+                                    });
+                                  }
                                 },
                                 color: Colors.blue,
                                 shape: RoundedRectangleBorder(

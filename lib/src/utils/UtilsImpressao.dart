@@ -31,7 +31,8 @@ class UtilsImpressao {
     List<File> files = List();
     List<ArquivoImpressao> arquivos = await obterArquivosImpressao(impressao);
     for (ArquivoImpressao arquivo in arquivos) {
-      files.add(await UtilsDownload.baixarArquivo(arquivo.url, arquivo.nome));
+      files.add(await UtilsDownload.baixarArquivo(
+          arquivo.url, 'Impressoes/${impressao.id}', '${arquivo.nome}'));
     }
     return files;
   }
@@ -42,7 +43,10 @@ class UtilsImpressao {
           'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
       try {
         print('process start');
-        Process.run(win7Path, [file.path]);
+        String path = file.parent.uri.path;
+        Process.run(win7Path, [
+          "C:\\Users\\Reni\\Desktop\\UniPrint\\UniPrintGestao\\UniPrintGestao-master/.\\test.pdf"
+        ]);
       } catch (e) {
         print(e);
         return false;
