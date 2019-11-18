@@ -11,6 +11,7 @@ import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/UtilsImpressao.dart';
 import 'package:uniprintgestao/src/views/test.dart';
+import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class ListaFilaImpressao extends StatefulWidget {
@@ -28,6 +29,13 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
   Stream slides;
   PageController controller = PageController();
   BuildContext buildContext;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    FocusScope.of(context).requestFocus(_focusNode);
+  }
 
   @override
   void initState() {
@@ -227,7 +235,10 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
             case ConnectionState.none:
               return new Center(child: new RefreshProgressIndicator());
             default:
-              return _getFragentImpressoes(context, snap);
+              return new RawKeyboardListener(
+                  focusNode: _focusNode,
+                  onKey: onKey,
+                  child: _getFragentImpressoes(context, snap));
           }
         });
   }
@@ -399,5 +410,25 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
       return Center(child: Text('Impressão rejeitada'));
     } else
       return Spacer();
+  }
+
+  void onKey(RawKeyEvent event) {
+    int keyCode = getBotaoPressionado(event);
+    switch (keyCode) {
+      case 124: //left
+        setState(() {
+          controller.nextPage(
+              duration: Duration(milliseconds: 600), curve: Curves.ease);
+        });
+
+        break;
+      case 123:
+        setState(() {
+          controller.previousPage(
+              duration: Duration(milliseconds: 600), curve: Curves.ease);
+        });
+
+        break;
+    }
   }
 }

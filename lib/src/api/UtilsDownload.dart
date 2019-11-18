@@ -1,8 +1,8 @@
 import 'dart:io';
 
 class UtilsDownload {
-  static Future<File> baixarArquivo(String fonte, String diretorio,
-      String nome) async {
+  static Future<File> baixarArquivo(
+      String fonte, String diretorio, String nome) async {
     HttpClient client = new HttpClient();
     HttpClientRequest request = await client.getUrl(Uri.parse(fonte));
     HttpClientResponse response = await request.close();

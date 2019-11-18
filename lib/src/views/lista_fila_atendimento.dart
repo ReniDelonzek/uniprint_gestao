@@ -5,12 +5,14 @@ import 'package:firedart/firestore/firestore.dart';
 import 'package:firedart/firestore/models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/models/Atendimento.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
+import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 import 'lista_fila_impressao.dart';
@@ -31,6 +33,13 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
   PageController controller = PageController();
   BuildContext buildContext;
   ProgressDialog progressDialog;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    FocusScope.of(context).requestFocus(_focusNode);
+  }
 
   @override
   void initState() {
@@ -219,16 +228,19 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                                       .document(atendimento.id)
                                       .collection('Chamadas')
                                       .add({
-                                    'data': DateTime.now().millisecondsSinceEpoch
+                                    'data': DateTime
+                                        .now()
+                                        .millisecondsSinceEpoch
                                   }).then((value) {
                                     Scaffold.of(buildContext).showSnackBar(
                                         new SnackBar(
                                             content:
                                             Text('Notificado com sucesso')));
                                   }).catchError((error) {
-                                    Scaffold.of(buildContext).showSnackBar(new SnackBar(
-                                        content: Text(
-                                            'Ops, houve uma falha ao notificar o usuário')));
+                                    Scaffold.of(buildContext).showSnackBar(
+                                        new SnackBar(
+                                            content: Text(
+                                                'Ops, houve uma falha ao notificar o usuário')));
                                   });
                                 },
                               ),
@@ -250,15 +262,17 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                                         .now()
                                         .millisecondsSinceEpoch
                                   }).then((sucess) {
-                                    Scaffold.of(buildContext).showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Atendimento finalizado com sucesso'),
-                                    ));
+                                    Scaffold.of(buildContext).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Atendimento finalizado com sucesso'),
+                                        ));
                                   }).catchError((error) {
-                                    Scaffold.of(buildContext).showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Ops, houve um erro ao finalizar o atendimento'),
-                                    ));
+                                    Scaffold.of(buildContext).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Ops, houve um erro ao finalizar o atendimento'),
+                                        ));
                                   });
                                 },
                                 child: Icon(Icons.done),
@@ -362,8 +376,31 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
               return new Center(child: new RefreshProgressIndicator());
 
             default:
-              return _getFragent(context, snap);
+              return new RawKeyboardListener(
+                  focusNode: _focusNode,
+                  onKey: onKey,
+                  child: _getFragent(context, snap));
           }
         });
+  }
+
+  void onKey(RawKeyEvent event) {
+    int keyCode = getBotaoPressionado(event);
+    switch (keyCode) {
+      case 124: //left
+        setState(() {
+          controller.nextPage(
+              duration: Duration(milliseconds: 600), curve: Curves.ease);
+        });
+
+        break;
+      case 123:
+        setState(() {
+          controller.previousPage(
+              duration: Duration(milliseconds: 600), curve: Curves.ease);
+        });
+
+        break;
+    }
   }
 }
