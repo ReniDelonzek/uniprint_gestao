@@ -42,11 +42,7 @@ class UtilsImpressao {
       String win7Path =
           'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
       try {
-        print('process start');
-        String path = file.parent.uri.path;
-        Process.run(win7Path, [
-          "C:\\Users\\Reni\\Desktop\\UniPrint\\UniPrintGestao\\UniPrintGestao-master/.\\test.pdf"
-        ]);
+        Process.run(win7Path, [file.absolute.path]);
       } catch (e) {
         print(e);
         return false;

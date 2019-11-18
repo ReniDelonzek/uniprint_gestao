@@ -242,7 +242,7 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                snap.data['nome'] ?? "",
+                snap?.data['nome'] ?? "",
                 overflow: TextOverflow.clip,
                 maxLines: 2,
                 style: TextStyle(
@@ -250,7 +250,7 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
                   fontSize: 18,
                 ),
               ),
-              Text(snap.data['email'], overflow: TextOverflow.ellipsis)
+              Text(snap?.data['email'], overflow: TextOverflow.ellipsis)
             ],
           ),
         )

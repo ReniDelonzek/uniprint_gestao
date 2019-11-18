@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:firedart/firestore/firestore.dart';
 import 'package:firedart/firestore/models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/src/models/Impressao.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
@@ -65,7 +67,8 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
               },
             ),
             backgroundColor: Colors.white,
-            body: _getBodyImpressoes()));
+            body: Builder(
+                builder: (BuildContext context) => _getBodyImpressoes())));
   }
 
   Widget _getFragentImpressoes(BuildContext context, AsyncSnapshot snap) {
@@ -92,7 +95,11 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
     }
   }
 
-  _buildStoryPageImpressoes(Impressao atendimento, bool active, int index) {
+  _buildStoryPageImpressoes(Impressao impressao, bool active, int index) {
+    if (Platform.isWindows &&
+        impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
+      impressaoAutorizada(impressao, buildContext);
+    }
     // Animated Properties
     final double blur = active ? 30 : 30;
     final double offset = active ? 20 : 10;
@@ -111,7 +118,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                 blurRadius: blur,
                 offset: Offset(offset, offset))
           ]),
-      child: _getCardImpressoes(atendimento, index),
+      child: _getCardImpressoes(impressao, index),
     );
   }
 
@@ -131,148 +138,51 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                 children: <Widget>[
                   CabecalhoDetalhesUsuario(impressao.codSolicitante,
                       currentPageValue == currentPageValue.roundToDouble()),
-                  InkWell(
-                      onTap: () {},
-                      child: Container(
-                        alignment: Alignment.topLeft,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              'Sobre o cliente',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 15, top: 6),
-                              child: Text(
-                                  '-Usuário desde 09/09/2019\n-3 Impressões, 4 atendimentos\n-Confiável'),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(15),
-                            ),
-                            Text(
-                              'Sobre a impressão',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 15, top: 6),
-                              child: Text(impressao.descricao),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 14),
-                              child: Text(
-                                impressao.comentario,
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            )
-                          ],
+                  Container(
+                    alignment: Alignment.topLeft,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'Sobre o cliente',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold),
                         ),
-                      )),
-                  new Container(
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          new ButtonTheme(
-                              height: 45,
-                              minWidth: 150,
-                              child: RaisedButton(
-                                onPressed: () {
-                                  Firestore.instance
-                                      .collection('Empresas')
-                                      .document('Uniguacu')
-                                      .collection('Pontos')
-                                      .document("1")
-                                      .collection("Impressoes")
-                                      .document(impressao.id)
-                                      .update({
-                                    "status": Constants.STATUS_IMPRESSAO_NEGADA,
-                                    "dataAtendimento": DateTime.now()
-                                  }).then((sucess) {
-                                    Scaffold.of(buildContext)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Atendimento finalizado com sucesso'),
-                                    ));
-                                  }).catchError((error) {
-                                    Scaffold.of(buildContext)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Ops, houve um erro ao finalizar o atendimento'),
-                                    ));
-                                  });
-                                },
-                                color: Colors.red,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22.0),
-                                ),
-                                child: new Text(
-                                  "REJEITAR",
-                                  style: new TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )),
-                          new ButtonTheme(
-                              height: 45,
-                              minWidth: 150,
-                              child: RaisedButton(
-                                onPressed: () async {
-                                  var files = await UtilsImpressao
-                                      .baixarArquivosImpressao(impressao);
-                                  print('Sucesso');
-                                  bool sucess =
-                                      UtilsImpressao.imprimirArquivos(files);
-                                  print('Sucesso');
-                                  if (sucess) {
-                                    Firestore.instance
-                                        .collection('Empresas')
-                                        .document('Uniguacu')
-                                        .collection('Pontos')
-                                        .document(impressao.codPonto)
-                                        .collection("Impressoes")
-                                        .document(impressao.id)
-                                        .update({
-                                      "status": Constants
-                                          .STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
-                                      "dataAtendimento": DateTime.now()
-                                    }).then((sucess) {
-                                      Scaffold.of(buildContext)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            'Atendimento finalizado com sucesso'),
-                                      ));
-                                    }).catchError((error) {
-                                      Scaffold.of(buildContext)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            'Ops, houve um erro ao finalizar o atendimento'),
-                                      ));
-                                    });
-                                  }
-                                },
-                                color: Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22.0),
-                                ),
-                                child: new Text(
-                                  "AUTORIZAR",
-                                  style: new TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )),
-                        ],
-                      )),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15, top: 6),
+                          child: Text(
+                              '-Usuário desde 09/09/2019\n-3 Impressões, 4 atendimentos\n-Confiável'),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(15),
+                        ),
+                        Text(
+                          'Sobre a impressão',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15, top: 6),
+                          child: Text(impressao.descricao),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: Text(
+                            impressao.comentario,
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  _getButtons(impressao)
                 ],
               ),
             ),
@@ -320,5 +230,174 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
               return _getFragentImpressoes(context, snap);
           }
         });
+  }
+
+  Future<void> impressaoAutorizada(Impressao impressao,
+      BuildContext context) async {
+    ProgressDialog progressDialog = ProgressDialog(context);
+    progressDialog.style(message: 'Baixando e imprimindo arquivos');
+    progressDialog.show();
+    var files = await UtilsImpressao.baixarArquivosImpressao(impressao);
+    bool sucess = UtilsImpressao.imprimirArquivos(files);
+    if (sucess) {
+      Firestore.instance
+          .collection('Empresas')
+          .document('Uniguacu')
+          .collection('Pontos')
+          .document(impressao.codPonto)
+          .collection("Impressoes")
+          .document(impressao.id)
+          .update({
+        "status": Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
+        "dataAtendimento": DateTime.now()
+      }).then((sucess) {
+        if (progressDialog.isShowing()) {
+          progressDialog?.dismiss();
+        }
+        Scaffold.of(buildContext).showSnackBar(SnackBar(
+          content: Text('Arquivos impressos com sucesso'),
+        ));
+      }).catchError((error) {
+        if (progressDialog.isShowing()) {
+          progressDialog?.dismiss();
+        }
+        Scaffold.of(buildContext).showSnackBar(SnackBar(
+          content:
+          Text('Ops, houve uma falha a atualizar o status da impressão'),
+        ));
+      });
+    } else {
+      if (progressDialog.isShowing()) {
+        progressDialog?.dismiss();
+      }
+      Scaffold.of(buildContext).showSnackBar(SnackBar(
+        content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
+      ));
+    }
+  }
+
+  _getButtons(Impressao impressao) {
+    if (impressao.status == Constants.STATUS_IMPRESSAO_SOLICITADO) {
+      return new Container(
+          alignment: Alignment.centerRight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              new ButtonTheme(
+                  height: 45,
+                  minWidth: 150,
+                  child: RaisedButton(
+                    onPressed: () {
+                      Firestore.instance
+                          .collection('Empresas')
+                          .document('Uniguacu')
+                          .collection('Pontos')
+                          .document("1")
+                          .collection("Impressoes")
+                          .document(impressao.id)
+                          .update({
+                        "status": Constants.STATUS_IMPRESSAO_NEGADA,
+                        "dataImpressao": DateTime.now()
+                      }).then((sucess) {
+                        Scaffold.of(buildContext).showSnackBar(SnackBar(
+                          content: Text('Atendimento finalizado com sucesso'),
+                        ));
+                      }).catchError((error) {
+                        Scaffold.of(buildContext).showSnackBar(SnackBar(
+                          content: Text(
+                              'Ops, houve um erro ao finalizar o atendimento'),
+                        ));
+                      });
+                    },
+                    color: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22.0),
+                    ),
+                    child: new Text(
+                      "REJEITAR",
+                      style: new TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  )),
+              new ButtonTheme(
+                  height: 45,
+                  minWidth: 150,
+                  child: RaisedButton(
+                    onPressed: () async {
+                      impressaoAutorizada(impressao, context);
+                    },
+                    color: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22.0),
+                    ),
+                    child: new Text(
+                      "AUTORIZAR",
+                      style: new TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  )),
+            ],
+          ));
+    } else if (impressao.status ==
+        Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
+      return Container(
+        alignment: Alignment.center,
+        child: new ButtonTheme(
+            height: 45,
+            minWidth: 150,
+            child: RaisedButton(
+              onPressed: () async {
+                ProgressDialog progressDialog = ProgressDialog(context);
+                progressDialog.style(message: 'Marcando como concluída');
+                progressDialog.show();
+                Firestore.instance
+                    .collection('Empresas')
+                    .document('Uniguacu')
+                    .collection('Pontos')
+                    .document(impressao.codPonto)
+                    .collection("Impressoes")
+                    .document(impressao.id)
+                    .update({
+                  "status": Constants.STATUS_IMPRESSAO_RETIRADA,
+                  "dataAtendimento": DateTime.now()
+                }).then((sucess) {
+                  if (progressDialog.isShowing()) {
+                    progressDialog?.dismiss();
+                  }
+                  Scaffold.of(buildContext).showSnackBar(SnackBar(
+                    content:
+                    Text('Impressão marcada como entregue com sucesso'),
+                  ));
+                }).catchError((error) {
+                  if (progressDialog.isShowing()) {
+                    progressDialog?.dismiss();
+                  }
+                  Scaffold.of(buildContext).showSnackBar(SnackBar(
+                    content: Text(
+                        'Ops, houve uma falha a atualizar o status da impressão'),
+                  ));
+                });
+              },
+              color: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22.0),
+              ),
+              child: new Text(
+                "Marcar como entregue",
+                style: new TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            )),
+      );
+    } else if (impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
+      return Center(child: Text('Impressão autorizada, aguardando impressão'));
+    } else if (impressao.status == Constants.STATUS_IMPRESSAO_RETIRADA) {
+      return Center(child: Text('Impressão finalizada'));
+    } else if (impressao.status == Constants.STATUS_IMPRESSAO_CANCELADO) {
+      return Center(child: Text('Impressão cancelada pelo cliente'));
+    } else if (impressao.status == Constants.STATUS_IMPRESSAO_NEGADA) {
+      return Center(child: Text('Impressão rejeitada'));
+    } else
+      return Spacer();
   }
 }

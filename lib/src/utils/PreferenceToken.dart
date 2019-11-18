@@ -11,7 +11,7 @@ class PreferencesStore extends TokenStore {
 
   static Future<PreferencesStore> create() async {
     Hive.init(Directory.current.path);
-    return PreferencesStore._internal(await Hive.openBox('tokenBox'));
+    return PreferencesStore._internal(await Hive.openBox('token_box'));
   }
 
   //PreferencesStore._internal(await SharedPreferences.getInstance());
@@ -25,9 +25,10 @@ class PreferencesStore extends TokenStore {
   Token read() {
     Token token = Token(
         box.get(idTokenKey),
-        box.get(refreshTokenKey),
-        DateTime.tryParse(
-            box.get(expiryTokenKey, defaultValue: DateTime.now())));
+        box.get(refreshTokenKey), //DateTime.now()
+        DateTime.tryParse(box.get(expiryTokenKey,
+            defaultValue: DateTime.now().toIso8601String())) ??
+            DateTime.now());
 
     //box.get(keyToken);
     return token;
@@ -41,7 +42,7 @@ class PreferencesStore extends TokenStore {
   void write(Token token) {
     box.put(idTokenKey, token.toMap()['idToken']);
     box.put(expiryTokenKey, token.toMap()['expiry']);
-    box.put(refreshTokenKey, token.toMap()['refreshToken']);
+    box.put(refreshTokenKey, token.toMap()['refreshToken'].toString());
     //box.put(keyToken, token);
   }
 
