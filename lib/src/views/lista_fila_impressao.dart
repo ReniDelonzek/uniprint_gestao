@@ -251,32 +251,8 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
     var files = await UtilsImpressao.baixarArquivosImpressao(impressao);
     bool sucess = UtilsImpressao.imprimirArquivos(files);
     if (sucess) {
-      Firestore.instance
-          .collection('Empresas')
-          .document('Uniguacu')
-          .collection('Pontos')
-          .document(impressao.codPonto)
-          .collection("Impressoes")
-          .document(impressao.id)
-          .update({
-        "status": Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
-        "dataAtendimento": DateTime.now()
-      }).then((sucess) {
-        if (progressDialog.isShowing()) {
-          progressDialog?.dismiss();
-        }
-        Scaffold.of(buildContext).showSnackBar(SnackBar(
-          content: Text('Arquivos impressos com sucesso'),
-        ));
-      }).catchError((error) {
-        if (progressDialog.isShowing()) {
-          progressDialog?.dismiss();
-        }
-        Scaffold.of(buildContext).showSnackBar(SnackBar(
-          content:
-          Text('Ops, houve uma falha a atualizar o status da impressão'),
-        ));
-      });
+      atualizarStatusImpressao(
+          impressao, Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA);
     } else {
       if (progressDialog.isShowing()) {
         progressDialog?.dismiss();
@@ -335,7 +311,12 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                   minWidth: 150,
                   child: RaisedButton(
                     onPressed: () async {
-                      impressaoAutorizada(impressao, context);
+                      if (Platform.isWindows) {
+                        impressaoAutorizada(impressao, context);
+                      } else {
+                        atualizarStatusImpressao(
+                            impressao, Constants.STATUS_IMPRESSAO_AUTORIZADO);
+                      }
                     },
                     color: Colors.blue,
                     shape: RoundedRectangleBorder(
@@ -430,5 +411,25 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
 
         break;
     }
+  }
+
+  void atualizarStatusImpressao(Impressao impressao, int status) {
+    Firestore.instance
+        .collection('Empresas')
+        .document('Uniguacu')
+        .collection('Pontos')
+        .document(impressao.codPonto)
+        .collection("Impressoes")
+        .document(impressao.id)
+        .update({"status": status, "dataAtendimento": DateTime.now()}).then(
+            (sucess) {
+          Scaffold.of(buildContext).showSnackBar(SnackBar(
+            content: Text('Arquivos impressos com sucesso'),
+          ));
+        }).catchError((error) {
+      Scaffold.of(buildContext).showSnackBar(SnackBar(
+        content: Text('Ops, houve uma falha a atualizar o status da impressão'),
+      ));
+    });
   }
 }
