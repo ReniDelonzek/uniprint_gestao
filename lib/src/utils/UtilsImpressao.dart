@@ -39,8 +39,9 @@ class UtilsImpressao {
 
   static bool imprimirArquivos(List<File> arquivos) {
     for (File file in arquivos) {
-      String win7Path =
-          'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
+      String win7Path = Directory.current.path +
+          "\\PDFtoPrinter"
+              'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
       try {
         Process.run(win7Path, [file.absolute.path]);
       } catch (e) {
