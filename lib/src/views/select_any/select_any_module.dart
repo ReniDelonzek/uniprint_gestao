@@ -1,9 +1,9 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/widgets.dart';
-import 'package:msk_developers/app/modules/select_any/filtro/filtro_controller.dart';
-import 'package:msk_developers/app/modules/select_any/select_any_controller.dart';
-import 'package:msk_developers/app/modules/select_any/select_any_page.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_controller.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
 
+import 'filtro/filtro_controller.dart';
 import 'models/filtro.dart';
 
 class SelectAnyModule extends ModuleWidget {

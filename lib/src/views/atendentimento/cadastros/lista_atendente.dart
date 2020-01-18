@@ -1,7 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firedart/firedart.dart';
+import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:uniprint/src/temas/Tema.dart';
-import 'package:uniprint/src/views/operador/cadastros/cadastro_atendente.dart';
+import 'package:uniprintgestao/src/temas/Tema.dart';
+
+import 'cadastro_atendente.dart';
 
 class ListaAtendente extends StatefulWidget {
   @override
@@ -43,8 +45,8 @@ class ListaAtendentePageState extends State<ListaAtendente> {
   }
 
   Widget _getItemAtendimento(BuildContext context) {
-    List<Widget> createChildren(AsyncSnapshot<QuerySnapshot> s) {
-      return s.data.documents
+    List<Widget> createChildren(AsyncSnapshot<List<Document>> s) {
+      return s.data
           .map(
             (document) => InkWell(
                 onTap: () {},
@@ -58,15 +60,15 @@ class ListaAtendentePageState extends State<ListaAtendente> {
           .toList();
     }
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection("Atendentes").snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    return StreamBuilder<List<Document>>(
+      stream: Firestore.instance.collection("Atendentes").stream,
+      builder: (BuildContext context, AsyncSnapshot<List<Document>> snapshot) {
         if (snapshot.hasError) return new Text('${snapshot.error}');
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return new Center(child: new RefreshProgressIndicator());
           default:
-            if (snapshot.data?.documents?.isEmpty ?? true)
+            if (snapshot.data?.isEmpty ?? true)
               return Center(
                   child: new Text('Nenhum atendente cadastrado ainda'));
             else
@@ -76,7 +78,7 @@ class ListaAtendentePageState extends State<ListaAtendente> {
     );
   }
 
-  Widget _getItensCard(DocumentSnapshot document) {
+  Widget _getItensCard(Document document) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: new Row(

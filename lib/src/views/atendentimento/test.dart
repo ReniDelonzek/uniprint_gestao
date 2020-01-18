@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:uniprint/src/network/graphQlData.dart';
-import 'package:uniprint/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/temas/Tema.dart';
 
 class Test extends StatefulWidget {
   @override
@@ -24,17 +24,18 @@ class TestScreenState extends State<Test> {
           client: graphQlObject.client,
           child: CacheProvider(
             child: Query(
-              options: QueryOptions(document: getQuery(), pollInterval: 30),
-              builder: (QueryResult result, {VoidCallback refetch}) {
-                if (result.errors != null) {
-                  return Text(result.errors.toString());
-                }
-                if (result.loading) {
-                  return Text('Loading');
-                }
-                return Text(result.data.toString());
-              },
-            ),
+                options: QueryOptions(document: getQuery(), pollInterval: 30),
+                builder: (QueryResult result,
+                    {VoidCallback refetch, FetchMore fetchMore}) {
+                  if (result.exception != null) {
+                    return Text(result.exception.toString());
+                  }
+
+                  if (result.loading) {
+                    return Text('Loading');
+                  }
+                  return Text(result.data);
+                }),
           ),
         ),
       ),

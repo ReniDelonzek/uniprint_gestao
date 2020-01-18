@@ -10,12 +10,13 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/models/Atendimento.dart';
+import 'package:uniprintgestao/src/models/graph/atendimento.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
 import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
-import 'lista_fila_impressao.dart';
+import 'atendentimento/cadastros/cadastro_professor.dart';
 
 class ListaFilaAtendimento extends StatefulWidget {
   @override
@@ -44,6 +45,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
   @override
   void initState() {
     super.initState();
+
     _queryDb();
   }
 
@@ -56,6 +58,7 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
     });
 
     return new MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: Tema.getTema(context),
         home: new Scaffold(
             appBar: new AppBar(
@@ -67,9 +70,12 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
             ),
             floatingActionButton: new FloatingActionButton(
               onPressed: () {
-                Navigator.of(buildContext).push(new MaterialPageRoute(
+                /* Navigator.of(buildContext).push(new MaterialPageRoute(
                     builder: (BuildContext context) =>
-                    new ListaFilaImpressao()));
+                        new ListaFilaImpressao()));*/
+                String s = gerarToString(
+                    "GraphUsuario", "String email;String url_foto;");
+                // print(s);
               },
               heroTag: "impressoes",
               child: Icon(Icons.print),
@@ -88,10 +94,9 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                             style: new TextStyle(color: Colors.white)),
                         currentAccountPicture: new GestureDetector(
                           onTap: () {
-                            /*Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => TelaPerfil(user)));*/
+                            Navigator.of(context).push(new MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    new CadastroProfessor()));
                           },
                           child: Hero(
                             tag: "imagem_perfil",
@@ -168,121 +173,111 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
   }
 
   Widget _getCard(Atendimento atendimento, int index) {
-    double height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double height = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       child: (Container(
           height: height * 0.75,
           padding: EdgeInsets.all(15.0),
           child: new Card(
               child: new Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Container(
-                  height: height * 0.75,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      CabecalhoDetalhesUsuario(atendimento.codSolicitante,
-                          currentPageValue == currentPageValue.roundToDouble()),
-                      InkWell(
-                        onTap: () {
-                          //Navigator.of(context).push(new MaterialPageRoute(
-                          //  builder: (BuildContext context) => new Test()));
-                        },
-                        child: new Container(
-                          width: 200,
-                          height: 200,
-                          alignment: Alignment.center,
-                          child: Image.asset(
-                            'imagens/qr_code.png',
-                            width: 120,
-                            height: 120,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+            padding: EdgeInsets.all(15.0),
+            child: Container(
+              height: height * 0.75,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  CabecalhoDetalhesUsuario(atendimento.codSolicitante,
+                      currentPageValue == currentPageValue.roundToDouble()),
+                  InkWell(
+                    onTap: () {
+                      //Navigator.of(context).push(new MaterialPageRoute(
+                      //  builder: (BuildContext context) => new Test()));
+                    },
+                    child: new Container(
+                      width: 200,
+                      height: 200,
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'imagens/qr_code.png',
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
                       ),
-                      new Container(
-                          alignment: Alignment.centerRight,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              FloatingActionButton(
-                                heroTag: 'chamar_novamente',
-                                tooltip: 'Chamar novamente',
-                                child: Image.asset(
-                                  'imagens/chamar_icone.png',
-                                  width: 20,
-                                  height: 20,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  Firestore.instance
-                                      .collection('Empresas')
-                                      .document('Uniguacu')
-                                      .collection('Pontos')
-                                      .document(atendimento.codPonto)
-                                      .collection('Atendimentos')
-                                      .document(atendimento.id)
-                                      .collection('Chamadas')
-                                      .add({
-                                    'data': DateTime
-                                        .now()
-                                        .millisecondsSinceEpoch
-                                  }).then((value) {
-                                    Scaffold.of(buildContext).showSnackBar(
-                                        new SnackBar(
-                                            content:
-                                            Text('Notificado com sucesso')));
-                                  }).catchError((error) {
-                                    Scaffold.of(buildContext).showSnackBar(
-                                        new SnackBar(
-                                            content: Text(
-                                                'Ops, houve uma falha ao notificar o usuário')));
-                                  });
-                                },
-                              ),
-                              FloatingActionButton(
-                                heroTag: 'finalizar_atendimento',
-                                tooltip: 'Finalizar atendimento',
-                                onPressed: () {
-                                  Firestore.instance
-                                      .collection('Empresas')
-                                      .document('Uniguacu')
-                                      .collection('Pontos')
-                                      .document("1")
-                                      .collection("Atendimentos")
-                                      .document(atendimento.id)
-                                      .update({
-                                    "status": 2,
-                                    "dataAtendimento":
-                                    DateTime
-                                        .now()
-                                        .millisecondsSinceEpoch
-                                  }).then((sucess) {
-                                    Scaffold.of(buildContext).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Atendimento finalizado com sucesso'),
-                                        ));
-                                  }).catchError((error) {
-                                    Scaffold.of(buildContext).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Ops, houve um erro ao finalizar o atendimento'),
-                                        ));
-                                  });
-                                },
-                                child: Icon(Icons.done),
-                              ),
-                            ],
-                          )),
-                    ],
+                    ),
                   ),
-                ),
-              )))),
+                  new Container(
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          FloatingActionButton(
+                            heroTag: 'chamar_novamente',
+                            tooltip: 'Chamar novamente',
+                            child: Image.asset(
+                              'imagens/chamar_icone.png',
+                              width: 20,
+                              height: 20,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Firestore.instance
+                                  .collection('Empresas')
+                                  .document('Uniguacu')
+                                  .collection('Pontos')
+                                  .document(atendimento.codPonto)
+                                  .collection('Atendimentos')
+                                  .document(atendimento.id)
+                                  .collection('Chamadas')
+                                  .add({
+                                'data': DateTime.now().millisecondsSinceEpoch
+                              }).then((value) {
+                                Scaffold.of(buildContext).showSnackBar(
+                                    new SnackBar(
+                                        content:
+                                            Text('Notificado com sucesso')));
+                              }).catchError((error) {
+                                Scaffold.of(buildContext).showSnackBar(new SnackBar(
+                                    content: Text(
+                                        'Ops, houve uma falha ao notificar o usuário')));
+                              });
+                            },
+                          ),
+                          FloatingActionButton(
+                            heroTag: 'finalizar_atendimento',
+                            tooltip: 'Finalizar atendimento',
+                            onPressed: () {
+                              /*Firestore.instance
+                                  .collection('Empresas')
+                                  .document('Uniguacu')
+                                  .collection('Pontos')
+                                  .document("1")
+                                  .collection("Atendimentos")
+                                  .document(atendimento.id)
+                                  .update({
+                                "status": 2,
+                                "dataAtendimento":
+                                    DateTime.now().millisecondsSinceEpoch
+                              }).then((sucess) {
+                                Scaffold.of(buildContext).showSnackBar(SnackBar(
+                                  content: Text(
+                                      'Atendimento finalizado com sucesso'),
+                                ));
+                              }).catchError((error) {
+                                Scaffold.of(buildContext).showSnackBar(SnackBar(
+                                  content: Text(
+                                      'Ops, houve um erro ao finalizar o atendimento'),
+                                ));
+                              });*/
+                            },
+                            child: Icon(Icons.done),
+                          ),
+                        ],
+                      )),
+                ],
+              ),
+            ),
+          )))),
     );
   }
 
@@ -364,6 +359,45 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
   }
 
   Widget _getBodyAtendimento() {
+    /*var snapshot = GraphQlObject.hasuraConnect.subscription(queryAtendimentos);
+    snapshot.convert(
+      (data) {
+        print(data);
+      },
+      cachePersist: (post) => {},
+    );*/
+
+    /* snapshot.stream.listen((data) {
+      print(data);
+    }).onError((err) {
+      print(err);
+    });*/
+
+    /*SocketClient('https://uniprint-test.herokuapp.com/v1/graphql');
+    return Subscription<Map<String, dynamic>>('atendimentos', queryAtendimentos,
+        builder: ({
+      bool loading,
+      dynamic payload,
+      dynamic error,
+    }) {
+      buildContext = context;
+      if (error != null) {
+        return Text(error);
+      }
+      if (loading) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      } else {
+        print(payload);
+        return Text(payload.toString());
+        */ /*return new RawKeyboardListener(
+            focusNode: _focusNode,
+            onKey: onKey,
+            child: _getFragent(context, snap));*/ /*
+      }
+    });*/
+
     return StreamBuilder(
         stream: slides,
         initialData: [],

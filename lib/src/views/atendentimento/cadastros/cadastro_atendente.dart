@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprint/src/models/LocalAtendimento.dart';
-import 'package:uniprint/src/models/Usuario.dart';
-import 'package:uniprint/src/temas/Tema.dart';
-import 'package:uniprint/src/views/operador/cadastros/selecionar_registros.dart';
-import 'package:uniprint/src/views/widgets/widgets.dart';
+import 'package:uniprintgestao/src/models/LocalAtendimento.dart';
+import 'package:uniprintgestao/src/models/usuario.dart';
+import 'package:uniprintgestao/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class CadastroAtendente extends StatefulWidget {
   @override
@@ -56,7 +54,7 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
                         ),
                       ),
                       onTap: () async {
-                        Usuario user = await Navigator.of(context).push(
+                        /*Usuario user = await Navigator.of(context).push(
                             new MaterialPageRoute(
                                 builder: (BuildContext context) =>
                                     new SelecionarUsuario()));
@@ -64,7 +62,7 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
                           setState(() {
                             this.user = user;
                           });
-                        }
+                        }*/
                       },
                     ),
                     LocaisAtendimento('Ponto de atendimento', (local) {
@@ -83,10 +81,10 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
                                   type: ProgressDialogType.Normal,
                                   isDismissible: false,
                                   showLogs: true);
-                              Firestore.instance
+                              /*Firestore.instance
                                   .collection('Atendentes')
                                   .document(user.id)
-                                  .setData({
+                                  .set({
                                 'codUsu': user.id,
                                 'nome': user.nome,
                                 'dataAdicao': DateTime.now(),
@@ -103,7 +101,7 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
                                   content: Text('Cadastrado com sucesso'),
                                   duration: Duration(seconds: 3),
                                 ));
-                              });
+                              });*/
                             }
                           },
                           color: Colors.blue,

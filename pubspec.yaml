@@ -17,6 +17,10 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+  hasura_connect: ^1.0.3
+  flutter_mobx: ^0.3.3+3
+  bloc_pattern: ^2.5.1
+  #path_provider: ^0.5.0
   flutter:
     sdk: flutter
 
@@ -30,7 +34,7 @@ dependencies:
   #seletor de arquivos
   file_picker: ^1.4.0
   #pdf view
-  flutter_plugin_pdf_viewer: any
+  #flutter_plugin_pdf_viewer: any
   #number pic
   numberpicker: ^1.1.0
   #qrview
@@ -53,8 +57,9 @@ dependencies:
   hive_flutter: ^0.2.1
 
   #Grapql
-  graphql_flutter: any
+  graphql_flutter: "^2.1.1-beta.5"
 
+  mobx: ^0.3.9+3
 
 
 dev_dependencies:

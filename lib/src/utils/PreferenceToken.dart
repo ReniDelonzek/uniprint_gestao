@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firedart/firedart.dart';
 import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 class PreferencesStore extends TokenStore {
   static const keyToken = "auth_token";
@@ -10,7 +11,13 @@ class PreferencesStore extends TokenStore {
   static const expiryTokenKey = "expiry_token";
 
   static Future<PreferencesStore> create() async {
-    Hive.init(Directory.current.path);
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      Hive.init(Directory.current.path);
+    } else {
+      Hive.init((await getApplicationDocumentsDirectory()).path);
+    }
+    //if ()
+
     return PreferencesStore._internal(await Hive.openBox('token_box'));
   }
 
@@ -27,7 +34,7 @@ class PreferencesStore extends TokenStore {
         box.get(idTokenKey),
         box.get(refreshTokenKey), //DateTime.now()
         DateTime.tryParse(box.get(expiryTokenKey,
-            defaultValue: DateTime.now().toIso8601String())) ??
+                defaultValue: DateTime.now().toIso8601String())) ??
             DateTime.now());
 
     //box.get(keyToken);

@@ -63,6 +63,7 @@ class SplashScreenState extends State<SplashScreen> {
       verificarLogin(buildContext);
     });
     return new MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: Tema.getTema(context),
         home: Builder(builder: ((context) {
           buildContext = context;

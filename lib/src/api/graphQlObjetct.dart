@@ -1,16 +1,21 @@
-import 'package:firedart/auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:hasura_connect/hasura_connect.dart';
 import 'package:uniprintgestao/src/utils/PreferenceToken.dart';
 
 class GraphQlObject {
-  static HttpLink httpLink = HttpLink(
-    uri: 'https://uniprint-test.herokuapp.com/v1/graphql',
-  );
+  static String url = 'http://192.168.0.101:8080/v1/graphql';
+
+  static HttpLink httpLink =
+      HttpLink(uri: url //'https://uniprint-test.herokuapp.com/v1/graphql',
+          );
   static AuthLink authLink = AuthLink(getToken: () async {
-    var user = await FirebaseAuth.instance.getUser();
-    //var box = await Hive.openBox('myBox');
-    //Token token = Token.fromMap(box.get('auth_token'));
+    var a = await PreferencesStore.create();
+    return "Bearer ${a.refreshToken ?? ''}";
+  });
+
+  static HasuraConnect hasuraConnect =
+      HasuraConnect(url, token: (isError) async {
     var a = await PreferencesStore.create();
     return "Bearer ${a.refreshToken ?? ''}";
   });

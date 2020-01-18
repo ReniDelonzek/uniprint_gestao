@@ -10,7 +10,6 @@ import 'package:uniprintgestao/src/models/Impressao.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/UtilsImpressao.dart';
-import 'package:uniprintgestao/src/views/test.dart';
 import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
@@ -52,6 +51,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
     });
 
     return new MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: Tema.getTema(context),
         home: new Scaffold(
             appBar: new AppBar(
@@ -70,8 +70,8 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
             floatingActionButton: FloatingActionButton(
               child: Icon(Icons.add),
               onPressed: () {
-                Navigator.of(buildContext).push(new MaterialPageRoute(
-                    builder: (BuildContext context) => new Test()));
+                /*Navigator.of(buildContext).push(new MaterialPageRoute(
+                    builder: (BuildContext context) => new Test()));*/
               },
             ),
             backgroundColor: Colors.white,
@@ -243,8 +243,8 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
         });
   }
 
-  Future<void> impressaoAutorizada(Impressao impressao,
-      BuildContext context) async {
+  Future<void> impressaoAutorizada(
+      Impressao impressao, BuildContext context) async {
     ProgressDialog progressDialog = ProgressDialog(context);
     progressDialog.style(message: 'Baixando e imprimindo arquivos');
     progressDialog.show();
@@ -358,7 +358,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                   }
                   Scaffold.of(buildContext).showSnackBar(SnackBar(
                     content:
-                    Text('Impressão marcada como entregue com sucesso'),
+                        Text('Impressão marcada como entregue com sucesso'),
                   ));
                 }).catchError((error) {
                   if (progressDialog.isShowing()) {
@@ -423,10 +423,10 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
         .document(impressao.id)
         .update({"status": status, "dataAtendimento": DateTime.now()}).then(
             (sucess) {
-          Scaffold.of(buildContext).showSnackBar(SnackBar(
-            content: Text('Arquivos impressos com sucesso'),
-          ));
-        }).catchError((error) {
+      Scaffold.of(buildContext).showSnackBar(SnackBar(
+        content: Text('Arquivos impressos com sucesso'),
+      ));
+    }).catchError((error) {
       Scaffold.of(buildContext).showSnackBar(SnackBar(
         content: Text('Ops, houve uma falha a atualizar o status da impressão'),
       ));

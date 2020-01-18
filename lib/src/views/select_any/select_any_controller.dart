@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:msk_developers/app/shared/models/item_select.dart';
 
+import 'models/item_select.dart';
 part 'select_any_controller.g.dart';
 
 class SelectAnyController = _SelectAnyBase with _$SelectAnyController;

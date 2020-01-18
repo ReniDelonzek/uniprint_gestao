@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
-import 'package:uniprint/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/temas/Tema.dart';
 
 class LerQrCode extends StatefulWidget {
   String atendimentoID;
@@ -102,7 +102,7 @@ class LerQrCodePageState extends State<LerQrCode> {
         .document("1")
         .collection("Atendimentos")
         .document(barcodeString)
-        .updateData({"status": 2, "dataAtendimento": DateTime.now()}).then(
+        .update({"status": 2, "dataAtendimento": DateTime.now()}).then(
             (sucess) {
       progressDialog.dismiss();
       setState(() {

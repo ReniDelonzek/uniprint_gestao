@@ -40,7 +40,7 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
               image: AssetImage('imagens/back_login.jpg'), fit: BoxFit.cover),
         ),
         child: new SizedBox(
-            height: 280,
+            height: 290,
             width: 300,
             child: Card(
               shape: RoundedRectangleBorder(

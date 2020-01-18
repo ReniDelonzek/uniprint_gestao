@@ -4,14 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:msk_developers/app/modules/select_any/select_any_controller.dart';
-import 'package:msk_developers/app/modules/select_any/select_any_module.dart';
-import 'package:msk_developers/app/shared/api/network.dart';
-import 'package:msk_developers/app/shared/db/sqfentity/model.dart';
-import 'package:msk_developers/app/shared/models/item_select.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_controller.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 
 import 'filtro/filtro_page.dart';
 import 'models/filtro.dart';
+import 'models/item_select.dart';
 
 class SelectAnyPage extends StatefulWidget {
   final int tipoSelecao; //0 selecao simples, 1 selecao multipla, 2 acao
@@ -93,64 +93,69 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
       }
     });
 
-    return Scaffold(
-      appBar: new AppBar(
-        centerTitle: true,
-        title: Observer(builder: (_) => controller.appBarTitle),
-        actions: _getActions(),
-        leading: Observer(
-          builder: (_) => new IconButton(
-            icon: controller.searchIcon,
-            onPressed: _searchPressed,
+    return GraphQLProvider(
+      client: graphQlObject.client,
+      child: CacheProvider(
+        child: Scaffold(
+          appBar: new AppBar(
+            centerTitle: true,
+            title: Observer(builder: (_) => controller.appBarTitle),
+            actions: _getActions(),
+            leading: Observer(
+              builder: (_) => new IconButton(
+                icon: controller.searchIcon,
+                onPressed: _searchPressed,
+              ),
+            ),
           ),
-        ),
-      ),
-      bottomNavigationBar:
-          widget.tipoSelecao == SelectAnyPage.TIPO_SELECAO_MULTIPLA
-              ? BottomNavigationBar(
-                  onTap: (pos) {
-                    Navigator.pop(
-                        context,
-                        controller.listaExibida
-                            .where((item) => item.isSelected)
-                            .map((item) => item.object));
-                  },
-                  items: <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.clear), title: Text('')),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.done), title: Text('Concluído')),
-                  ],
-                )
-              : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: (widget.filtros?.isEmpty ?? true)
-              ? <Widget>[]
-              : <Widget>[
-                  FloatingActionButton(
-                      onPressed: () async {
-                        Map<String, List<String>> s =
-                            await Navigator.of(context).push(
-                                new MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        new FiltroPage(widget.filtros)));
-                        //print(s);
-                        setState(() {
-                          if (widget.data == null) {
-                            widget.data = Map();
-                          }
-                          widget.data['filtros'] = s;
-                        });
+          bottomNavigationBar:
+              widget.tipoSelecao == SelectAnyPage.TIPO_SELECAO_MULTIPLA
+                  ? BottomNavigationBar(
+                      onTap: (pos) {
+                        Navigator.pop(
+                            context,
+                            controller.listaExibida
+                                .where((item) => item.isSelected)
+                                .map((item) => item.object));
                       },
-                      child: Icon(Icons.filter_list))
-                ],
+                      items: <BottomNavigationBarItem>[
+                        BottomNavigationBarItem(
+                            icon: Icon(Icons.clear), title: Text('')),
+                        BottomNavigationBarItem(
+                            icon: Icon(Icons.done), title: Text('Concluído')),
+                      ],
+                    )
+                  : null,
+          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: (widget.filtros?.isEmpty ?? true)
+                  ? <Widget>[]
+                  : <Widget>[
+                      FloatingActionButton(
+                          onPressed: () async {
+                            Map<String, List<String>> s =
+                                await Navigator.of(context).push(
+                                    new MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            new FiltroPage(widget.filtros)));
+                            //print(s);
+                            setState(() {
+                              if (widget.data == null) {
+                                widget.data = Map();
+                              }
+                              widget.data['filtros'] = s;
+                            });
+                          },
+                          child: Icon(Icons.filter_list))
+                    ],
+            ),
+          ),
+          body: _getBody(),
         ),
       ),
-      body: _getBody(),
     );
   }
 
@@ -173,16 +178,38 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
   }
 
   _getBody() {
-    //Size size = MediaQuery.of(context).size;
-    List<Widget> createChildren(AsyncSnapshot<List<ItemSelect>> s) {
-      //controller.listaOriginal.clear();
-      //controller.listaOriginal.addAll(s.data);
-      return controller.listaExibida
-          .map((usuario) => Observer(builder: (_) => _getItemList(usuario)))
-          .toList();
-    }
+    return Query(
+        options: QueryOptions(
+          document: widget.query,
+          // this is the query string you just created
+        ),
+        builder: (QueryResult result,
+            {VoidCallback refetch, FetchMore fetchMore}) {
+          if (result.exception != null) {
+            return Text(result.exception.toString());
+          }
 
-    return FutureBuilder<List<ItemSelect>>(
+          if (result.loading) {
+            return Center(child: CircularProgressIndicator());
+          }
+          List<ItemSelect> itens = List();
+          for (var i in result.data['usuario']) {
+            ItemSelect item = ItemSelect();
+            item.strings['nome'] = i['pessoa']['nome'];
+            item.strings['email'] = i['email'];
+            item.id = i[widget.id];
+            itens.add(item);
+          }
+
+          return ListView.builder(
+              itemCount: itens.length,
+              itemBuilder: (context, index) {
+                final repository = itens[index];
+                return _getItemList(repository);
+              });
+        });
+
+    /*return FutureBuilder<List<ItemSelect>>(
       future: future,
       builder:
           (BuildContext context, AsyncSnapshot<List<ItemSelect>> snapshot) {
@@ -204,7 +231,7 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
                       }));
         }
       },
-    );
+    );*/
   }
 
   Widget _getItemList(ItemSelect itemSelect /*, Size size*/) {
@@ -284,25 +311,11 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
     return widgets;
   }
 
-  Future<List<ItemSelect>> getList() async {
-    var i = await AppDatabase().execDataTable(query);
-    List<ItemSelect> lista = List();
-    for (var a in i) {
-      ItemSelect itemSelect = ItemSelect();
-      for (var itemMap in chaves) {
-        itemSelect.strings[itemMap] = a[itemMap];
-      }
-      itemSelect.id = int.parse(a[id]);
-      itemSelect.isSelected = false;
-      itemSelect.object = a;
-      lista.add(itemSelect);
-    }
-    controller.listaExibida = lista;
-    return lista;
-  }
+  Future<List<ItemSelect>> getList() async {}
 
   Future<List<ItemSelect>> getListFromServer() async {
-    var i = await API.post(url, data: data);
+    List<ItemSelect> lista = List();
+    /*var i = await API.post(url, data: data);
     if (i.statusCode == 200) {
       List<ItemSelect> lista = List();
       for (var a in i.data) {
@@ -328,9 +341,8 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
       controller.listaOriginal.clear();
       controller.listaExibida.clear();
       controller.listaOriginal.addAll(lista);
-      controller.listaExibida.addAll(lista);
-      return lista;
-    }
+      controller.listaExibida.addAll(lista);*/
+    return lista;
   }
 
   _getActions() {

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:msk_developers/app/modules/select_any/models/filtro.dart';
-import 'package:msk_developers/app/modules/select_any/select_any_module.dart';
-import 'package:msk_developers/app/shared/widgets/widgets.dart';
+import 'package:uniprintgestao/src/views/select_any/models/filtro.dart';
 
+import '../select_any_module.dart';
 import 'filtro_controller.dart';
 
 class FiltroPage extends StatefulWidget {
@@ -43,19 +42,21 @@ class _FiltroPageState extends State<FiltroPage> {
                       }).toList()),
                       Padding(
                         padding: const EdgeInsets.only(top: 25),
-                        child: Button('Salvar', () {
-                          Map<String, List<String>> s = Map();
-                          controller.controllers.forEach((chave, valores) {
-                            if (valores.text.isNotEmpty) {
-                              List<String> subList = List();
-                              valores.text.split(',').forEach((valor) {
-                                subList.add(valor);
+                        child: RaisedButton(
+                            child: Text('Salvar'),
+                            onPressed: () {
+                              Map<String, List<String>> s = Map();
+                              controller.controllers.forEach((chave, valores) {
+                                if (valores.text.isNotEmpty) {
+                                  List<String> subList = List();
+                                  valores.text.split(',').forEach((valor) {
+                                    subList.add(valor);
+                                  });
+                                  s[chave] = subList;
+                                }
                               });
-                              s[chave] = subList;
-                            }
-                          });
-                          Navigator.pop(context, s);
-                        }),
+                              Navigator.pop(context, s);
+                            }),
                       )
                     ],
                   )),
