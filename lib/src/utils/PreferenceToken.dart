@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PreferencesStore extends TokenStore {
+  static const user = "user_id";
   static const keyToken = "auth_token";
   static const idTokenKey = "id_token";
   static const refreshTokenKey = "refresh_token";
@@ -31,6 +32,7 @@ class PreferencesStore extends TokenStore {
   @override
   Token read() {
     Token token = Token(
+        box.get(user),
         box.get(idTokenKey),
         box.get(refreshTokenKey), //DateTime.now()
         DateTime.tryParse(box.get(expiryTokenKey,
@@ -50,6 +52,7 @@ class PreferencesStore extends TokenStore {
     box.put(idTokenKey, token.toMap()['idToken']);
     box.put(expiryTokenKey, token.toMap()['expiry']);
     box.put(refreshTokenKey, token.toMap()['refreshToken'].toString());
+    box.put(user, token.toMap()['_userId'].toString());
     //box.put(keyToken, token);
   }
 

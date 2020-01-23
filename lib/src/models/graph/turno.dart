@@ -1,4 +1,4 @@
-class LocalAtendimento {
+class Turno {
   String nome;
   String id;
 }

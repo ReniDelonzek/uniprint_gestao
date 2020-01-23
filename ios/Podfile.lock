@@ -4,34 +4,26 @@ PODS:
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
     - Flutter
-  - flutter_plugin_pdf_viewer (1.0.5):
-    - Flutter
-  - FMDB (2.7.5):
-    - FMDB/standard (= 2.7.5)
-  - FMDB/standard (2.7.5)
   - path_provider (0.0.1):
     - Flutter
   - qrcode_reader (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
     - Flutter
-  - sqflite (0.0.1):
+  - shared_preferences_macos (0.0.1):
     - Flutter
-    - FMDB (~> 2.7.2)
+  - shared_preferences_web (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
-  - flutter_plugin_pdf_viewer (from `.symlinks/plugins/flutter_plugin_pdf_viewer/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - qrcode_reader (from `.symlinks/plugins/qrcode_reader/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
-  - sqflite (from `.symlinks/plugins/sqflite/ios`)
-
-SPEC REPOS:
-  trunk:
-    - FMDB
+  - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
+  - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
 
 EXTERNAL SOURCES:
   file_picker:
@@ -40,27 +32,26 @@ EXTERNAL SOURCES:
     :path: ".symlinks/flutter/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
-  flutter_plugin_pdf_viewer:
-    :path: ".symlinks/plugins/flutter_plugin_pdf_viewer/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   qrcode_reader:
     :path: ".symlinks/plugins/qrcode_reader/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
-  sqflite:
-    :path: ".symlinks/plugins/sqflite/ios"
+  shared_preferences_macos:
+    :path: ".symlinks/plugins/shared_preferences_macos/ios"
+  shared_preferences_web:
+    :path: ".symlinks/plugins/shared_preferences_web/ios"
 
 SPEC CHECKSUMS:
   file_picker: 408623be2125b79a4539cf703be3d4b3abe5e245
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_local_notifications: 9e4738ce2471c5af910d961a6b7eadcf57c50186
-  flutter_plugin_pdf_viewer: 7d8e3a03f42d346b2af8840f980b7de95ad5732a
-  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
   qrcode_reader: 09b34d43b4c08fe5b63a6e56c96789bcea7b9148
   shared_preferences: 430726339841afefe5142b9c1f50cb6bd7793e01
-  sqflite: ff1d9da63c06588cc8d1faf7256d741f16989d5a
+  shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
+  shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
 
 PODFILE CHECKSUM: 10ae9c18d12c9ffc2275c9a159a3b1e281990db0
 

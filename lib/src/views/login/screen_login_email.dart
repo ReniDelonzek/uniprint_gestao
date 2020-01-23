@@ -23,7 +23,7 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
   }
 
   @override
-  Future<void> initState() {
+  void initState() {
     controllerEmail.addListener(() {});
     controllerSenha.addListener(() {});
     super.initState();
@@ -115,56 +115,60 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
     return true;
   }
 
-  Future logar(BuildContext context) {
-    FirebaseAuth.instance
-        .signIn(controllerEmail.text, controllerSenha.text)
-        .then((user) {
-      FirebaseAuth.instance.getUser().then((user) {
-        if (user == null) {
-          Scaffold.of(context).showSnackBar(new SnackBar(
-            content: new Text("Ops, houve uma falha ao realizar o login"),
-          ));
-        } else {
-          Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new ListaFilaAtendimento()));
+  void logar(BuildContext context) {
+    try {
+      FirebaseAuth.instance
+          .signIn(controllerEmail.text, controllerSenha.text)
+          .then((user) {
+        FirebaseAuth.instance.getUser().then((user) {
+          if (user == null) {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("Ops, houve uma falha ao realizar o login"),
+            ));
+          } else {
+            Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) => new ListaFilaAtendimento()));
+          }
+        });
+      }).catchError((error) {
+        print(error);
+        if (error is PlatformException) {
+          if (error.code == 'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL') {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text(
+                  "Ops, parece que você já acessou de alguma outra forma com esse e-mail"),
+            ));
+          } else if (error.code == "ERROR_WRONG_PASSWORD") {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("Ops, parece que a sua senha está incorreta"),
+            ));
+          } else if (error.code == "ERROR_INVALID_EMAIL") {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("Ops, o e-mail inserido é inválido"),
+            ));
+          } else if (error.code == "ERROR_USER_NOT_FOUND") {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("Ops, houve uma falha na tentativa de login"),
+            ));
+          } else if (error.code == "ERROR_USER_DISABLED") {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("Ops, parece que seu usuário foi desabilitado"),
+            ));
+          } else if (error.code == "ERROR_TOO_MANY_REQUESTS") {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text(
+                  "Ops, parece que você já tentou entrar diversas vezes com essa conta com as credenciais inválidas"),
+            ));
+          } else if (error.code == "ERROR_OPERATION_NOT_ALLOWED") {
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("Ops, parece que sua conta não está ativa"),
+            ));
+          }
         }
       });
-    }).catchError((error) {
-      if ((error as PlatformException).code ==
-          'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL') {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text(
-              "Ops, parece que você já acessou de alguma outra forma com esse e-mail"),
-        ));
-      } else if ((error as PlatformException).code == "ERROR_WRONG_PASSWORD") {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Ops, parece que a sua senha está incorreta"),
-        ));
-      } else if ((error as PlatformException).code == "ERROR_INVALID_EMAIL") {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Ops, o e-mail inserido é inválido"),
-        ));
-      } else if ((error as PlatformException).code == "ERROR_USER_NOT_FOUND") {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Ops, houve uma falha na tentativa de login"),
-        ));
-      } else if ((error as PlatformException).code == "ERROR_USER_DISABLED") {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Ops, parece que seu usuário foi desabilitado"),
-        ));
-      } else if ((error as PlatformException).code ==
-          "ERROR_TOO_MANY_REQUESTS") {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text(
-              "Ops, parece que você já tentou entrar diversas vezes com essa conta com as credenciais inválidas"),
-        ));
-      } else if ((error as PlatformException).code ==
-          "ERROR_OPERATION_NOT_ALLOWED") {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Ops, parece que sua conta não está ativa"),
-        ));
-      }
-    });
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future criarConta(BuildContext buildContext) async {

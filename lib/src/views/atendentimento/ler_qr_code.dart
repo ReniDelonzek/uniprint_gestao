@@ -7,7 +7,7 @@ import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 
 class LerQrCode extends StatefulWidget {
-  String atendimentoID;
+  final String atendimentoID;
 
   LerQrCode(this.atendimentoID);
 

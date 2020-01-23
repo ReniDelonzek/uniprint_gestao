@@ -4,10 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_controller.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
+import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 
 import 'filtro/filtro_page.dart';
 import 'models/filtro.dart';
@@ -93,69 +94,64 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
       }
     });
 
-    return GraphQLProvider(
-      client: graphQlObject.client,
-      child: CacheProvider(
-        child: Scaffold(
-          appBar: new AppBar(
-            centerTitle: true,
-            title: Observer(builder: (_) => controller.appBarTitle),
-            actions: _getActions(),
-            leading: Observer(
-              builder: (_) => new IconButton(
-                icon: controller.searchIcon,
-                onPressed: _searchPressed,
-              ),
-            ),
+    return Scaffold(
+      appBar: new AppBar(
+        centerTitle: true,
+        title: Observer(builder: (_) => controller.appBarTitle),
+        actions: _getActions(),
+        leading: Observer(
+          builder: (_) => new IconButton(
+            icon: controller.searchIcon,
+            onPressed: _searchPressed,
           ),
-          bottomNavigationBar:
-              widget.tipoSelecao == SelectAnyPage.TIPO_SELECAO_MULTIPLA
-                  ? BottomNavigationBar(
-                      onTap: (pos) {
-                        Navigator.pop(
-                            context,
-                            controller.listaExibida
-                                .where((item) => item.isSelected)
-                                .map((item) => item.object));
-                      },
-                      items: <BottomNavigationBarItem>[
-                        BottomNavigationBarItem(
-                            icon: Icon(Icons.clear), title: Text('')),
-                        BottomNavigationBarItem(
-                            icon: Icon(Icons.done), title: Text('Concluído')),
-                      ],
-                    )
-                  : null,
-          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: (widget.filtros?.isEmpty ?? true)
-                  ? <Widget>[]
-                  : <Widget>[
-                      FloatingActionButton(
-                          onPressed: () async {
-                            Map<String, List<String>> s =
-                                await Navigator.of(context).push(
-                                    new MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            new FiltroPage(widget.filtros)));
-                            //print(s);
-                            setState(() {
-                              if (widget.data == null) {
-                                widget.data = Map();
-                              }
-                              widget.data['filtros'] = s;
-                            });
-                          },
-                          child: Icon(Icons.filter_list))
-                    ],
-            ),
-          ),
-          body: _getBody(),
         ),
       ),
+      bottomNavigationBar:
+          widget.tipoSelecao == SelectAnyPage.TIPO_SELECAO_MULTIPLA
+              ? BottomNavigationBar(
+                  onTap: (pos) {
+                    Navigator.pop(
+                        context,
+                        controller.listaExibida
+                            .where((item) => item.isSelected)
+                            .map((item) => item.object));
+                  },
+                  items: <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.clear), title: Text('')),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.done), title: Text('Concluído')),
+                  ],
+                )
+              : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: (widget.filtros?.isEmpty ?? true)
+              ? <Widget>[]
+              : <Widget>[
+                  FloatingActionButton(
+                      onPressed: () async {
+                        Map<String, List<String>> s =
+                            await Navigator.of(context).push(
+                                new MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        new FiltroPage(widget.filtros)));
+                        //print(s);
+                        setState(() {
+                          if (widget.data == null) {
+                            widget.data = Map();
+                          }
+                          widget.data['filtros'] = s;
+                        });
+                      },
+                      child: Icon(Icons.filter_list))
+                ],
+        ),
+      ),
+      body: _getBody(),
     );
   }
 
@@ -178,26 +174,22 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
   }
 
   _getBody() {
-    return Query(
-        options: QueryOptions(
-          document: widget.query,
-          // this is the query string you just created
-        ),
-        builder: (QueryResult result,
-            {VoidCallback refetch, FetchMore fetchMore}) {
-          if (result.exception != null) {
-            return Text(result.exception.toString());
+    return FutureBuilder(
+        future: GraphQlObject.hasuraConnect.query(getUsuarios),
+        builder: (_, result) {
+          if (result.error != null) {
+            return FalhaWidget('Houve uma falha ao carregar os dados');
           }
-
-          if (result.loading) {
+          if (result.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
           List<ItemSelect> itens = List();
-          for (var i in result.data['usuario']) {
+          for (var i in result.data['data']['usuario']) {
             ItemSelect item = ItemSelect();
             item.strings['nome'] = i['pessoa']['nome'];
             item.strings['email'] = i['email'];
             item.id = i[widget.id];
+            item.object = i;
             itens.add(item);
           }
 
@@ -346,7 +338,9 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
   }
 
   _getActions() {
-    if ((!kIsWeb) && Platform.isIOS) {
+    if ((!kIsWeb) || !Platform.isAndroid) {
+      return <Widget>[];
+    } else
       return <Widget>[
         IconButton(
           icon: Icon(Icons.close),
@@ -355,8 +349,6 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
           },
         )
       ];
-    } else
-      return <Widget>[];
   }
 
   String cortarString(String st) {

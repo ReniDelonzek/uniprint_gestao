@@ -1,0 +1,92 @@
+import 'dart:convert';
+
+class ArquivoImpressao {
+  String url;
+  String nome;
+  bool colorido;
+  int quantidade;
+  String tipo_folha_id;
+
+  //ingorar
+  String patch;
+  ArquivoImpressao({
+    this.url,
+    this.nome,
+    this.colorido,
+    this.quantidade,
+    this.tipo_folha_id,
+    this.patch,
+  });
+
+  ArquivoImpressao copyWith({
+    String url,
+    String nome,
+    bool colorido,
+    int quantidade,
+    String tipo_folha_id,
+    String patch,
+  }) {
+    return ArquivoImpressao(
+      url: url ?? this.url,
+      nome: nome ?? this.nome,
+      colorido: colorido ?? this.colorido,
+      quantidade: quantidade ?? this.quantidade,
+      tipo_folha_id: tipo_folha_id ?? this.tipo_folha_id,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'url': url,
+      'nome': nome,
+      'colorido': colorido,
+      'quantidade': quantidade,
+      'tipo_folha_id': tipo_folha_id,
+    };
+  }
+
+  static ArquivoImpressao fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return ArquivoImpressao(
+      url: map['url'],
+      nome: map['nome'],
+      colorido: map['colorido'],
+      quantidade: map['quantidade'],
+      tipo_folha_id: map['tipo_folha_id'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  static ArquivoImpressao fromJson(String source) =>
+      fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'ArquivoImpressao url: $url, nome: $nome, colorido: $colorido, quantidade: $quantidade, tipo_folha_id: $tipo_folha_id, patch: $patch';
+  }
+
+  @override
+  bool operator ==(Object o) {
+    if (identical(this, o)) return true;
+
+    return o is ArquivoImpressao &&
+        o.url == url &&
+        o.nome == nome &&
+        o.colorido == colorido &&
+        o.quantidade == quantidade &&
+        o.tipo_folha_id == tipo_folha_id &&
+        o.patch == patch;
+  }
+
+  @override
+  int get hashCode {
+    return url.hashCode ^
+        nome.hashCode ^
+        colorido.hashCode ^
+        quantidade.hashCode ^
+        tipo_folha_id.hashCode ^
+        patch.hashCode;
+  }
+}

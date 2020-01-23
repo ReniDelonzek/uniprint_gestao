@@ -1,12 +1,16 @@
 import 'dart:io';
 
-import 'package:firedart/firedart.dart';
+import 'package:flutter/material.dart';
+import 'package:uniprintgestao/src/extensions/date.dart';
 import 'package:uniprintgestao/src/api/UtilsDownload.dart';
-import 'package:uniprintgestao/src/models/ArquivoImpressao.dart';
-import 'package:uniprintgestao/src/models/Impressao.dart';
+import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/mutations.dart';
+import 'package:uniprintgestao/src/models/graph/arquivo_impressao.dart';
+import 'package:uniprintgestao/src/models/graph/impressao.dart';
+import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class UtilsImpressao {
-  static Future<List<ArquivoImpressao>> obterArquivosImpressao(
+  /*static Future<List<ArquivoImpressao>> obterArquivosImpressao(
       Impressao impressao) async {
     List<ArquivoImpressao> arquivos = List();
     var res = await Firestore.instance
@@ -25,11 +29,12 @@ class UtilsImpressao {
       }
     }
     return arquivos;
-  }
+  }*/
 
   static Future<List<File>> baixarArquivosImpressao(Impressao impressao) async {
     List<File> files = List();
-    List<ArquivoImpressao> arquivos = await obterArquivosImpressao(impressao);
+    List<ArquivoImpressao> arquivos =
+        impressao.arquivo_impressaos; //await obterArquivosImpressao(impressao);
     for (ArquivoImpressao arquivo in arquivos) {
       files.add(await UtilsDownload.baixarArquivo(
           arquivo.url, 'Impressoes/${impressao.id}', '${arquivo.nome}'));
@@ -49,5 +54,24 @@ class UtilsImpressao {
       }
     }
     return true;
+  }
+
+//\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$impressao_id: Int!, \$status: Int!
+  static Future<bool> gerarMovimentacao(
+      int tipo, int status, int impressaoId) async {
+    try {
+      var res = await GraphQlObject.hasuraConnect
+          .mutation(Mutations.cadastroMovimentacaoImpressao, variables: {
+        'data': DateTime.now().hasuraFormat(),
+        'tipo': tipo,
+        'impressao_id': impressaoId,
+        'status': status,
+        'usuario_id': 1
+      });
+      return res != null;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
@@ -37,11 +38,6 @@ class SplashScreenState extends State<SplashScreen> {
       });
     });
     Future.delayed(Duration(seconds: 3), () {
-      /*File file = File('');
-      PDFDocument.fromFile(file).then((doc) {
-        var a = doc.count;
-        print(a);
-      });*/
       //setState(() {
       //Route route = MaterialPageRoute(builder: (context) => ScreenLoginEmail());
       //Navigator.pushReplacement(context, route);
@@ -59,7 +55,7 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 3), () async {
       verificarLogin(buildContext);
     });
     return new MaterialApp(

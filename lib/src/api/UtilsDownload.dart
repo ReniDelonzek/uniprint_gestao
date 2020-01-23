@@ -18,5 +18,6 @@ class UtilsDownload {
       response.pipe(file.openWrite());
       return file;
     }
+    return null;
   }
 }

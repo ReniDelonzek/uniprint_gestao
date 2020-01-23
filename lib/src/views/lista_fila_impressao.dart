@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:firedart/firestore/firestore.dart';
-import 'package:firedart/firestore/models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprintgestao/src/models/Impressao.dart';
-import 'package:uniprintgestao/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/querys.dart';
+import 'package:uniprintgestao/src/models/graph/impressao.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/UtilsImpressao.dart';
 import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
+import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class ListaFilaImpressao extends StatefulWidget {
@@ -39,7 +39,6 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
   @override
   void initState() {
     super.initState();
-    _queryDbImpressoes();
   }
 
   @override
@@ -50,10 +49,8 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
       });
     });
 
-    return new MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: Tema.getTema(context),
-        home: new Scaffold(
+    return Builder(
+        builder: (context) => new Scaffold(
             appBar: new AppBar(
               leading: IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -80,11 +77,18 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
   }
 
   Widget _getFragentImpressoes(BuildContext context, AsyncSnapshot snap) {
-    var doc = snap.data as List<Document>;
     listaImpressoes.clear();
-    for (var data in doc) {
+
+    if (snap.hasError || !snap.hasData) {
+      return FalhaWidget('Ops, houve uma falha ao recuperar as impressões');
+    }
+    if (snap.data['data']['impressao'].isEmpty) {
+      return Center(
+        child: Text('Nenhuma impressão na fila'),
+      );
+    }
+    for (var data in snap.data['data']['impressao']) {
       Impressao atendimento = Impressao.fromJson(data.map);
-      atendimento.id = data.reference.id;
       listaImpressoes.add(atendimento);
     }
     if (listaImpressoes.isNotEmpty) {
@@ -144,7 +148,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  CabecalhoDetalhesUsuario(impressao.codSolicitante,
+                  CabecalhoDetalhesUsuario(impressao.usuario,
                       currentPageValue == currentPageValue.roundToDouble()),
                   Container(
                     alignment: Alignment.topLeft,
@@ -177,10 +181,6 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                               fontWeight: FontWeight.bold),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 15, top: 6),
-                          child: Text(impressao.descricao),
-                        ),
-                        Padding(
                           padding: const EdgeInsets.only(top: 14),
                           child: Text(
                             impressao.comentario,
@@ -198,34 +198,9 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
     );
   }
 
-  //banco
-  _queryDbImpressoes() async {
-    //Firestore.initialize('uniprint-uv');
-    slides = Firestore.instance
-        .collection("Empresas")
-        .document("Uniguacu")
-        .collection("Pontos")
-        .document('1')
-        .collection('Impressoes')
-        .stream;
-    /*
-    Query query = Firestore.instance
-        .collection("Empresas")
-        .document("Uniguacu")
-        .collection("Pontos")
-        .document('1')
-        .collection('Impressoes')
-        .where('status', isEqualTo: 0)
-        .orderBy("dataSolicitacao", descending: true);
-
-    // Map the documents to the data payload
-    slides =
-        query.snapshots(includeMetadataChanges: true).map((a) => a.documents);*/
-  }
-
   Widget _getBodyImpressoes() {
     return StreamBuilder(
-        stream: slides,
+        stream: GraphQlObject.hasuraConnect.subscription(Querys.getImpressoes),
         initialData: [],
         builder: (context, AsyncSnapshot snap) {
           buildContext = context;
@@ -251,8 +226,17 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
     var files = await UtilsImpressao.baixarArquivosImpressao(impressao);
     bool sucess = UtilsImpressao.imprimirArquivos(files);
     if (sucess) {
-      atualizarStatusImpressao(
-          impressao, Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA);
+      bool result = await UtilsImpressao.gerarMovimentacao(
+          Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA,
+          Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
+          impressao.id);
+      if (result) {
+        showSnack(buildContext, 'Impressão negada com sucesso');
+      } else {
+        showSnack(buildContext, 'Ops, houve uma falha ao rejeitar a impressão');
+      }
+      //atualizarStatusImpressao(
+      //  impressao, Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA);
     } else {
       if (progressDialog.isShowing()) {
         progressDialog?.dismiss();
@@ -274,27 +258,17 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                   height: 45,
                   minWidth: 150,
                   child: RaisedButton(
-                    onPressed: () {
-                      Firestore.instance
-                          .collection('Empresas')
-                          .document('Uniguacu')
-                          .collection('Pontos')
-                          .document("1")
-                          .collection("Impressoes")
-                          .document(impressao.id)
-                          .update({
-                        "status": Constants.STATUS_IMPRESSAO_NEGADA,
-                        "dataImpressao": DateTime.now()
-                      }).then((sucess) {
-                        Scaffold.of(buildContext).showSnackBar(SnackBar(
-                          content: Text('Atendimento finalizado com sucesso'),
-                        ));
-                      }).catchError((error) {
-                        Scaffold.of(buildContext).showSnackBar(SnackBar(
-                          content: Text(
-                              'Ops, houve um erro ao finalizar o atendimento'),
-                        ));
-                      });
+                    onPressed: () async {
+                      bool result = await UtilsImpressao.gerarMovimentacao(
+                          Constants.MOV_IMPRESSAO_NEGADA,
+                          Constants.STATUS_IMPRESSAO_NEGADA,
+                          impressao.id);
+                      if (result) {
+                        showSnack(buildContext, 'Impressão negada com sucesso');
+                      } else {
+                        showSnack(buildContext,
+                            'Ops, houve uma falha ao rejeitar a impressão');
+                      }
                     },
                     color: Colors.red,
                     shape: RoundedRectangleBorder(
@@ -314,8 +288,17 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                       if (Platform.isWindows) {
                         impressaoAutorizada(impressao, context);
                       } else {
-                        atualizarStatusImpressao(
-                            impressao, Constants.STATUS_IMPRESSAO_AUTORIZADO);
+                        bool result = await UtilsImpressao.gerarMovimentacao(
+                            Constants.MOV_IMPRESSAO_NEGADA,
+                            Constants.STATUS_IMPRESSAO_NEGADA,
+                            impressao.id);
+                        if (result) {
+                          showSnack(
+                              buildContext, 'Impressão negada com sucesso');
+                        } else {
+                          showSnack(buildContext,
+                              'Ops, houve uma falha ao rejeitar a impressão');
+                        }
                       }
                     },
                     color: Colors.blue,
@@ -342,33 +325,17 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                 ProgressDialog progressDialog = ProgressDialog(context);
                 progressDialog.style(message: 'Marcando como concluída');
                 progressDialog.show();
-                Firestore.instance
-                    .collection('Empresas')
-                    .document('Uniguacu')
-                    .collection('Pontos')
-                    .document(impressao.codPonto)
-                    .collection("Impressoes")
-                    .document(impressao.id)
-                    .update({
-                  "status": Constants.STATUS_IMPRESSAO_RETIRADA,
-                  "dataAtendimento": DateTime.now()
-                }).then((sucess) {
-                  if (progressDialog.isShowing()) {
-                    progressDialog?.dismiss();
-                  }
-                  Scaffold.of(buildContext).showSnackBar(SnackBar(
-                    content:
-                        Text('Impressão marcada como entregue com sucesso'),
-                  ));
-                }).catchError((error) {
-                  if (progressDialog.isShowing()) {
-                    progressDialog?.dismiss();
-                  }
-                  Scaffold.of(buildContext).showSnackBar(SnackBar(
-                    content: Text(
-                        'Ops, houve uma falha a atualizar o status da impressão'),
-                  ));
-                });
+                bool result = await UtilsImpressao.gerarMovimentacao(
+                    Constants.MOV_IMPRESSAO_RETIRADA,
+                    Constants.STATUS_IMPRESSAO_RETIRADA,
+                    impressao.id);
+                if (result) {
+                  showSnack(buildContext,
+                      'Impressão marcada como entregue com sucesso!');
+                } else {
+                  showSnack(buildContext,
+                      'Ops, houve uma falha ao atualizar a impressão');
+                }
               },
               color: Colors.blue,
               shape: RoundedRectangleBorder(
@@ -411,25 +378,5 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
 
         break;
     }
-  }
-
-  void atualizarStatusImpressao(Impressao impressao, int status) {
-    Firestore.instance
-        .collection('Empresas')
-        .document('Uniguacu')
-        .collection('Pontos')
-        .document(impressao.codPonto)
-        .collection("Impressoes")
-        .document(impressao.id)
-        .update({"status": status, "dataAtendimento": DateTime.now()}).then(
-            (sucess) {
-      Scaffold.of(buildContext).showSnackBar(SnackBar(
-        content: Text('Arquivos impressos com sucesso'),
-      ));
-    }).catchError((error) {
-      Scaffold.of(buildContext).showSnackBar(SnackBar(
-        content: Text('Ops, houve uma falha a atualizar o status da impressão'),
-      ));
-    });
   }
 }

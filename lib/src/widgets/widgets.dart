@@ -1,6 +1,7 @@
 import 'package:firedart/firedart.dart';
 import 'package:flutter/material.dart';
-import 'package:uniprintgestao/src/models/LocalAtendimento.dart';
+import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
+import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
 
 class TextTitle extends StatelessWidget {
   String title;
@@ -65,27 +66,27 @@ class MyChipButtonState extends State<MyChipButton> {
 }
 
 class LocaisAtendimento extends StatelessWidget {
-  LocalAtendimento local;
+  PontoAtendimento local;
   String title;
-  final ValueChanged<LocalAtendimento> onSelect;
+  final ValueChanged<PontoAtendimento> onSelect;
 
   LocaisAtendimento(this.title, this.onSelect, {this.local});
 
-  List<LocalAtendimento> locais = List();
+  List<PontoAtendimento> locais = List();
 
   @override
   Widget build(BuildContext context) {
-    LocalAtendimento local1 = LocalAtendimento();
+    PontoAtendimento local1 = PontoAtendimento();
     local1.nome = 'CTU';
-    local1.id = "1";
+    local1.id = 1;
     locais.add(local1);
-    LocalAtendimento local2 = LocalAtendimento();
+    PontoAtendimento local2 = PontoAtendimento();
     local2.nome = 'Sede';
-    local2.id = "2";
+    local2.id = 2;
     locais.add(local2);
-    LocalAtendimento local3 = LocalAtendimento();
+    PontoAtendimento local3 = PontoAtendimento();
     local3.nome = 'Cleve';
-    local3.id = "3";
+    local3.id = 3;
     locais.add(local3);
     return _getLocais();
   }
@@ -193,38 +194,20 @@ class ChipButtonState extends StatelessWidget {
 }
 
 class CabecalhoDetalhesUsuario extends StatelessWidget {
-  String uid;
+  Usuario usuario;
   bool carregar;
 
-  CabecalhoDetalhesUsuario(this.uid, this.carregar);
+  CabecalhoDetalhesUsuario(this.usuario, this.carregar);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: _obterDados(),
+      child: _getProfile(),
       height: 100,
     );
   }
 
-  Widget _obterDados() {
-    if (carregar) {
-      return FutureBuilder(
-        future: Firestore.instance.collection('Usuarios').document(uid).get(),
-        builder: (build, AsyncSnapshot snap) {
-          switch (snap.connectionState) {
-            case ConnectionState.waiting:
-              return new Center(child: new RefreshProgressIndicator());
-            default:
-              return _getProfile(snap);
-          }
-        },
-      );
-    } else {
-      return new Center(child: new RefreshProgressIndicator());
-    }
-  }
-
-  _getProfile(snap) {
+  Widget _getProfile() {
     return new Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -232,7 +215,7 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
       children: <Widget>[
         CircleAvatar(
             radius: 50,
-            backgroundImage: NetworkImage(snap?.data['foto'] ??
+            backgroundImage: NetworkImage(usuario.url_foto ??
                 'https://www.pnglot.com/pngfile/detail/192-1925683_user-icon-png-small.png')),
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -242,7 +225,7 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                snap?.data['nome'] ?? "",
+                usuario?.pessoa?.nome,
                 overflow: TextOverflow.clip,
                 maxLines: 2,
                 style: TextStyle(
@@ -250,7 +233,7 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
                   fontSize: 18,
                 ),
               ),
-              Text(snap?.data['email'], overflow: TextOverflow.ellipsis)
+              Text(usuario?.email, overflow: TextOverflow.ellipsis)
             ],
           ),
         )
@@ -260,3 +243,15 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
 }
 
 class MeusWidgets {}
+
+showSnack(BuildContext context, String text, {bool dismiss}) {
+  Scaffold.of(context).showSnackBar(SnackBar(
+    content: Text(text),
+    duration: Duration(seconds: 2),
+  ));
+  if (dismiss != null && dismiss) {
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context);
+    });
+  }
+}

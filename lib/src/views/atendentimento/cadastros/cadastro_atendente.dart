@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprintgestao/src/models/LocalAtendimento.dart';
-import 'package:uniprintgestao/src/models/usuario.dart';
+import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/mutations.dart';
+import 'package:uniprintgestao/src/api/querys.dart';
+import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
+import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
+import 'package:uniprintgestao/src/widgets/button.dart';
+import 'package:uniprintgestao/src/widgets/select_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class CadastroAtendente extends StatefulWidget {
@@ -15,7 +22,7 @@ class CadastroAtendente extends StatefulWidget {
 
 class CadastroAtendentePageState extends State<CadastroAtendente> {
   Usuario user;
-  LocalAtendimento local;
+  PontoAtendimento local;
   ProgressDialog dialog;
 
   @override
@@ -25,100 +32,69 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-        color: Colors.white,
-        theme: Tema.getTema(context),
-        home: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              title: Text('Cadastro operador'),
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text('Cadastro operador'),
+        ),
+        body: Builder(builder: (context) {
+          return new Container(
+            child: Column(
+              children: <Widget>[
+                SelectWidget('Selecione o registro', user?.pessoa?.nome,
+                    () async {
+                  var res = await Navigator.of(context).push(
+                      new MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              new SelectAnyModule(
+                                'Selecione o Usuário',
+                                SelectAnyPage.TIPO_SELECAO_SIMPLES,
+                                ['nome'],
+                                'id',
+                                query: getUsuarios,
+                              )));
+                  if (res != null) {
+                    setState(() {
+                      user = Usuario.fromMap(res);
+                      print(user);
+                    });
+                  }
+                }),
+                LocaisAtendimento('Ponto de atendimento', (local) {
+                  setState(() {
+                    this.local = local;
+                  });
+                }, local: local),
+                new Padding(padding: EdgeInsets.only(top: 25)),
+                Button('Salvar', () async {
+                  ProgressDialog progress = ProgressDialog(context)
+                    ..style(message: 'Cadastrando atendente')
+                    ..show();
+                  try {
+                    var res = await GraphQlObject.hasuraConnect
+                        .mutation(Mutations.cadastroAtendente, variables: {
+                      'ponto_atendimento_id': local.id,
+                      'usuario_id': user.id
+                    });
+                    progress.dismiss();
+                    if (res != null) {
+                      showSnack(context, 'Atendente cadastrado com sucesso',
+                          dismiss: true);
+                    } else {
+                      showSnack(context,
+                          'Ops, houve uma falha ao cadastrar o atendente');
+                    }
+                  } catch (e) {
+                    progress.dismiss();
+                    showSnack(context,
+                        'Ops, houve uma falha ao cadastrar o atendente');
+                    print(e);
+                  }
+                })
+              ],
             ),
-            body: Builder(builder: (context) {
-              return new Container(
-                child: Column(
-                  children: <Widget>[
-                    InkWell(
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: <Widget>[
-                              Text(
-                                  user?.nome ??
-                                      user?.email ??
-                                      'Selecione o funcionário',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 18)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      onTap: () async {
-                        /*Usuario user = await Navigator.of(context).push(
-                            new MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    new SelecionarUsuario()));
-                        if (user != null) {
-                          setState(() {
-                            this.user = user;
-                          });
-                        }*/
-                      },
-                    ),
-                    LocaisAtendimento('Ponto de atendimento', (local) {
-                      setState(() {
-                        this.local = local;
-                      });
-                    }, local: local),
-                    new Padding(padding: EdgeInsets.only(top: 25)),
-                    new ButtonTheme(
-                        height: 45,
-                        minWidth: 220,
-                        child: RaisedButton(
-                          onPressed: () {
-                            if (verificarDados(context)) {
-                              dialog = ProgressDialog(context,
-                                  type: ProgressDialogType.Normal,
-                                  isDismissible: false,
-                                  showLogs: true);
-                              /*Firestore.instance
-                                  .collection('Atendentes')
-                                  .document(user.id)
-                                  .set({
-                                'codUsu': user.id,
-                                'nome': user.nome,
-                                'dataAdicao': DateTime.now(),
-                                'codPonto': local.id
-                              }).then((res) {
-                                dialog.dismiss();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text('Cadastrado com sucesso'),
-                                  duration: Duration(seconds: 3),
-                                ));
-                              }).catchError((error) {
-                                dialog.dismiss();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text('Cadastrado com sucesso'),
-                                  duration: Duration(seconds: 3),
-                                ));
-                              });*/
-                            }
-                          },
-                          color: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(22.5),
-                          ),
-                          child: new Text(
-                            'SALVAR',
-                            style: new TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )),
-                  ],
-                ),
-              );
-            })));
+          );
+        }));
   }
 
   bool verificarDados(BuildContext context) {
