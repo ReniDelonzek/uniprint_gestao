@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
+import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
 
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
 
@@ -12,16 +13,17 @@ class Atendimento {
   DateTime data_solicitacao;
   int ponto_atendimento_id;
   Usuario usuario;
+  PontoAtendimento ponto_atendimento;
   List<MovimentacaoAtendimento> movimentacao_atendimentos;
 
   Atendimento(
-    this.id,
-    this.status,
-    this.data_solicitacao,
-    this.ponto_atendimento_id,
-    this.usuario,
-    this.movimentacao_atendimentos,
-  );
+      this.id,
+      this.status,
+      this.data_solicitacao,
+      this.ponto_atendimento_id,
+      this.usuario,
+      this.movimentacao_atendimentos,
+      this.ponto_atendimento);
 
   Atendimento copyWith({
     int id,
@@ -32,13 +34,13 @@ class Atendimento {
     List<MovimentacaoAtendimento> movimentacao_atendimentos,
   }) {
     return Atendimento(
-      id ?? this.id,
-      status ?? this.status,
-      data_solicitacao ?? this.data_solicitacao,
-      ponto_atendimento_id ?? this.ponto_atendimento_id,
-      usuario ?? this.usuario,
-      movimentacao_atendimentos ?? this.movimentacao_atendimentos,
-    );
+        id ?? this.id,
+        status ?? this.status,
+        data_solicitacao ?? this.data_solicitacao,
+        ponto_atendimento_id ?? this.ponto_atendimento_id,
+        usuario ?? this.usuario,
+        movimentacao_atendimentos ?? this.movimentacao_atendimentos,
+        ponto_atendimento ?? this.ponto_atendimento);
   }
 
   Map<String, dynamic> toMap() {
@@ -48,6 +50,7 @@ class Atendimento {
       'data_solicitacao': data_solicitacao.millisecondsSinceEpoch,
       'ponto_atendimento_id': ponto_atendimento_id,
       'usuario': usuario.toMap(),
+      'ponto_atendimento': ponto_atendimento.toMap(),
       'movimentacao_atendimentos':
           List<dynamic>.from(movimentacao_atendimentos.map((x) => x.toMap())),
     };
@@ -66,6 +69,7 @@ class Atendimento {
       Usuario.fromMap(map['usuario']),
       List<MovimentacaoAtendimento>.from(map['movimentacao_atendimentos']
           ?.map((x) => MovimentacaoAtendimento.fromMap(x))),
+      PontoAtendimento.fromMap(map['ponto_atendimento']),
     );
   }
 

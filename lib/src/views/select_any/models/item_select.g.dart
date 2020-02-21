@@ -42,4 +42,11 @@ mixin _$ItemSelect on _ItemSelect, Store {
       _$deletadoAtom.reportChanged();
     }, _$deletadoAtom, name: '${_$deletadoAtom.name}_set');
   }
+
+  @override
+  String toString() {
+    final string =
+        'isSelected: ${isSelected.toString()},deletado: ${deletado.toString()}';
+    return '{$string}';
+  }
 }

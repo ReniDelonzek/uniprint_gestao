@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -7,11 +8,14 @@ import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
+import 'package:uniprintgestao/src/views/select_any/models/select_model.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
 import 'package:uniprintgestao/src/widgets/button.dart';
 import 'package:uniprintgestao/src/widgets/select_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
+
+import 'package:uniprintgestao/src/utils/network/network.dart';
 
 class CadastroAtendente extends StatefulWidget {
   @override
@@ -41,18 +45,18 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
           return new Container(
             child: Column(
               children: <Widget>[
-                SelectWidget('Selecione o registro', user?.pessoa?.nome,
+                SelectWidget('Selecione o usuário', user?.pessoa?.nome,
                     () async {
                   var res = await Navigator.of(context).push(
                       new MaterialPageRoute(
                           builder: (BuildContext context) =>
-                              new SelectAnyModule(
-                                'Selecione o Usuário',
-                                SelectAnyPage.TIPO_SELECAO_SIMPLES,
-                                ['nome'],
-                                'id',
-                                query: getUsuarios,
-                              )));
+                              new SelectAnyModule(SelectModel(
+                                  'Selecione o Usuário',
+                                  'id',
+                                  [Linha('pessoa/nome'), Linha('email')],
+                                  SelectAnyPage.TIPO_SELECAO_SIMPLES,
+                                  query: getUsuarios,
+                                  chaveLista: 'usuario'))));
                   if (res != null) {
                     setState(() {
                       user = Usuario.fromMap(res);
@@ -76,11 +80,27 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
                       'ponto_atendimento_id': local.id,
                       'usuario_id': user.id
                     });
-                    progress.dismiss();
+
                     if (res != null) {
-                      showSnack(context, 'Atendente cadastrado com sucesso',
-                          dismiss: true);
+                      var atendenteID =
+                          res['data']['insert_atendente']['returning'][0]['id'];
+                      var resFire = await Dio().post(
+                          'https://us-central1-uniprint-uv.cloudfunctions.net/criarAtendente',
+                          data: {
+                            'usuario_uid': user?.uid,
+                            'atendente_id': atendenteID,
+                            'ponto_id': local.id
+                          });
+                      progress.dismiss();
+                      if (resFire.sucesso()) {
+                        showSnack(context, 'Atendente cadastrado com sucesso',
+                            dismiss: true);
+                      } else {
+                        showSnack(context,
+                            'Ops, houve uma falha ao cadastrar o atendente');
+                      }
                     } else {
+                      progress.dismiss();
                       showSnack(context,
                           'Ops, houve uma falha ao cadastrar o atendente');
                     }

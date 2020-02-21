@@ -7,25 +7,37 @@ class SelectModel {
   String titulo;
   String query;
   String url;
+  String chaveLista; //grapql
   List<Linha> linhas;
   String id;
-  Map data = Map();
-  WidgetBuilder route;
   List<Filtro> filtros;
-  bool exibirLegendas;
+  List<Acao> acoes;
+  List<Acao> botoes;
+  List<String> legendas;
 
   SelectModel(this.titulo, this.id, this.linhas, this.tipoSelecao,
       {this.query,
       this.url,
-      this.data,
-      this.route,
       this.filtros,
-      this.exibirLegendas});
+      this.acoes,
+      this.botoes,
+      this.chaveLista});
 }
 
 class Linha {
   String chave;
   Color color;
+  String involucro;
 
-  Linha(this.chave, {this.color});
+  Linha(this.chave, {this.color, this.involucro});
+}
+
+class Acao {
+  Map<String, String>
+      chaves; //keys das colunas a serem enviadas, e o nome como elas devem ir
+  String descricao;
+  WidgetBuilder route;
+  bool edicao;
+
+  Acao(this.descricao, this.route, {this.chaves, this.edicao});
 }

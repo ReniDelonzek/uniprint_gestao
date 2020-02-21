@@ -10,16 +10,13 @@ class TextTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.only(top: 0.0, left: 10, right: 16),
+    return Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(top: 16, left: 15, right: 16),
         child: Text(
           title,
           textAlign: TextAlign.left,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 22,
-            letterSpacing: 0.27,
-          ),
+          style: TextStyle(fontSize: 18, color: Colors.black),
         ));
   }
 }

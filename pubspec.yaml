@@ -14,11 +14,14 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.6.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies: 
+  date_range_picker: ^1.0.6
+  crypto: ^2.1.4
+  dio: ^3.0.8
   hasura_connect: ^1.0.5
-  flutter_mobx: ^0.3.3+3
+  flutter_mobx: ^1.0.1
   bloc_pattern: ^2.5.1
   #path_provider: ^0.5.0
   flutter:
@@ -53,17 +56,18 @@ dependencies:
   flutter_spinkit: "^4.0.0"
 
   #banco
-  hive: ^1.1.1
-  hive_flutter: ^0.2.1
+  hive: ^1.4.0+1
+  hive_flutter: ^0.3.0+1
 
-  mobx: ^0.3.9+3
+  mobx: ^1.0.2
 
 
 dev_dependencies:
-  hive_generator: ^0.5.2
+  hive_generator: ^0.7.0
   build_runner: ^1.7.2
-  flutter_test:
-    sdk: flutter
+  mobx_codegen: ^1.0.2
+  #flutter_test:
+   # sdk: flutter
 
 
 
@@ -79,6 +83,14 @@ flutter:
   uses-material-design: true
   assets:
     - imagens/
+
+
+scripts:
+  build: flutter pub run build_runner build --delete-conflicting-outputs
+  watch: flutter pub run build_runner watch --delete-conflicting-outputs
+  clean: flutter pub run build_runner clean
+  createModule: slidy generate m modules/login -c
+  compilar: flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
 
 
   # To add assets to your application, add an assets section, like this:

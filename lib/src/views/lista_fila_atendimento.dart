@@ -9,13 +9,22 @@ import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/atendimento_g.dart';
+import 'package:uniprintgestao/src/modules/cadastro_preco/cadastro_preco_module.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
+import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/src/utils/utils_atendimento.dart';
+import 'package:uniprintgestao/src/utils/utils_notificacao.dart';
+import 'package:uniprintgestao/src/utils/utils_platform.dart';
 import 'package:uniprintgestao/src/views/atendentimento/cadastros/cadastro_atendente.dart';
+import 'package:uniprintgestao/src/views/atendentimento/ler_qr_code.dart';
 import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
+import 'package:uniprintgestao/src/views/select_any/models/select_model.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
+import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
 import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
+import '../app_module.dart';
 import 'atendentimento/cadastros/cadastro_professor.dart';
 import 'lista_fila_impressao.dart';
 
@@ -56,96 +65,128 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
       });
     });
 
-    return Builder(
-      builder: (context) {
-        buildContext = context;
-        return new Scaffold(
-            appBar: new AppBar(
-              title: new Text(
-                "Fila de atendimentos",
-                style: new TextStyle(color: Colors.black),
-              ),
-              backgroundColor: Colors.white,
-            ),
-            floatingActionButton: new FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        new ListaFilaImpressao()));
-              },
-              heroTag: "impressoes",
-              child: Icon(Icons.print),
-            ),
-            drawer: new Drawer(
-                semanticLabel: 'Menu',
-                child: Container(
-                    color: Colors.white,
-                    child: new Column(children: <Widget>[
-                      new UserAccountsDrawerHeader(
-                        accountName: new Text(
-                          "",
-                          style: new TextStyle(color: Colors.white),
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text(
+            "Fila de atendimentos",
+            style: new TextStyle(color: Colors.black),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        floatingActionButton: new FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) => new ListaFilaImpressao()));
+          },
+          heroTag: "impressoes",
+          child: Icon(Icons.print),
+        ),
+        drawer: new Drawer(
+            semanticLabel: 'Menu',
+            child: Container(
+                color: Colors.white,
+                child: new Column(children: <Widget>[
+                  new UserAccountsDrawerHeader(
+                    accountName: new Text(
+                      "Uniguaçu",
+                      style: new TextStyle(color: Colors.white),
+                    ),
+                    accountEmail:
+                        new Text("", style: new TextStyle(color: Colors.white)),
+                    currentAccountPicture: new GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(new MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                new CadastroProfessor()));
+                      },
+                      child: Hero(
+                        tag: "imagem_perfil",
+                        child: new CircleAvatar(
+                          backgroundImage: new NetworkImage(
+                              "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
                         ),
-                        accountEmail: new Text("",
-                            style: new TextStyle(color: Colors.white)),
-                        currentAccountPicture: new GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(new MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    new CadastroProfessor()));
-                          },
-                          child: Hero(
-                            tag: "imagem_perfil",
-                            child: new CircleAvatar(
-                              backgroundImage: new NetworkImage(
-                                  "https://www.pnglot.com/pngfile/detail/192-1925683_user-icon-png-small.png"),
-                            ),
-                          ),
-                        ),
-                        decoration: new BoxDecoration(
-                            image: new DecorationImage(
-                                fit: BoxFit.fill,
-                                image: AssetImage('imagens/back_drawer.jpg'))),
                       ),
-                      new ListTile(
-                          title: new Text("Cadastro professor"),
-                          trailing: new Icon(Icons.school),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CadastroProfessor()));
-                          }),
-                      new ListTile(
-                          title: new Text("Cadastro atendente"),
-                          trailing: new Icon(Icons.work),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CadastroAtendente()));
-                          }),
-                      new ListTile(
-                          title: new Text("Sair"),
-                          trailing: new Icon(Icons.power_settings_new),
-                          onTap: () {
-                            FirebaseAuth.instance.signOut();
-                            Navigator.of(context).pop();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ScreenLoginEmail()));
-                          }),
-                    ]))),
-            backgroundColor: Colors.white,
-            body: _getBody(context));
-      },
-    );
+                    ),
+                    decoration: new BoxDecoration(
+                        image: new DecorationImage(
+                            fit: BoxFit.fill,
+                            image: AssetImage('imagens/back_drawer.jpg'))),
+                  ),
+                  new ListTile(
+                      title: new Text("Cadastro professor"),
+                      trailing: new Icon(Icons.school),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CadastroProfessor()));
+                      }),
+                  new ListTile(
+                      title: new Text("Cadastro atendente"),
+                      trailing: new Icon(Icons.work),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CadastroAtendente()));
+                      }),
+                  new ListTile(
+                      title: new Text("Cadastro preços"),
+                      trailing: new Icon(Icons.work),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CadastroPrecoModule()));
+                      }),
+                  new ListTile(
+                      title: new Text("Soma atendimentos"),
+                      trailing: new Icon(Icons.work),
+                      onTap: () async {
+                        var res = await Navigator.of(context).push(
+                            new MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    new SelectAnyModule(SelectModel(
+                                        'Contagem de atendimentos',
+                                        'id',
+                                        [
+                                          Linha(
+                                              'atendimentos_aggregate/aggregate/count',
+                                              involucro: '??? Atendimentos'),
+                                          Linha('nome')
+                                        ],
+                                        SelectAnyPage.TIPO_SELECAO_ACAO,
+                                        query: Querys.somaAtendimentosDia,
+                                        chaveLista: 'ponto_atendimento'))));
+                      }),
+                  new ListTile(
+                      title: new Text("Sair"),
+                      trailing: new Icon(Icons.power_settings_new),
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.of(context).pop();
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ScreenLoginEmail()));
+                      }),
+                ]))),
+        backgroundColor: Colors.white,
+        body: Builder(builder: (context) {
+          buildContext = context;
+          return _getBody(context);
+        }));
   }
 
   Widget _getBody(BuildContext context) {
     return StreamBuilder(
-      stream: GraphQlObject.hasuraConnect.subscription(Querys.getAtendimentos),
+      stream: GraphQlObject.hasuraConnect
+          .subscription(Querys.getAtendimentos, variables: {
+        'ponto_atendimento_id': AppModule.to
+            .getDependency<HasuraAuthService>()
+            .usuario
+            .codPontoAtendimento
+      }),
       builder: (_, snap) {
         return new RawKeyboardListener(
             focusNode: _focusNode,
@@ -206,16 +247,16 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
   }
 
   Widget _getCard(Atendimento atendimento, int index) {
-    double height = MediaQuery.of(context).size.height;
+    Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       child: (Container(
-          height: height * 0.75,
+          height: size.height * 0.75,
           padding: EdgeInsets.all(15.0),
           child: new Card(
               child: new Padding(
             padding: EdgeInsets.all(15.0),
             child: Container(
-              height: height * 0.75,
+              height: size.height * 0.75,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
@@ -224,8 +265,14 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                       currentPageValue == currentPageValue.roundToDouble()),
                   InkWell(
                     onTap: () {
-                      //Navigator.of(context).push(new MaterialPageRoute(
-                      //  builder: (BuildContext context) => new Test()));
+                      if (UtilsPlatform.isMobile()) {
+                        Navigator.of(context).push(new MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                new LerQrCode(atendimento.id)));
+                      } else {
+                        showSnack(
+                            buildContext, 'Não é possível ler o qr por aqui');
+                      }
                     },
                     child: new Container(
                       width: 200,
@@ -253,12 +300,21 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                               height: 20,
                               color: Colors.white,
                             ),
-                            onPressed: () {},
+                            onPressed: () async {
+                              if (await UtilsAtendimento.gerarChamada(
+                                  atendimento)) {
+                                showSnack(buildContext,
+                                    '${atendimento.usuario.pessoa.nome.split(' ').first} foi notificado(a) com sucesso');
+                              }
+                            },
                           ),
                           FloatingActionButton(
                             heroTag: 'finalizar_atendimento',
                             tooltip: 'Finalizar atendimento',
                             onPressed: () async {
+                              List<Atendimento> atendimentosCopia =
+                                  List.of(atendimentos); //faz uma copia dos
+                              //atendimentos pra nao rolar um erro quando a lista atualizar
                               bool result =
                                   await UtilsAtendimento.gerarMovimentacao(
                                       Constants.MOV_ATENDIMENTO_ATENDIDO,
@@ -267,6 +323,31 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                               if (result) {
                                 showSnack(buildContext,
                                     'Atendimento confirmado com sucesso');
+
+                                int pos = 0;
+                                for (int i = 0;
+                                    i <
+                                        (atendimentosCopia.length > 3
+                                            ? 3
+                                            : atendimentosCopia.length);
+                                    i++) {
+                                  if (atendimento.id !=
+                                      atendimentosCopia[i].id) {
+                                    if (pos == 0) {
+                                      //proximo da fila
+                                      UtilsNotificacao.enviarNotificacao(
+                                          'Ei, chegou sua vez de ser atendido',
+                                          'Estamos esperando você agora no ${atendimentosCopia[i].ponto_atendimento?.nome}',
+                                          atendimentosCopia[i].usuario.uid);
+                                    } else {
+                                      UtilsNotificacao.enviarNotificacao(
+                                          'Só tem mais $pos pessoa${pos > 1 ? 's' : ''} na sua frente',
+                                          'Fique nas proximidades do ${atendimentosCopia[i].ponto_atendimento?.nome}',
+                                          atendimentosCopia[i].usuario.uid);
+                                    }
+                                    pos++;
+                                  }
+                                }
                               } else {
                                 showSnack(buildContext,
                                     'Ops, houve uma falha ao confirmar o atendimento');

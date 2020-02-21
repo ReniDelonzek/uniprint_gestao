@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
- 
 
 class Button extends StatelessWidget {
   final String title;
@@ -13,6 +12,7 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     return new ButtonTheme(
       minWidth: 150,
+      height: 42,
       child: new RaisedButton(
           color: color ?? Colors.blue,
           onPressed: onTap,

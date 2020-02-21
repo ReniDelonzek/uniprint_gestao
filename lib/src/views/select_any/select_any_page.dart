@@ -4,73 +4,62 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
-import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_controller.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 
 import 'filtro/filtro_page.dart';
-import 'models/filtro.dart';
 import 'models/item_select.dart';
+import 'models/select_model.dart';
 
 class SelectAnyPage extends StatefulWidget {
-  final int tipoSelecao; //0 selecao simples, 1 selecao multipla, 2 acao
-  final String titulo;
-  final String query;
-  final String url;
-  final List<String> chaves;
-  final String id;
-  final WidgetBuilder route;
-  bool showLabels = false;
+  static const TIPO_SELECAO_SIMPLES = 0;
+  static const TIPO_SELECAO_MULTIPLA = 1;
+  static const TIPO_SELECAO_ACAO = 2;
+  final SelectModel _selectModel;
   Map data;
-  List<Filtro> filtros;
 
-  static int TIPO_SELECAO_SIMPLES = 0;
-  static int TIPO_SELECAO_MULTIPLA = 1;
-  static int TIPO_SELECAO_ACAO = 2;
-
-  SelectAnyPage(this.titulo, this.tipoSelecao, this.chaves, this.id,
-      {this.query,
-      this.url,
-      this.data,
-      this.route,
-      this.filtros,
-      this.showLabels});
+  SelectAnyPage(this._selectModel, {this.data});
 
   @override
   _SelectAnyPageState createState() {
-    return _SelectAnyPageState(this.tipoSelecao, this.titulo, this.query,
-        this.url, this.chaves, this.id, this.data, this.route);
+    return _SelectAnyPageState();
   }
 }
 
+class AppController {}
+
 class _SelectAnyPageState extends State<SelectAnyPage> {
   Future<List<ItemSelect>> future;
-  final int tipoSelecao;
-  final String titulo;
-  final String query;
-  final String url;
-  final List<String> chaves;
-  final String id;
-  final Map data;
-  final WidgetBuilder route;
-
   final controller = SelectAnyModule.to.bloc<SelectAnyController>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
 
-  _SelectAnyPageState(this.tipoSelecao, this.titulo, this.query, this.url,
-      this.chaves, this.id, this.data, this.route);
+  _SelectAnyPageState();
 
   @override
   void initState() {
-    //future = query == null ? getListFromServer() : getList();
     super.initState();
   }
 
   @override
+  void didChangeDependencies() {
+    final Map args = ModalRoute.of(context).settings.arguments;
+    if (args?.containsKey('data') ?? false) {
+      if (widget.data == null) {
+        widget.data = Map();
+      }
+      widget.data.addAll(args['data']);
+    }
+    future =
+        widget._selectModel.query == null ? getListFromServer() : getList();
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    future = query == null ? getListFromServer() : getList();
-    //ver forma de deixar isso no initState, lá ele carrega somente uma vez, porém n recarrega quando algum filtro é aplcifcao
     controller.filter.addListener(() {
       if (controller.filter.text.isEmpty) {
         controller.searchText = "";
@@ -98,7 +87,7 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
       appBar: new AppBar(
         centerTitle: true,
         title: Observer(builder: (_) => controller.appBarTitle),
-        actions: _getActions(),
+        actions: _getMenuButtons(),
         leading: Observer(
           builder: (_) => new IconButton(
             icon: controller.searchIcon,
@@ -107,14 +96,15 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
         ),
       ),
       bottomNavigationBar:
-          widget.tipoSelecao == SelectAnyPage.TIPO_SELECAO_MULTIPLA
+          widget._selectModel.tipoSelecao == SelectAnyPage.TIPO_SELECAO_MULTIPLA
               ? BottomNavigationBar(
                   onTap: (pos) {
                     Navigator.pop(
                         context,
                         controller.listaExibida
                             .where((item) => item.isSelected)
-                            .map((item) => item.object));
+                            .map((item) => item.object)
+                            .toList());
                   },
                   items: <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
@@ -129,26 +119,7 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
         padding: const EdgeInsets.only(bottom: 16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: (widget.filtros?.isEmpty ?? true)
-              ? <Widget>[]
-              : <Widget>[
-                  FloatingActionButton(
-                      onPressed: () async {
-                        Map<String, List<String>> s =
-                            await Navigator.of(context).push(
-                                new MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        new FiltroPage(widget.filtros)));
-                        //print(s);
-                        setState(() {
-                          if (widget.data == null) {
-                            widget.data = Map();
-                          }
-                          widget.data['filtros'] = s;
-                        });
-                      },
-                      child: Icon(Icons.filter_list))
-                ],
+          children: _getFloatingActionButtons(),
         ),
       ),
       body: _getBody(),
@@ -167,45 +138,20 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
       );
     } else {
       controller.searchIcon = new Icon(Icons.search);
-      controller.appBarTitle = new Text(titulo);
+      controller.appBarTitle = new Text(widget._selectModel.titulo);
       controller.listaExibida.addAll(controller.listaOriginal);
       controller.filter.clear();
     }
   }
 
   _getBody() {
-    return FutureBuilder(
-        future: GraphQlObject.hasuraConnect.query(getUsuarios),
-        builder: (_, result) {
-          if (result.error != null) {
-            return FalhaWidget('Houve uma falha ao carregar os dados');
-          }
-          if (result.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          List<ItemSelect> itens = List();
-          for (var i in result.data['data']['usuario']) {
-            ItemSelect item = ItemSelect();
-            item.strings['nome'] = i['pessoa']['nome'];
-            item.strings['email'] = i['email'];
-            item.id = i[widget.id];
-            item.object = i;
-            itens.add(item);
-          }
-
-          return ListView.builder(
-              itemCount: itens.length,
-              itemBuilder: (context, index) {
-                final repository = itens[index];
-                return _getItemList(repository);
-              });
-        });
-
-    /*return FutureBuilder<List<ItemSelect>>(
+    return FutureBuilder<List<ItemSelect>>(
       future: future,
       builder:
           (BuildContext context, AsyncSnapshot<List<ItemSelect>> snapshot) {
-        if (snapshot.hasError) return new Text('${snapshot.error}');
+        if (snapshot.hasError)
+          return /*Text(snapshot.error.toString());*/ FalhaWidget(
+              'Houve uma falha ao recuperar os dados');
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return new Center(child: new RefreshProgressIndicator());
@@ -214,57 +160,66 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
               return Center(child: new Text('Nenhum registro encontrado'));
             else
               return Observer(
-                  builder: (_) => new ListView.builder(
-                      itemCount: controller.listaExibida.length,
-                      itemBuilder: (context, index) {
-                        return Observer(
-                            builder: (_) =>
-                                _getItemList(controller.listaExibida[index]));
-                      }));
+                  builder: (_) => RefreshIndicator(
+                        onRefresh: () async {
+                          future = widget._selectModel.query == null
+                              ? getListFromServer()
+                              : getList();
+                        },
+                        key: _refreshIndicatorKey,
+                        child: new ListView.builder(
+                            itemCount: controller.listaExibida.length,
+                            itemBuilder: (context, index) {
+                              return Observer(
+                                  builder: (_) => _getItemList(
+                                      controller.listaExibida[index]));
+                            }),
+                      ));
         }
       },
-    );*/
+    );
   }
 
-  Widget _getItemList(ItemSelect itemSelect /*, Size size*/) {
+  Widget _getItemList(ItemSelect itemSelect) {
     if (itemSelect.strings.length <= 2) {
       return new Padding(
           padding: EdgeInsets.only(left: 5, right: 5),
           child: ListTile(
-            leading: widget.tipoSelecao == 1
+            leading: widget._selectModel.tipoSelecao == 1
                 ? Checkbox(
                     onChanged: (newValue) {
                       itemSelect.isSelected = newValue;
                     },
                     value: itemSelect.isSelected)
                 : null,
-            title: Text(cortarString(itemSelect.strings.values.first ?? '')),
+            title: _getLinha(itemSelect.strings.entries.first),
             subtitle: (itemSelect.strings.length > 1)
-                ? Text(
-                    cortarString(itemSelect.strings.values.toList()[1] ?? ''))
+                ? _getLinha(itemSelect.strings.entries.toList()[1])
                 : null,
             onTap: () async {
-              if (widget.tipoSelecao == SelectAnyPage.TIPO_SELECAO_SIMPLES) {
-                Navigator.pop(context, itemSelect.object);
-              } else if (widget.tipoSelecao ==
-                  SelectAnyPage.TIPO_SELECAO_MULTIPLA) {
-                itemSelect.isSelected = !itemSelect.isSelected;
-              } else if (widget.route != null) {
-                var res = await Navigator.of(context).push(
-                    new CupertinoPageRoute(
-                        builder: widget.route,
-                        settings: RouteSettings(arguments: {
-                          'cod': itemSelect.id,
-                          'obj': itemSelect.object
-                        })));
-                if (res != null) {
-                  Navigator.pop(context);
-                }
-              }
+              _tratarOnTap(itemSelect);
+            },
+            onLongPress: () {
+              _tratarOnLongPres(itemSelect);
             },
           ));
     } else {
-      return Padding(
+      return InkWell(
+        onTap: () {
+          _tratarOnTap(itemSelect);
+        },
+        onLongPress: () {
+          _tratarOnLongPres(itemSelect);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _getTexts(itemSelect.strings),
+          ),
+        ),
+      );
+      /*return Padding(//layout com suporte a selecao
         padding: const EdgeInsets.all(15.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -291,56 +246,111 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
             ),
           ],
         ),
-      );
+      );*/
     }
   }
 
-  getTexts(Map<String, dynamic> map) {
+  _getLinha(MapEntry item) {
+    Linha linha = widget._selectModel.linhas
+        .firstWhere((linha) => linha.chave == item.key);
+    if (linha != null && linha.involucro != null) {
+      return (Text(
+          linha.involucro.replaceAll('???', item.value?.toString() ?? '')));
+    } else {
+      return (Text(item.value?.toString() ?? ''));
+    }
+  }
+
+  _getTexts(Map<String, dynamic> map) {
     List<Widget> widgets = List();
-    for (var item in map.values) {
-      widgets.add(Text(item));
+    for (var item in map.entries) {
+      widgets.add(_getLinha(item));
     }
     return widgets;
   }
 
-  Future<List<ItemSelect>> getList() async {}
-
-  Future<List<ItemSelect>> getListFromServer() async {
-    List<ItemSelect> lista = List();
-    /*var i = await API.post(url, data: data);
-    if (i.statusCode == 200) {
-      List<ItemSelect> lista = List();
-      for (var a in i.data) {
-        ItemSelect itemSelect = ItemSelect();
-        for (var itemMap in widget.chaves) {
-          if (a[itemMap] is List) {
-            String s = "";
-            for (var subItem in a[itemMap]) {
-              s += "${subItem['package']}\n"; //todo fazer ser generico aqui
-            }
-            itemSelect.strings[itemMap] = s;
-          } else {
-            itemSelect.strings[itemMap] =
-                ((widget.showLabels ?? false) ? '$itemMap: ' : '') +
-                    a[itemMap].toString();
-          }
-        }
-        itemSelect.isSelected = false;
-        itemSelect.id = a[id];
-        itemSelect.object = a;
-        lista.add(itemSelect);
+  List<ItemSelect> _gerarLista(List data) {
+    ObservableList<ItemSelect> lista = ObservableList();
+    for (var a in data) {
+      ItemSelect itemSelect = ItemSelect();
+      for (var linha in widget._selectModel.linhas) {
+        /*if (a[linha.chave] is List) {
+          String s = "";
+          */ /*for (var subItem in a[linha.chave]) {
+            s += "${subItem['package']}\n"; //todo fazer ser generico aqui
+          }*/ /*
+          itemSelect.strings[linha.chave] = s;
+        } else {*/
+        itemSelect.strings[linha.chave] = a[linha.chave].toString();
+        //}
       }
-      controller.listaOriginal.clear();
-      controller.listaExibida.clear();
-      controller.listaOriginal.addAll(lista);
-      controller.listaExibida.addAll(lista);*/
+      itemSelect.id = a[widget._selectModel.id]; //int.parse(a[id]);
+      itemSelect.isSelected = false;
+      itemSelect.object = a;
+      lista.add(itemSelect);
+    }
+    controller.listaOriginal.clear();
+    controller.listaExibida.clear();
+    controller.listaOriginal.addAll(lista);
+    controller.listaExibida.addAll(lista);
     return lista;
   }
 
-  _getActions() {
-    if ((!kIsWeb) || !Platform.isAndroid) {
-      return <Widget>[];
-    } else
+  dynamic _getValorLinha(String coluna, Map<String, dynamic> map) {
+    List<String> colunas = coluna.split('/');
+    for (int i = 0; i < colunas.length - 1; i++) {
+      //vai ate o penultimo
+      map = map[colunas[i]];
+    }
+    return map[colunas.last];
+  }
+
+  Future<List<ItemSelect>> getList() async {
+    try {
+      var res =
+          await GraphQlObject.hasuraConnect.query(widget._selectModel.query);
+      if (res != null) {
+        if (res['data'][widget._selectModel.chaveLista] != null) {
+          List<ItemSelect> itens = List();
+          for (var map in res['data'][widget._selectModel.chaveLista]) {
+            ItemSelect item = ItemSelect();
+            item.object = map;
+            item.id = map[widget._selectModel.id];
+            for (Linha linha in widget._selectModel.linhas) {
+              item.strings[linha.chave] = _getValorLinha(linha.chave, map);
+            }
+            itens.add(item);
+          }
+          controller.listaOriginal.clear();
+          controller.listaExibida.clear();
+          controller.listaOriginal.addAll(itens);
+          controller.listaExibida.addAll(itens);
+          return itens;
+        } else {
+          return <ItemSelect>[];
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+    return <ItemSelect>[];
+    //return <ItemSelect>[];
+    //var i = await AppDatabase().execDataTable(widget._selectModel.query);
+    //return _gerarLista(i);
+  }
+
+  Future<List<ItemSelect>> getListFromServer() async {
+    return <ItemSelect>[];
+    /*var res = await API.post(widget._selectModel.url, data: widget.data);
+    if (res.statusCode == 200) {
+      return _gerarLista(res.data);
+    } else {
+      throw ('Falha na resposta do servidor: ${res.data}');
+    }*/
+  }
+
+  _getMenuButtons() {
+    if ((!kIsWeb) && !Platform.isAndroid) {
       return <Widget>[
         IconButton(
           icon: Icon(Icons.close),
@@ -349,6 +359,8 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
           },
         )
       ];
+    } else
+      return <Widget>[];
   }
 
   String cortarString(String st) {
@@ -357,4 +369,125 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
     } else
       return st;
   }
+
+  void _onAction(ItemSelect itemSelect, Acao acao) async {
+    Map<String, dynamic> dados = Map();
+    if (itemSelect != null && acao.chaves?.entries != null) {
+      for (MapEntry dado in acao.chaves.entries) {
+        if ((itemSelect.object as Map).containsKey(dado.key)) {
+          dados.addAll({dado.value: itemSelect.object[dado.key]});
+        } else if (widget.data.containsKey(dado.key)) {
+          dados.addAll({dado.value: widget.data[dado.key]});
+        }
+      }
+    }
+    var res = await Navigator.of(context).push(new MaterialPageRoute(
+        builder: acao.route,
+        settings: (itemSelect != null)
+            ? RouteSettings(arguments: {
+                'cod_obj': itemSelect.id,
+                'obj': itemSelect.object,
+                'data': dados
+              })
+            : RouteSettings()));
+
+    if (res != null) {
+      Navigator.pop(context);
+    }
+  }
+
+  _getFloatingActionButtons() {
+    List<Widget> widgets = List();
+    if (!(widget._selectModel.filtros?.isEmpty ?? true)) {
+      widgets.add(FloatingActionButton(
+          onPressed: () async {
+            Map<String, List<String>> s = await Navigator.of(context).push(
+                new MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        new FiltroPage(widget._selectModel.filtros)));
+            if (widget.data == null) {
+              widget.data = Map();
+            }
+            widget.data['filtros'] = s;
+            future = widget._selectModel.query == null
+                ? getListFromServer()
+                : getList();
+          },
+          mini: (!(widget._selectModel.acoes?.isEmpty ?? true)),
+          child: Icon(Icons.filter_list)));
+    }
+    if (!(widget._selectModel.botoes?.isEmpty ?? true)) {
+      widgets.add(FloatingActionButton(
+        tooltip: widget._selectModel.botoes.first?.descricao,
+        onPressed: () {
+          _onAction(null, widget._selectModel.botoes.first);
+        },
+        child: Icon(Icons.add),
+      ));
+    }
+    return widgets;
+  }
+
+  void _exibirListaAcoes(ItemSelect itemSelect) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return Container(
+            child: new Wrap(
+              children: widget._selectModel.acoes
+                  .map((acao) => new ListTile(
+                      title: new Text(acao.descricao),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _onAction(itemSelect, acao);
+                      }))
+                  .toList(),
+            ),
+          );
+        });
+  }
+
+  void _tratarOnLongPres(ItemSelect itemSelect) {
+    if (widget._selectModel.acoes != null) {
+      if (widget._selectModel.acoes.length > 1) {
+        _exibirListaAcoes(itemSelect);
+      } else {
+        Acao acao = widget._selectModel.acoes?.first;
+        if (acao != null) {
+          _onAction(itemSelect, acao);
+        }
+      }
+    } else if (widget._selectModel.tipoSelecao ==
+        SelectAnyPage.TIPO_SELECAO_SIMPLES) {
+      Navigator.pop(context, itemSelect.object);
+    } else if (widget._selectModel.tipoSelecao ==
+        SelectAnyPage.TIPO_SELECAO_MULTIPLA) {
+      itemSelect.isSelected = !itemSelect.isSelected;
+    } else {
+      //case seja do tipo acao, mas n tenha nenhuma acao
+      Navigator.pop(context, itemSelect.object);
+    }
+  }
+
+  void _tratarOnTap(ItemSelect itemSelect) {
+    if (widget._selectModel.tipoSelecao == SelectAnyPage.TIPO_SELECAO_ACAO &&
+        widget._selectModel.acoes != null) {
+      if (widget._selectModel.acoes.length > 1) {
+        _exibirListaAcoes(itemSelect);
+      } else if (widget._selectModel.acoes.isNotEmpty) {
+        Acao acao = widget._selectModel.acoes?.first;
+        if (acao != null) {
+          _onAction(itemSelect, acao);
+        }
+      }
+    } else if (widget._selectModel.tipoSelecao ==
+        SelectAnyPage.TIPO_SELECAO_SIMPLES) {
+      Navigator.pop(context, itemSelect.object);
+    } else if (widget._selectModel.tipoSelecao ==
+        SelectAnyPage.TIPO_SELECAO_MULTIPLA) {
+      itemSelect.isSelected = !itemSelect.isSelected;
+    }
+  }
 }
+
+class AppDatabase {}

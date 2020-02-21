@@ -7,23 +7,22 @@ import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
 
 class LerQrCode extends StatefulWidget {
-  final String atendimentoID;
+  final int codAtendimento;
 
-  LerQrCode(this.atendimentoID);
+  LerQrCode(this.codAtendimento);
 
   @override
   State<StatefulWidget> createState() {
-    return new LerQrCodePageState(atendimentoID);
+    return new LerQrCodePageState();
   }
 }
 
 class LerQrCodePageState extends State<LerQrCode> {
   BuildContext buildContext;
-  String atendimentoID;
   ProgressDialog progressDialog;
   String status = "";
 
-  LerQrCodePageState(this.atendimentoID);
+  LerQrCodePageState();
 
   @override
   void initState() {
@@ -79,7 +78,7 @@ class LerQrCodePageState extends State<LerQrCode> {
         //.setFrontCamera(false)
         .scan();
     print(_barcodeString);
-    if (_barcodeString == atendimentoID) {
+    if (_barcodeString == widget.codAtendimento.toString()) {
       atualizarStatus(_barcodeString);
     } else if (_barcodeString != null && _barcodeString.isNotEmpty) {
       Scaffold.of(buildContext).showSnackBar(SnackBar(

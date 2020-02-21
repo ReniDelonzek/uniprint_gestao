@@ -15,8 +15,9 @@ String queryAtendimentos = '''subscription atendimentos {
 ''';
 
 String getUsuarios = """query MyQuery {
-  usuario {
-    id, 
+  usuario(order_by: {pessoa: {nome: asc}}) {
+    id 
+    uid
     email
     pessoa {
       nome
@@ -38,12 +39,15 @@ String cadastroProfessor =
 
 class Querys {
   static String getAtendimentos = """
-subscription getSubsAtendimentos {
-  atendimento(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: 1}}) {
+subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
+  atendimento(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
     data_solicitacao
     status
     id
     ponto_atendimento_id
+    ponto_atendimento {
+      nome
+    }
     usuario {
       email
       pessoa {
@@ -71,10 +75,29 @@ subscription getSubsAtendimentos {
 """;
 
   static String getImpressoes = """
-  subscription getImpressoes { 
-  impressao(where: {status: {_eq: 1}}) {
+  subscription getImpressoes(\$ponto_atendimento_id: Int!) { 
+  impressao(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
+    id
     comentario
     status
+    usuario {
+          uid
+          email
+          url_foto
+          pessoa {
+            nome
+          }
+        }
+    arquivo_impressaos {
+      colorido
+      nome
+      quantidade
+      url
+      tipofolha {
+        nome
+        id
+      }
+    }
     movimentacao_impressaos {
       id
       movimentacao_id
@@ -82,8 +105,6 @@ subscription getSubsAtendimentos {
         data
         tipo
         usuario {
-          email
-          url_foto
           pessoa {
             nome
           }
@@ -92,4 +113,18 @@ subscription getSubsAtendimentos {
     }
   }
 }""";
+
+  static String somaAtendimentosDia = """
+query somaAtendimentos {
+  ponto_atendimento {
+    atendimentos_aggregate(where: {status: {_eq: 3}}) {
+      aggregate {
+        count(distinct: true, columns: id)
+      }
+    }
+    nome
+  }
+}
+
+""";
 }

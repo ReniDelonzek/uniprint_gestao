@@ -9,9 +9,13 @@ import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/impressao.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/UtilsImpressao.dart';
+import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
+import 'package:uniprintgestao/src/widgets/button.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
+
+import '../app_module.dart';
 
 class ListaFilaImpressao extends StatefulWidget {
   @override
@@ -64,13 +68,6 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
               ),
               backgroundColor: Colors.white,
             ),
-            floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                /*Navigator.of(buildContext).push(new MaterialPageRoute(
-                    builder: (BuildContext context) => new Test()));*/
-              },
-            ),
             backgroundColor: Colors.white,
             body: Builder(
                 builder: (BuildContext context) => _getBodyImpressoes())));
@@ -88,7 +85,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
       );
     }
     for (var data in snap.data['data']['impressao']) {
-      Impressao atendimento = Impressao.fromJson(data.map);
+      Impressao atendimento = Impressao.fromMap(data);
       listaImpressoes.add(atendimento);
     }
     if (listaImpressoes.isNotEmpty) {
@@ -135,21 +132,25 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
   }
 
   Widget _getCardImpressoes(Impressao impressao, int index) {
+    Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       child: (Container(
-          height: 500,
+          height: size.height * 0.75,
           padding: EdgeInsets.all(15.0),
           child: new Card(
               child: new Padding(
             padding: EdgeInsets.all(15.0),
             child: Container(
-              height: 500,
+              height: size.height * 0.75,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  CabecalhoDetalhesUsuario(impressao.usuario,
-                      currentPageValue == currentPageValue.roundToDouble()),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 25),
+                    child: CabecalhoDetalhesUsuario(impressao.usuario,
+                        currentPageValue == currentPageValue.roundToDouble()),
+                  ),
                   Container(
                     alignment: Alignment.topLeft,
                     child: Column(
@@ -200,7 +201,13 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
 
   Widget _getBodyImpressoes() {
     return StreamBuilder(
-        stream: GraphQlObject.hasuraConnect.subscription(Querys.getImpressoes),
+        stream: GraphQlObject.hasuraConnect
+            .subscription(Querys.getImpressoes, variables: {
+          'ponto_atendimento_id': AppModule.to
+              .getDependency<HasuraAuthService>()
+              .usuario
+              .codPontoAtendimento
+        }),
         initialData: [],
         builder: (context, AsyncSnapshot snap) {
           buildContext = context;
@@ -229,11 +236,12 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
       bool result = await UtilsImpressao.gerarMovimentacao(
           Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA,
           Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
-          impressao.id);
+          impressao);
       if (result) {
-        showSnack(buildContext, 'Impressão negada com sucesso');
+        showSnack(buildContext, 'Impressão autorizada com sucesso');
       } else {
-        showSnack(buildContext, 'Ops, houve uma falha ao rejeitar a impressão');
+        showSnack(
+            buildContext, 'Ops, houve uma falha ao autorizada a impressão');
       }
       //atualizarStatusImpressao(
       //  impressao, Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA);
@@ -254,63 +262,38 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              new ButtonTheme(
-                  height: 45,
-                  minWidth: 150,
-                  child: RaisedButton(
-                    onPressed: () async {
-                      bool result = await UtilsImpressao.gerarMovimentacao(
-                          Constants.MOV_IMPRESSAO_NEGADA,
-                          Constants.STATUS_IMPRESSAO_NEGADA,
-                          impressao.id);
-                      if (result) {
-                        showSnack(buildContext, 'Impressão negada com sucesso');
-                      } else {
-                        showSnack(buildContext,
-                            'Ops, houve uma falha ao rejeitar a impressão');
-                      }
-                    },
-                    color: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22.0),
-                    ),
-                    child: new Text(
-                      "REJEITAR",
-                      style: new TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  )),
-              new ButtonTheme(
-                  height: 45,
-                  minWidth: 150,
-                  child: RaisedButton(
-                    onPressed: () async {
-                      if (Platform.isWindows) {
-                        impressaoAutorizada(impressao, context);
-                      } else {
-                        bool result = await UtilsImpressao.gerarMovimentacao(
-                            Constants.MOV_IMPRESSAO_NEGADA,
-                            Constants.STATUS_IMPRESSAO_NEGADA,
-                            impressao.id);
-                        if (result) {
-                          showSnack(
-                              buildContext, 'Impressão negada com sucesso');
-                        } else {
-                          showSnack(buildContext,
-                              'Ops, houve uma falha ao rejeitar a impressão');
-                        }
-                      }
-                    },
-                    color: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22.0),
-                    ),
-                    child: new Text(
-                      "AUTORIZAR",
-                      style: new TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  )),
+              Button(
+                'REJEITAR',
+                () async {
+                  bool result = await UtilsImpressao.gerarMovimentacao(
+                      Constants.MOV_IMPRESSAO_NEGADA,
+                      Constants.STATUS_IMPRESSAO_NEGADA,
+                      impressao);
+                  if (result) {
+                    showSnack(buildContext, 'Impressão negada com sucesso');
+                  } else {
+                    showSnack(buildContext,
+                        'Ops, houve uma falha ao rejeitar a impressão');
+                  }
+                },
+                color: Colors.red,
+              ),
+              Button('AUTORIZAR', () async {
+                if (Platform.isWindows) {
+                  impressaoAutorizada(impressao, context);
+                } else {
+                  bool result = await UtilsImpressao.gerarMovimentacao(
+                      Constants.MOV_IMPRESSAO_AUTORIZADO,
+                      Constants.STATUS_IMPRESSAO_AUTORIZADO,
+                      impressao);
+                  if (result) {
+                    showSnack(buildContext, 'Impressão autorizada com sucesso');
+                  } else {
+                    showSnack(buildContext,
+                        'Ops, houve uma falha ao autorizar a impressão');
+                  }
+                }
+              })
             ],
           ));
     } else if (impressao.status ==
@@ -328,7 +311,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                 bool result = await UtilsImpressao.gerarMovimentacao(
                     Constants.MOV_IMPRESSAO_RETIRADA,
                     Constants.STATUS_IMPRESSAO_RETIRADA,
-                    impressao.id);
+                    impressao);
                 if (result) {
                   showSnack(buildContext,
                       'Impressão marcada como entregue com sucesso!');

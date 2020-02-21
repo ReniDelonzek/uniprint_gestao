@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:firedart/firedart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:uniprintgestao/src/app_module.dart';
+import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/src/views/lista_fila_atendimento.dart';
+import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 class ScreenLoginEmail extends StatefulWidget {
   @override
@@ -164,6 +167,10 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
               content: new Text("Ops, parece que sua conta não está ativa"),
             ));
           }
+        } else {
+          Scaffold.of(context).showSnackBar(new SnackBar(
+            content: new Text("Ops, houve uma falha na tentativa de login"),
+          ));
         }
       });
     } catch (e) {
@@ -181,8 +188,18 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
             content: new Text("Ops, houve uma falha ao realizar o login"),
           ));
         } else {
-          Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new ListaFilaAtendimento()));
+          AppModule.to
+              .getDependency<HasuraAuthService>()
+              .obterDadosUsuario(user.id, (value) {
+            if (value != null) {
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      new ListaFilaAtendimento()));
+            } else {
+              showSnack(buildContext,
+                  'Ops, parece que você não é um atendente cadastrado!');
+            }
+          });
         }
       });
     }).catchError((error) {

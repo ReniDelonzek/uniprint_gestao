@@ -25,4 +25,10 @@ mixin _$FiltroController on _FiltroBase, Store {
       _$controllersAtom.reportChanged();
     }, _$controllersAtom, name: '${_$controllersAtom.name}_set');
   }
+
+  @override
+  String toString() {
+    final string = 'controllers: ${controllers.toString()}';
+    return '{$string}';
+  }
 }

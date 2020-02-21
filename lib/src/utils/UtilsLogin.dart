@@ -1,9 +1,12 @@
 import 'package:firedart/auth/firebase_auth.dart';
+import 'package:firedart/firedart.dart';
 import 'package:flutter/material.dart';
 import 'package:uniprintgestao/src/views/lista_fila_atendimento.dart';
 import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
 
+import '../app_module.dart';
 import 'PreferenceToken.dart';
+import 'auth/hasura_auth_service.dart';
 
 void verificarLogin(context) {
   PreferencesStore.create().then((t) {
@@ -13,9 +16,17 @@ void verificarLogin(context) {
         if (user == null) {
           navegarLogin(context);
         } else {
-          Route route =
-              MaterialPageRoute(builder: (context) => ListaFilaAtendimento());
-          Navigator.pushReplacement(context, route);
+          AppModule.to
+              .getDependency<HasuraAuthService>()
+              .obterDadosUsuario(user.id, (value) {
+            if (value != null) {
+              Route route = MaterialPageRoute(
+                  builder: (context) => ListaFilaAtendimento());
+              Navigator.pushReplacement(context, route);
+            } else {
+              navegarLogin(context);
+            }
+          });
         }
         //});
       }).catchError((onError) {

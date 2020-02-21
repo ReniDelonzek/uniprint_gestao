@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
 import 'models/item_select.dart';
+
 part 'select_any_controller.g.dart';
 
 class SelectAnyController = _SelectAnyBase with _$SelectAnyController;
@@ -41,6 +42,5 @@ abstract class _SelectAnyBase with Store {
     listaOriginal.clear();
     listaExibida.clear();
     filter.clear();
-    super.dispose();
   }
 }

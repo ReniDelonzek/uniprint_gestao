@@ -2,7 +2,9 @@ class Mutations {
   static String cadastroAtendente = """
 mutation cadastrarAtendente(\$ponto_atendimento_id: Int!, \$usuario_id: Int!) {
   insert_atendente(objects: {ponto_atendimento_id: \$ponto_atendimento_id, usuario_id: \$usuario_id}) {
-    affected_rows
+    returning {
+      id
+    }
   }
 }
 """;
@@ -28,6 +30,17 @@ mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usu
     affected_rows
   }
   update_impressao(_set: {status: \$status}, where: {id: {_eq: \$impressao_id}}) {
+    affected_rows
+  }
+}
+""";
+
+  static String autorizarImpressao = """
+mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$impressao_id: Int!, \$status: Int!, \$ponto_atendimento_id: Int!) {
+  insert_movimentacao(objects: {data: \$data, tipo: \$tipo, usuario_id: \$usuario_id, movimentacao_impressaos: {data: {impressao_id: \$impressao_id}}}) {
+    affected_rows
+  }
+  update_impressao(_set: {status: \$status, ponto_atendimento_id: \$ponto_atendimento_id}, where: {id: {_eq: \$impressao_id}}) {
     affected_rows
   }
 }
