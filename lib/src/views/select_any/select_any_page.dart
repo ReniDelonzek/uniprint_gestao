@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_controller.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
@@ -489,5 +489,3 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
     }
   }
 }
-
-class AppDatabase {}

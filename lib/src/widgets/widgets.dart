@@ -1,12 +1,11 @@
-import 'package:firedart/firedart.dart';
 import 'package:flutter/material.dart';
 import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
 
 class TextTitle extends StatelessWidget {
-  String title;
+  final String title;
 
-  TextTitle(this.title);
+  const TextTitle(this.title);
 
   @override
   Widget build(BuildContext context) {
@@ -20,51 +19,30 @@ class TextTitle extends StatelessWidget {
         ));
   }
 }
-/*
-
-class ChipButton extends StatefulWidget {
-  String title;
-  bool isSelected;
-  GestureTapCallback onTap;
-
-  ChipButton(this.title, this.isSelected, this.onTap);
-
-  @override
-  State<StatefulWidget> createState() {
-    return ChipButtonState(title, isSelected, onTap);
-  }
-}
-*/
 
 class MyChipButton extends StatefulWidget {
-  String title;
-  bool isSelect;
-  GestureTapCallback onTap;
+  final String title;
+  final bool isSelect;
+  final GestureTapCallback onTap;
 
   MyChipButton(this.title, this.isSelect, this.onTap);
 
   @override
   State<StatefulWidget> createState() {
-    return MyChipButtonState(title, isSelect, onTap);
+    return MyChipButtonState();
   }
 }
 
 class MyChipButtonState extends State<MyChipButton> {
-  String title;
-  bool isSelect;
-  GestureTapCallback onTap;
-
-  MyChipButtonState(this.title, this.isSelect, this.onTap);
-
   @override
   Widget build(BuildContext context) {
-    return ChipButtonState(title, isSelect, onTap);
+    return ChipButtonState(widget.title, widget.isSelect, widget.onTap);
   }
 }
 
 class LocaisAtendimento extends StatelessWidget {
   PontoAtendimento local;
-  String title;
+  final String title;
   final ValueChanged<PontoAtendimento> onSelect;
 
   LocaisAtendimento(this.title, this.onSelect, {this.local});
@@ -230,7 +208,8 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
                   fontSize: 18,
                 ),
               ),
-              Text(usuario?.email, overflow: TextOverflow.ellipsis)
+              Expanded(
+                  child: Text(usuario?.email, overflow: TextOverflow.ellipsis))
             ],
           ),
         )
@@ -238,8 +217,6 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
     );
   }
 }
-
-class MeusWidgets {}
 
 showSnack(BuildContext context, String text, {bool dismiss}) {
   Scaffold.of(context).showSnackBar(SnackBar(

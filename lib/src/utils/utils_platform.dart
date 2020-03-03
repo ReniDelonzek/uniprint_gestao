@@ -19,4 +19,8 @@ class UtilsPlatform {
     return (!Foundation.kIsWeb &&
         (Platform.isWindows || Platform.isMacOS || Platform.isLinux));
   }
+
+  static isWindows() {
+    return (!Foundation.kIsWeb && (Platform.isWindows));
+  }
 }

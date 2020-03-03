@@ -69,20 +69,24 @@ class SelecionarRangeDataWidget extends StatelessWidget {
         context: context,
         initialFirstDate: controller.dataInicial ?? DateTime.now(),
         initialLastDate: controller.dataFinal ??
-            new DateTime.now().add(new Duration(days: 7)),
+            (controller.dataInicial ?? new DateTime.now())
+                .add(new Duration(days: 7)),
         firstDate: controller.dataMin ?? new DateTime(2019),
         lastDate: controller.dataMax ??
             new DateTime.now().add(new Duration(days: 365)));
     if (dates != null && dates.isNotEmpty) {
       if (dates.length == 1) {
-        dates.add(DateTime(
-            dates.first.year, dates.first.month, dates.first.day, 23, 59, 59));
+        /*dates.add(DateTime(
+            dates.first.year, dates.first.month, dates.first.day, 23, 59, 59));*/
       }
       this.controller.dataInicial = DateTime(
           dates.first.year, dates.first.month, dates.first.day, 0, 0, 0);
-      this.controller.dataFinal = DateTime(
-          dates.last.year, dates.last.month, dates.last.day, 23, 59, 59);
-
+      if (dates.length > 1) {
+        this.controller.dataFinal = DateTime(
+            dates.last.year, dates.last.month, dates.last.day, 23, 59, 59);
+      } else {
+        this.controller.dataFinal = null;
+      }
       onChanged(this.controller.dataInicial, this.controller.dataFinal);
     }
   }

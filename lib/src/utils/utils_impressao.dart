@@ -1,58 +1,54 @@
 import 'dart:io';
 
+import 'package:flutter_pdf_printer/flutter_pdf_printer.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/app_module.dart';
 import 'package:uniprintgestao/src/extensions/date.dart';
-import 'package:uniprintgestao/src/api/UtilsDownload.dart';
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
 import 'package:uniprintgestao/src/api/mutations.dart';
 import 'package:uniprintgestao/src/models/graph/arquivo_impressao.dart';
 import 'package:uniprintgestao/src/models/graph/impressao.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/src/utils/utils_notificacao.dart';
+import 'package:uniprintgestao/src/utils/utils_platform.dart';
+
+import 'utils_download.dart';
 
 class UtilsImpressao {
-  /*static Future<List<ArquivoImpressao>> obterArquivosImpressao(
-      Impressao impressao) async {
-    List<ArquivoImpressao> arquivos = List();
-    var res = await Firestore.instance
-        .collection('Empresas')
-        .document('Uniguacu')
-        .collection('Pontos')
-        .document(impressao.codPonto)
-        .collection('Impressoes')
-        .document(impressao.id)
-        .collection('Documentos')
-        .get();
-    if (res != null) {
-      for (Document doc in res) {
-        ArquivoImpressao arquivoImpressao = ArquivoImpressao.fromDoc(doc);
-        arquivos.add(arquivoImpressao);
-      }
-    }
-    return arquivos;
-  }*/
-
   static Future<List<File>> baixarArquivosImpressao(Impressao impressao) async {
     List<File> files = List();
-    List<ArquivoImpressao> arquivos =
-        impressao.arquivo_impressaos; //await obterArquivosImpressao(impressao);
+    List<ArquivoImpressao> arquivos = impressao.arquivo_impressaos;
+    String dir = '';
+    if (UtilsPlatform.isDesktop()) {
+      dir = 'Impressoes/${impressao.id}';
+    } else {
+      dir = (await getExternalStorageDirectory()).absolute.path +
+          '/${impressao.id}';
+    }
     for (ArquivoImpressao arquivo in arquivos) {
       files.add(await UtilsDownload.baixarArquivo(
-          arquivo.url, 'Impressoes/${impressao.id}', '${arquivo.nome}'));
+          arquivo.url, dir, '${arquivo.nome}'));
     }
     return files;
   }
 
-  static bool imprimirArquivos(List<File> arquivos) {
-    for (File file in arquivos) {
-      String win7Path = Directory.current.path + "\\PDFtoPrinter";
-      //'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
-      try {
-        Process.run(win7Path, [file.absolute.path]);
-      } catch (e) {
-        print(e);
-        return false;
+  static Future<bool> imprimirArquivos(List<File> arquivos) async {
+    if (UtilsPlatform.isWindows()) {
+      for (File file in arquivos) {
+        String win7Path = Directory.current.path + "\\PDFtoPrinter";
+        //'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
+        try {
+          await Process.run(win7Path, [file.absolute.path]);
+        } catch (e) {
+          print(e);
+          return false;
+        }
+      }
+    } else if (UtilsPlatform.isMobile()) {
+      for (File file in arquivos) {
+        await FlutterPdfPrinter.printFile(file
+            .path); //"/.//data/user/0/app.rd.uniprint.uniprintgestao/app_flutter/26/4961070139.pdf"
       }
     }
     return true;

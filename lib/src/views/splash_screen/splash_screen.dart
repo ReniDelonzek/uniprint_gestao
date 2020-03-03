@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:uniprintgestao/src/temas/Tema.dart';
-import 'package:uniprintgestao/src/utils/UtilsLogin.dart';
-import 'package:uniprintgestao/src/utils/UtilsNotification.dart';
+import 'package:uniprintgestao/src/utils/utils_login.dart';
+import 'package:uniprintgestao/src/utils/utils_notification.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

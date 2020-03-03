@@ -1,5 +1,5 @@
 import 'package:hasura_connect/hasura_connect.dart';
-import 'package:uniprintgestao/src/utils/PreferenceToken.dart';
+import 'package:uniprintgestao/src/utils/preference_token.dart';
 
 class GraphQlObject {
   static String url = 'https://uniprint-uv.herokuapp.com/v1/graphql';

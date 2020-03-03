@@ -2,12 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/mutations.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
-import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/views/select_any/models/select_model.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
@@ -39,31 +38,34 @@ class CadastroAtendentePageState extends State<CadastroAtendente> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text('Cadastro operador'),
+          title: Text('Cadastro Atentende'),
         ),
         body: Builder(builder: (context) {
           return new Container(
             child: Column(
               children: <Widget>[
-                SelectWidget('Selecione o usuário', user?.pessoa?.nome,
-                    () async {
-                  var res = await Navigator.of(context).push(
-                      new MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              new SelectAnyModule(SelectModel(
-                                  'Selecione o Usuário',
-                                  'id',
-                                  [Linha('pessoa/nome'), Linha('email')],
-                                  SelectAnyPage.TIPO_SELECAO_SIMPLES,
-                                  query: getUsuarios,
-                                  chaveLista: 'usuario'))));
-                  if (res != null) {
-                    setState(() {
-                      user = Usuario.fromMap(res);
-                      print(user);
-                    });
-                  }
-                }),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: SelectWidget('Selecione o usuário', user?.pessoa?.nome,
+                      () async {
+                    var res = await Navigator.of(context).push(
+                        new MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                new SelectAnyModule(SelectModel(
+                                    'Selecione o Usuário',
+                                    'id',
+                                    [Linha('pessoa/nome'), Linha('email')],
+                                    SelectAnyPage.TIPO_SELECAO_SIMPLES,
+                                    query: Querys.getUsuariosAtend,
+                                    chaveLista: 'usuario'))));
+                    if (res != null) {
+                      setState(() {
+                        user = Usuario.fromMap(res);
+                        print(user);
+                      });
+                    }
+                  }),
+                ),
                 LocaisAtendimento('Ponto de atendimento', (local) {
                   setState(() {
                     this.local = local;

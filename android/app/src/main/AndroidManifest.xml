@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
         android:name=".application.MyApplication"
-        android:label="uniprintgestao"
+        android:label="UniPrint Gestão"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

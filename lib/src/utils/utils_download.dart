@@ -8,14 +8,14 @@ class UtilsDownload {
     HttpClientResponse response = await request.close();
     if (response.statusCode < 400) {
       var dir = Directory('./$diretorio');
-      if (await (dir.exists()) == false) {
+      if ((await dir.exists()) == false) {
         dir = await dir.create();
       }
       File file = File('${dir.path}/$nome');
-      if (await (file.exists()) == false) {
+      if ((await file.exists()) == false) {
         file = await file.create();
       }
-      response.pipe(file.openWrite());
+      await response.pipe(file.openWrite());
       return file;
     }
     return null;

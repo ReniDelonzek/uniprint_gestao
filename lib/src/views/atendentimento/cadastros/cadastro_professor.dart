@@ -2,15 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
-import 'package:uniprintgestao/src/temas/Tema.dart';
 import 'package:uniprintgestao/src/utils/network/network.dart';
 import 'package:uniprintgestao/src/views/select_any/models/select_model.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
-import 'package:uniprintgestao/src/widgets/button.dart';
 import 'package:uniprintgestao/src/widgets/select_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
@@ -46,7 +44,7 @@ class CadastroProfessorPageState extends State<CadastroProfessor> {
               ..show();
             try {
               var res = await GraphQlObject.hasuraConnect.mutation(
-                  cadastroProfessor,
+                  Querys.cadastroProfessor,
                   variables: {'instituicao_id': 1, 'usuario_id': user?.id});
 
               if (res != null) {
@@ -100,7 +98,7 @@ class CadastroProfessorPageState extends State<CadastroProfessor> {
                                       'id',
                                       [Linha('pessoa/nome'), Linha('email')],
                                       SelectAnyPage.TIPO_SELECAO_SIMPLES,
-                                      query: getUsuarios,
+                                      query: Querys.getUsuariosProf,
                                       chaveLista: 'usuario'))));
                       if (res != null) {
                         setState(() {

@@ -4,18 +4,19 @@ import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/impressao.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
-import 'package:uniprintgestao/src/utils/UtilsImpressao.dart';
 import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
-import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
+import 'package:uniprintgestao/src/utils/utils_impressao.dart';
 import 'package:uniprintgestao/src/widgets/button.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
+import 'package:uniprintgestao/src/widgets/lista_vazia/lista_vazia_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 
 import '../app_module.dart';
+import 'viewPage/view_page_aux.dart';
 
 class ListaFilaImpressao extends StatefulWidget {
   @override
@@ -26,10 +27,7 @@ class ListaFilaImpressao extends StatefulWidget {
 
 class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
   List<Impressao> listaImpressoes = List();
-  Icon icon = Icon(Icons.done);
   var currentPageValue = 0.0;
-  List<String> tamanhosFolha = List();
-  Stream slides;
   PageController controller = PageController();
   BuildContext buildContext;
   final FocusNode _focusNode = FocusNode();
@@ -81,8 +79,11 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
     }
     if (snap.data['data']['impressao'].isEmpty) {
       return Center(
-        child: Text('Nenhuma impressão na fila'),
-      );
+          child: ListaVaziaWidget(
+              'Nenhuma impressão na fila',
+              'Impressões aparecem aqui',
+              'imagens/printer_icon.png') //Text('Nenhuma impressão na fila'),
+          );
     }
     for (var data in snap.data['data']['impressao']) {
       Impressao atendimento = Impressao.fromMap(data);
@@ -107,7 +108,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
   _buildStoryPageImpressoes(Impressao impressao, bool active, int index) {
     if (Platform.isWindows &&
         impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
-      impressaoAutorizada(impressao, buildContext);
+      imprimirArquivos(impressao, buildContext);
     }
     // Animated Properties
     final double blur = active ? 30 : 30;
@@ -171,21 +172,32 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
                               '-Usuário desde 09/09/2019\n-3 Impressões, 4 atendimentos\n-Confiável'),
                         ),
                         Padding(
-                          padding: EdgeInsets.all(15),
-                        ),
-                        Text(
-                          'Sobre a impressão',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold),
+                          padding: EdgeInsets.only(top: 16, bottom: 16),
+                          child: Text(
+                            'Sobre a impressão',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Text(
-                            impressao.comentario,
-                            style: TextStyle(fontStyle: FontStyle.italic),
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Column(
+                            children: <Widget>[
+                              Text(impressao.arquivo_impressaos
+                                  .map((e) =>
+                                      '${e.tipo_folha?.nome} ${e.quantidade} cópias')
+                                  .toList()
+                                  .toString()
+                                  .replaceAll('[', '')
+                                  .replaceAll(']', '')),
+                              Text(
+                                'Comentário: ${impressao.comentario}',
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ],
                           ),
                         )
                       ],
@@ -225,27 +237,26 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
         });
   }
 
-  Future<void> impressaoAutorizada(
+  Future<void> imprimirArquivos(
       Impressao impressao, BuildContext context) async {
+    //if (UtilsPlatform.isWindows()) {
     ProgressDialog progressDialog = ProgressDialog(context);
     progressDialog.style(message: 'Baixando e imprimindo arquivos');
     progressDialog.show();
-    var files = await UtilsImpressao.baixarArquivosImpressao(impressao);
-    bool sucess = UtilsImpressao.imprimirArquivos(files);
-    if (sucess) {
-      bool result = await UtilsImpressao.gerarMovimentacao(
-          Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA,
-          Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
-          impressao);
-      if (result) {
-        showSnack(buildContext, 'Impressão autorizada com sucesso');
-      } else {
-        showSnack(
-            buildContext, 'Ops, houve uma falha ao autorizada a impressão');
+    try {
+      var files = await UtilsImpressao.baixarArquivosImpressao(impressao);
+      bool sucess = await UtilsImpressao.imprimirArquivos(files);
+      if (progressDialog.isShowing()) {
+        progressDialog?.dismiss();
       }
-      //atualizarStatusImpressao(
-      //  impressao, Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA);
-    } else {
+      if (sucess) {
+        showSnack(buildContext, 'Impresso com sucesso');
+      } else {
+        Scaffold.of(buildContext).showSnackBar(SnackBar(
+          content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
+        ));
+      }
+    } catch (e) {
       if (progressDialog.isShowing()) {
         progressDialog?.dismiss();
       }
@@ -253,6 +264,12 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
         content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
       ));
     }
+    /*} else {
+      Scaffold.of(buildContext).showSnackBar(SnackBar(
+        content: Text(
+            'Infelizmente as impressões são suportadas somente no windows'),
+      ));
+    }*/
   }
 
   _getButtons(Impressao impressao) {
@@ -280,7 +297,7 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
               ),
               Button('AUTORIZAR', () async {
                 if (Platform.isWindows) {
-                  impressaoAutorizada(impressao, context);
+                  imprimirArquivos(impressao, context);
                 } else {
                   bool result = await UtilsImpressao.gerarMovimentacao(
                       Constants.MOV_IMPRESSAO_AUTORIZADO,
@@ -332,7 +349,14 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
             )),
       );
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
-      return Center(child: Text('Impressão autorizada, aguardando impressão'));
+      return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+        Button('Imprimir', () {
+          imprimirArquivos(impressao, context);
+        }),
+        Button('Marcar como impresso', () async {
+          marcarComoImpresso(impressao, context);
+        })
+      ]);
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_RETIRADA) {
       return Center(child: Text('Impressão finalizada'));
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_CANCELADO) {
@@ -341,6 +365,19 @@ class ListaFilaImpressaoPageState extends State<ListaFilaImpressao> {
       return Center(child: Text('Impressão rejeitada'));
     } else
       return Spacer();
+  }
+
+  Future<void> marcarComoImpresso(
+      Impressao impressao, BuildContext context) async {
+    bool result = await UtilsImpressao.gerarMovimentacao(
+        Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA,
+        Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
+        impressao);
+    if (result) {
+      showSnack(buildContext, 'Impressão autorizada com sucesso');
+    } else {
+      showSnack(buildContext, 'Ops, houve uma falha ao autorizada a impressão');
+    }
   }
 
   void onKey(RawKeyEvent event) {

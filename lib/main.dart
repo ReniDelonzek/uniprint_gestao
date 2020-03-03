@@ -1,14 +1,28 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:firedart/firedart.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firedart/firestore/firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
-import 'package:flutter/material.dart';
-import 'package:uniprintgestao/src/app_module.dart';
+
+import 'src/app_module.dart';
+import 'src/utils/utils_sentry.dart';
+
+void _setTargetPlatformForDesktop() {
+  // No need to handle macOS, as it has now been added to TargetPlatform.
+  if (!Foundation.kIsWeb && (Platform.isLinux || Platform.isWindows)) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  }
+}
 
 void main() {
-  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  _setTargetPlatformForDesktop();
+
   Firestore.initialize('uniprint-uv');
-  runApp(new AppModule());
+  runZoned<Future<void>>(() async {
+    runApp(AppModule());
+    UtilsSentry.configureSentry();
+  }, onError: UtilsSentry.reportError);
 }

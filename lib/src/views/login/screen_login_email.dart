@@ -21,14 +21,11 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     super.dispose();
   }
 
   @override
   void initState() {
-    controllerEmail.addListener(() {});
-    controllerSenha.addListener(() {});
     super.initState();
   }
 
@@ -71,8 +68,11 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
                       minWidth: 150,
                       child: new RaisedButton(
                           onPressed: () {
-                            if (verificarDados(context)) {
+                            String msg = verificarDados();
+                            if (msg == null) {
                               logar(context); //criarConta(context);
+                            } else {
+                              showSnack(context, msg);
                             }
                           },
                           shape: new RoundedRectangleBorder(
@@ -103,19 +103,13 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
     return regExp.hasMatch(email);
   }
 
-  bool verificarDados(BuildContext context) {
+  String verificarDados() {
     if (!validarEmail(controllerEmail.text)) {
-      Scaffold.of(context).showSnackBar(new SnackBar(
-        content: new Text("Por favor, insira um email válido"),
-      ));
-      return false;
+      return "Por favor, insira um email válido";
     } else if (controllerSenha.text.length < 6) {
-      Scaffold.of(context).showSnackBar(new SnackBar(
-        content: new Text("A senha deve ter no mínimo 6 caracteres"),
-      ));
-      return false;
+      return "A senha deve ter no mínimo 6 caracteres";
     }
-    return true;
+    return null;
   }
 
   void logar(BuildContext context) {
@@ -129,8 +123,21 @@ class LoginEmailPage extends State<ScreenLoginEmail> {
               content: new Text("Ops, houve uma falha ao realizar o login"),
             ));
           } else {
-            Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new ListaFilaAtendimento()));
+            AppModule.to
+                .getDependency<HasuraAuthService>()
+                .obterDadosUsuario(user.id, (value) {
+              if (value != null) {
+                Route route = MaterialPageRoute(
+                    builder: (context) => ListaFilaAtendimento());
+                Navigator.pushReplacement(context, route);
+              } else {
+                Scaffold.of(context).showSnackBar(new SnackBar(
+                  content: new Text("Ops, houve uma falha ao realizar o login"),
+                ));
+              }
+            });
+            //Navigator.of(context).push(new MaterialPageRoute(
+            //  builder: (BuildContext context) => new ListaFilaAtendimento()));
           }
         });
       }).catchError((error) {

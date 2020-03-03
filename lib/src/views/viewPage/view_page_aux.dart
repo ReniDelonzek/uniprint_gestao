@@ -27,7 +27,7 @@ int getBotaoPressionado(RawKeyEvent event) {
       keyCode = data.keyCode;
       break;
     default:
-      throw new Exception('Unsupported platform ${event.data.runtimeType}');
+    //throw new Exception('Unsupported platform ${event.data.runtimeType}');
   }
   if (!isKeyDown) {
     return keyCode;

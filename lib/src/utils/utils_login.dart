@@ -5,8 +5,8 @@ import 'package:uniprintgestao/src/views/lista_fila_atendimento.dart';
 import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
 
 import '../app_module.dart';
-import 'PreferenceToken.dart';
 import 'auth/hasura_auth_service.dart';
+import 'preference_token.dart';
 
 void verificarLogin(context) {
   PreferencesStore.create().then((t) {

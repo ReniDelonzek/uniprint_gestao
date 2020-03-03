@@ -1,42 +1,3 @@
-String queryAtendimentos = '''subscription atendimentos { 
-  atendimento {
-    id
-    data_solicitacao
-    status
-    usuario {
-      email
-      id
-      pessoa {
-        nome
-      }
-    }
-  }
-}
-''';
-
-String getUsuarios = """query MyQuery {
-  usuario(order_by: {pessoa: {nome: asc}}) {
-    id 
-    uid
-    email
-    pessoa {
-      nome
-    }
-  }
-}
-""";
-
-String cadastroProfessor =
-    """mutation MyMutation(\$instituicao_id: Int!, \$usuario_id: Int!) {
-  __typename
-  insert_professor(objects: {instituicao_id: \$instituicao_id, usuario_id: \$usuario_id}) {
-    returning {
-      id
-    }
-  }
-}
-""";
-
 class Querys {
   static String getAtendimentos = """
 subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
@@ -76,7 +37,7 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
 
   static String getImpressoes = """
   subscription getImpressoes(\$ponto_atendimento_id: Int!) { 
-  impressao(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
+  impressao(where: {_or: [{status: {_eq: 1}}, {status: {_eq: 2}}], ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
     id
     comentario
     status
@@ -126,5 +87,84 @@ query somaAtendimentos {
   }
 }
 
+""";
+
+  static const String pontosAtendimento = """
+{
+  ponto_atendimento(where: {instituicao: {id: {_eq: 1}}}) {
+    nome
+    id
+  }
+}
+""";
+
+  static const String tiposFolha = """
+  {
+  tipo_folha {
+    id
+    nome
+  }
+}
+""";
+
+  static const queryAtendimentos = '''subscription atendimentos { 
+  atendimento {
+    id
+    data_solicitacao
+    status
+    usuario {
+      email
+      id
+      pessoa {
+        nome
+      }
+    }
+  }
+}
+''';
+
+  static const getUsuariosAtend = """query {
+  usuario(where:  { _not: { atendentes: {}}}) {
+    id
+    uid
+    email
+    pessoa {
+      nome
+    }
+    atendentes_aggregate {
+      aggregate {
+        count(columns: id)
+      }
+    }
+  }
+}
+""";
+
+  static const getUsuariosProf = """query {
+  usuario(where:  { _not: { professors: {}}}) {
+    id
+    uid
+    email
+    pessoa {
+      nome
+    }
+    professors_aggregate {
+      aggregate {
+        count(columns: id)
+      }
+    }
+  }
+}
+""";
+
+  static const String cadastroProfessor =
+      """mutation MyMutation(\$instituicao_id: Int!, \$usuario_id: Int!) {
+  __typename
+  insert_professor(objects: {instituicao_id: \$instituicao_id, usuario_id: \$usuario_id}) {
+    returning {
+      id
+    }
+  }
+}
 """;
 }

@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:firedart/auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/atendimento_g.dart';
 import 'package:uniprintgestao/src/modules/cadastro_preco/cadastro_preco_module.dart';
@@ -21,12 +19,13 @@ import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
 import 'package:uniprintgestao/src/views/select_any/models/select_model.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/views/select_any/select_any_page.dart';
-import 'package:uniprintgestao/src/views/viewPage/ViewPageAux.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
+import 'package:uniprintgestao/src/widgets/lista_vazia/lista_vazia_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
 import '../app_module.dart';
 import 'atendentimento/cadastros/cadastro_professor.dart';
 import 'lista_fila_impressao.dart';
+import 'viewPage/view_page_aux.dart';
 
 class ListaFilaAtendimento extends StatefulWidget {
   @override
@@ -37,13 +36,9 @@ class ListaFilaAtendimento extends StatefulWidget {
 
 class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
   List<Atendimento> atendimentos = List();
-  Icon icon = Icon(Icons.done);
   double currentPageValue = 0.0;
-  List<String> tamanhosFolha = List();
-  Stream slides;
   PageController controller = PageController();
   BuildContext buildContext;
-  ProgressDialog progressDialog;
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -142,28 +137,29 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
                   new ListTile(
                       title: new Text("Soma atendimentos"),
                       trailing: new Icon(Icons.work),
-                      onTap: () async {
-                        var res = await Navigator.of(context).push(
-                            new MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    new SelectAnyModule(SelectModel(
-                                        'Contagem de atendimentos',
-                                        'id',
-                                        [
-                                          Linha(
-                                              'atendimentos_aggregate/aggregate/count',
-                                              involucro: '??? Atendimentos'),
-                                          Linha('nome')
-                                        ],
-                                        SelectAnyPage.TIPO_SELECAO_ACAO,
-                                        query: Querys.somaAtendimentosDia,
-                                        chaveLista: 'ponto_atendimento'))));
+                      onTap: () {
+                        Navigator.of(context).push(new MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                new SelectAnyModule(SelectModel(
+                                    'Contagem de atendimentos',
+                                    'id',
+                                    [
+                                      Linha(
+                                          'atendimentos_aggregate/aggregate/count',
+                                          involucro: '??? Atendimentos'),
+                                      Linha('nome')
+                                    ],
+                                    SelectAnyPage.TIPO_SELECAO_ACAO,
+                                    query: Querys.somaAtendimentosDia,
+                                    chaveLista: 'ponto_atendimento'))));
                       }),
                   new ListTile(
                       title: new Text("Sair"),
                       trailing: new Icon(Icons.power_settings_new),
-                      onTap: () {
-                        FirebaseAuth.instance.signOut();
+                      onTap: () async {
+                        await AppModule.to
+                            .getDependency<HasuraAuthService>()
+                            .logOut();
                         Navigator.of(context).pop();
                         Navigator.pushReplacement(
                             context,
@@ -203,8 +199,12 @@ class ListaFilaAtendimentoPageState extends State<ListaFilaAtendimento> {
     }
     if (snap.data['data']['atendimento'].isEmpty) {
       return Center(
-        child: Text('Nenhum atendimento na fila'),
-      );
+          child: ListaVaziaWidget(
+              'Nenhuma atendimento na fila',
+              'Fila de atendimentos são mostrados aqui',
+              'imagens/reception.png') //Text('Nenhuma impressão na fila'),
+          //Text('Nenhum atendimento na fila'),
+          );
     }
     for (var data in snap.data['data']['atendimento']) {
       Atendimento atendimento = Atendimento.fromMap(data);
