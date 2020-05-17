@@ -1,5 +1,7 @@
+import 'package:uniprintgestao/src/utils/constans.dart';
+
 class Querys {
-  static String getAtendimentos = """
+  static const String getAtendimentos = """
 subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
   atendimento(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
     data_solicitacao
@@ -35,9 +37,9 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
 
 """;
 
-  static String getImpressoes = """
+  static const String getImpressoes = """
   subscription getImpressoes(\$ponto_atendimento_id: Int!) { 
-  impressao(where: {_or: [{status: {_eq: 1}}, {status: {_eq: 2}}], ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
+  impressao(where: {_or: [{status: {_eq: 1}}, {status: {_eq: 2}}, {status: {_eq: 3}}], ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}, order_by: {data_criacao: asc}) {
     id
     comentario
     status
@@ -47,6 +49,21 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
           url_foto
           pessoa {
             nome
+          }
+          impressaos_aggregate(where: {status: {_eq: ${Constants.STATUS_IMPRESSAO_RETIRADA}}}) {
+            aggregate {
+              count(columns: id)
+            }
+          }
+          atendimentos_aggregate(where: {status: {_eq: ${Constants.STATUS_ATENDIMENTO_ATENDIDO}}}) {
+            aggregate {
+              count(columns: id)
+            }
+          }
+          data_criacao
+          nivel_usuarios {
+            nivel_id
+            pontuacao
           }
         }
     arquivo_impressaos {
@@ -75,7 +92,7 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
   }
 }""";
 
-  static String somaAtendimentosDia = """
+  static const String somaAtendimentosDia = """
 query somaAtendimentos {
   ponto_atendimento {
     atendimentos_aggregate(where: {status: {_eq: 3}}) {

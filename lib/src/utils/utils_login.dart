@@ -1,8 +1,8 @@
 import 'package:firedart/auth/firebase_auth.dart';
 import 'package:firedart/firedart.dart';
 import 'package:flutter/material.dart';
-import 'package:uniprintgestao/src/views/lista_fila_atendimento.dart';
-import 'package:uniprintgestao/src/views/login/screen_login_email.dart';
+import 'package:uniprintgestao/src/modules/fila_atendimento/fila_atendimento_module.dart';
+import 'package:uniprintgestao/src/modules/login/login_module.dart';
 
 import '../app_module.dart';
 import 'auth/hasura_auth_service.dart';
@@ -21,7 +21,7 @@ void verificarLogin(context) {
               .obterDadosUsuario(user.id, (value) {
             if (value != null) {
               Route route = MaterialPageRoute(
-                  builder: (context) => ListaFilaAtendimento());
+                  builder: (context) => FilaAtendimentoModule());
               Navigator.pushReplacement(context, route);
             } else {
               navegarLogin(context);
@@ -42,7 +42,7 @@ void verificarLogin(context) {
 }
 
 navegarLogin(var context) {
-  Route route = MaterialPageRoute(builder: (context) => ScreenLoginEmail());
+  Route route = MaterialPageRoute(builder: (context) => LoginModule());
   Navigator.pushReplacement(context, route);
 }
 /*

@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:firedart/firedart.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:uniprintgestao/src/app_module.dart';
+import 'package:uniprintgestao/src/services/utils_hive_service.dart';
 
 class PreferencesStore extends TokenStore {
   static const user = "user_id";
@@ -12,21 +11,11 @@ class PreferencesStore extends TokenStore {
   static const expiryTokenKey = "expiry_token";
 
   static Future<PreferencesStore> create() async {
-    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      Hive.init(Directory.current.path);
-    } else {
-      Hive.init((await getApplicationDocumentsDirectory()).path);
-    }
-    //if ()
-
-    return PreferencesStore._internal(await Hive.openBox('token_box'));
+    return PreferencesStore._internal(
+        await AppModule.to.getDependency<HiveService>().getBox('token_box'));
   }
 
-  //PreferencesStore._internal(await SharedPreferences.getInstance());
-
   Box box;
-
-  //PreferencesStore._internal(this._prefs);
   PreferencesStore._internal(this.box);
 
   @override
@@ -39,29 +28,21 @@ class PreferencesStore extends TokenStore {
                 defaultValue: DateTime.now().toIso8601String())) ??
             DateTime.now());
 
-    //box.get(keyToken);
     return token;
   }
 
-  /*_prefs.containsKey(keyToken)
-  ? Token.fromMap(json.decode(_prefs.get(keyToken)))
-      : null;*/
-
   @override
-  void write(Token token) {
-    box.put(idTokenKey, token.toMap()['idToken']);
-    box.put(expiryTokenKey, token.toMap()['expiry']);
-    box.put(refreshTokenKey, token.toMap()['refreshToken'].toString());
-    box.put(user, token.toMap()['_userId'].toString());
-    //box.put(keyToken, token);
+  Future write(Token token) async {
+    await box.put(idTokenKey, token.toMap()['idToken']);
+    await box.put(expiryTokenKey, token.toMap()['expiry']);
+    await box.put(refreshTokenKey, token.toMap()['refreshToken'].toString());
+    await box.put(user, token.toMap()['_userId'].toString());
   }
-
-  //_prefs.setString(keyToken, json.encode(token.toMap()));
 
   @override
   void delete() {
     box.delete(idTokenKey);
     box.delete(expiryTokenKey);
     box.delete(refreshTokenKey);
-  } //_prefs.remove(keyToken);
+  }
 }

@@ -17,7 +17,7 @@ class HiveService extends Disposable {
   _init() async {
     if (UtilsPlatform.isMobile()) {
       await Hive.initFlutter();
-    } else {
+    } else if (UtilsPlatform.isDesktop()) {
       Hive.init(Directory.current.path);
     }
     Hive.registerAdapter(UsuarioHasuraAdapter());

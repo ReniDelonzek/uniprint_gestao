@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:uniprintgestao/src/extensions/map.dart';
+
+import 'nivel_usuario.dart';
 import 'pessoa_g.dart';
 
 class Usuario {
@@ -7,14 +10,21 @@ class Usuario {
   String email;
   String uid;
   String url_foto;
-
   Pessoa pessoa;
+  OsAggregate impressaos_aggregate;
+  OsAggregate atendimentos_aggregate;
+  DateTime data_criacao;
+  List<NivelUsuario> nivel_usuarios;
   Usuario({
     this.id,
     this.email,
     this.uid,
     this.url_foto,
     this.pessoa,
+    this.impressaos_aggregate,
+    this.atendimentos_aggregate,
+    this.data_criacao,
+    this.nivel_usuarios,
   });
 
   Usuario copyWith({
@@ -23,6 +33,10 @@ class Usuario {
     String uid,
     String url_foto,
     Pessoa pessoa,
+    OsAggregate impressaos_aggregate,
+    OsAggregate atendimentos_aggregate,
+    DateTime data_criacao,
+    List<NivelUsuario> nivel_usuarios,
   }) {
     return Usuario(
       id: id ?? this.id,
@@ -30,6 +44,11 @@ class Usuario {
       uid: uid ?? this.uid,
       url_foto: url_foto ?? this.url_foto,
       pessoa: pessoa ?? this.pessoa,
+      impressaos_aggregate: impressaos_aggregate ?? this.impressaos_aggregate,
+      atendimentos_aggregate:
+          atendimentos_aggregate ?? this.atendimentos_aggregate,
+      data_criacao: data_criacao ?? this.data_criacao,
+      nivel_usuarios: nivel_usuarios ?? this.nivel_usuarios,
     );
   }
 
@@ -40,6 +59,11 @@ class Usuario {
       'uid': uid,
       'url_foto': url_foto,
       'pessoa': pessoa.toMap(),
+      'impressaos_aggregate': impressaos_aggregate.toMap(),
+      'atendimentos_aggregate': atendimentos_aggregate.toMap(),
+      'data_criacao': data_criacao.millisecondsSinceEpoch,
+      'nivel_usuarios':
+          List<dynamic>.from(nivel_usuarios.map((x) => x.toMap())),
     };
   }
 
@@ -52,6 +76,14 @@ class Usuario {
       uid: map['uid'],
       url_foto: map['url_foto'],
       pessoa: Pessoa.fromMap(map['pessoa']),
+      impressaos_aggregate: OsAggregate.fromMap(map['impressaos_aggregate']),
+      atendimentos_aggregate:
+          OsAggregate.fromMap(map['atendimentos_aggregate']),
+      data_criacao: map.toHasuraDate('data_criacao'),
+      nivel_usuarios: map.containsKey('nivel_usuarios')
+          ? List<NivelUsuario>.from(
+              map['nivel_usuarios']?.map((x) => NivelUsuario.fromMap(x)))
+          : [],
     );
   }
 
@@ -61,7 +93,7 @@ class Usuario {
 
   @override
   String toString() {
-    return 'Usuario id: $id, email: $email, uid: $uid, url_foto: $url_foto, pessoa: $pessoa';
+    return 'Usuario(id: $id, email: $email, uid: $uid, url_foto: $url_foto, pessoa: $pessoa, impressaos_aggregate: $impressaos_aggregate, atendimentos_aggregate: $atendimentos_aggregate, data_criacao: $data_criacao, nivel_usuarios: $nivel_usuarios)';
   }
 
   @override
@@ -73,7 +105,11 @@ class Usuario {
         o.email == email &&
         o.uid == uid &&
         o.url_foto == url_foto &&
-        o.pessoa == pessoa;
+        o.pessoa == pessoa &&
+        o.impressaos_aggregate == impressaos_aggregate &&
+        o.atendimentos_aggregate == atendimentos_aggregate &&
+        o.data_criacao == data_criacao &&
+        o.nivel_usuarios == nivel_usuarios;
   }
 
   @override
@@ -82,6 +118,62 @@ class Usuario {
         email.hashCode ^
         uid.hashCode ^
         url_foto.hashCode ^
-        pessoa.hashCode;
+        pessoa.hashCode ^
+        impressaos_aggregate.hashCode ^
+        atendimentos_aggregate.hashCode ^
+        data_criacao.hashCode ^
+        nivel_usuarios.hashCode;
   }
+}
+
+class OsAggregate {
+  Aggregate aggregate;
+
+  OsAggregate({
+    this.aggregate,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'aggregate': aggregate.toMap(),
+    };
+  }
+
+  static OsAggregate fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return OsAggregate(
+      aggregate: Aggregate.fromMap(map['aggregate']),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  static OsAggregate fromJson(String source) => fromMap(json.decode(source));
+}
+
+class Aggregate {
+  int count;
+
+  Aggregate({
+    this.count,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'count': count,
+    };
+  }
+
+  static Aggregate fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return Aggregate(
+      count: map['count'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  static Aggregate fromJson(String source) => fromMap(json.decode(source));
 }

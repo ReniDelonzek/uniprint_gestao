@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 
 class Tema {
-  static ThemeData getTema(BuildContext context) {
-    // Find and extend the parent theme using "copyWith". See the next
-    // section for more info on `Theme.of`.
+  static ThemeData getTema(BuildContext context, {bool darkMode = false}) {
     return ThemeData(
-        appBarTheme: AppBarTheme(elevation: 0),
-        backgroundColor: Colors.white,
-        accentColor: Colors.blue,
-        primaryColor: Colors.white);
+        brightness: darkMode ? Brightness.dark : Brightness.light,
+        appBarTheme: AppBarTheme(
+            elevation: 0, color: darkMode ? Colors.black : Color(0xfdfdfdfd)),
+        accentColor: getCorPadrao(),
+        primaryColor: darkMode ? Colors.black : Colors.white,
+        buttonColor: getCorPadrao(),
+        scaffoldBackgroundColor: darkMode ? Colors.black : Color(0xfdfdfdfd),
+        buttonTheme: ButtonThemeData(buttonColor: getCorPadrao()),
+        inputDecorationTheme: InputDecorationTheme(
+            labelStyle:
+                TextStyle(color: darkMode ? Colors.white70 : Colors.black87)));
   }
+}
+
+getCorPadrao() {
+  return Colors.blue;
 }
