@@ -54,6 +54,18 @@ class UtilsImpressao {
     return true;
   }
 
+  static abrirArquivosExplorador(Impressao impressao) async {
+    List<File> files = await baixarArquivosImpressao(impressao);
+    try {
+      await Process.run(
+          'start %windir%\\explorer.exe "${(await getDownloadsDirectory()).parent.path}"',
+          []);
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   static Future<bool> gerarMovimentacao(
       int tipo, int status, Impressao impressao) async {
     try {

@@ -1,20 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/mutations.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
-import 'package:uniprintgestao/src/models/graph/ponto_atendimento.dart';
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
 import 'package:uniprintgestao/src/modules/cadastro_atendente/cadastro_atendente_controller.dart';
 import 'package:uniprintgestao/src/modules/cadastro_atendente/cadastro_atendente_module.dart';
 import 'package:uniprintgestao/src/modules/select_any/models/select_model.dart';
 import 'package:uniprintgestao/src/modules/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/modules/select_any/select_any_page.dart';
+import 'package:uniprintgestao/src/utils/network/network.dart';
 import 'package:uniprintgestao/src/widgets/button.dart';
+import 'package:uniprintgestao/src/widgets/pontos_atendimento/pontos_atendimento_controller.dart';
+import 'package:uniprintgestao/src/widgets/pontos_atendimento/pontos_atendimento_widget.dart';
 import 'package:uniprintgestao/src/widgets/select_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
-import 'package:uniprintgestao/src/utils/network/network.dart';
 
 class CadastroAtendentePage extends StatefulWidget {
   @override
@@ -47,27 +49,29 @@ class CadastroAtendentePageState extends State<CadastroAtendentePage> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: SelectWidget(
-                      'Selecione o usuário', _controller.user?.pessoa?.nome,
-                      () async {
-                    var res = await Navigator.of(context).push(
-                        new MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                new SelectAnyModule(SelectModel(
-                                    'Selecione o Usuário',
-                                    'id',
-                                    [Linha('pessoa/nome'), Linha('email')],
-                                    SelectAnyPage.TIPO_SELECAO_SIMPLES,
-                                    query: Querys.getUsuariosAtend,
-                                    chaveLista: 'usuario'))));
-                    if (res != null) {
-                      _controller.user = Usuario.fromMap(res);
-                    }
-                  }),
+                  child: Observer(
+                    builder: (_) => SelectWidget(
+                        'Selecione o usuário', _controller.user?.pessoa?.nome,
+                        () async {
+                      var res = await Navigator.of(context).push(
+                          new MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  new SelectAnyModule(SelectModel(
+                                      'Selecione o Usuário',
+                                      'id',
+                                      [Linha('pessoa/nome'), Linha('email')],
+                                      SelectAnyPage.TIPO_SELECAO_SIMPLES,
+                                      query: Querys.getUsuariosAtend,
+                                      chaveLista: 'usuario'))));
+                      if (res != null) {
+                        _controller.user = Usuario.fromMap(res);
+                      }
+                    }),
+                  ),
                 ),
-                LocaisAtendimento('Ponto de atendimento', (local) {
+                PontosAtendimentoWidget('Ponto de atendimento', (local) {
                   _controller.local = local;
-                }, local: _controller.local),
+                }, PontosAtendimentoController(_controller.local)),
                 new Padding(padding: EdgeInsets.only(top: 25)),
                 Button('Salvar', () async {
                   ProgressDialog progress = ProgressDialog(context)

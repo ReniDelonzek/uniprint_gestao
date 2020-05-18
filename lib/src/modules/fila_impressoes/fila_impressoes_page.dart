@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,16 +6,20 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/app_module.dart';
+import 'package:uniprintgestao/src/extensions/date.dart';
 import 'package:uniprintgestao/src/models/graph/impressao.dart';
+import 'package:uniprintgestao/src/modules/fila_impressoes/fila_impressoes_controller.dart';
+import 'package:uniprintgestao/src/modules/fila_impressoes/fila_impressoes_module.dart';
 import 'package:uniprintgestao/src/utils/Constans.dart';
 import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/src/utils/utils_impressao.dart';
+import 'package:uniprintgestao/src/utils/utils_platform.dart';
 import 'package:uniprintgestao/src/utils/view_page_aux.dart';
 import 'package:uniprintgestao/src/widgets/button.dart';
+import 'package:uniprintgestao/src/widgets/cabecalho_detalhes_usuario/cabecalho_detalhes_usuario.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 import 'package:uniprintgestao/src/widgets/lista_vazia/lista_vazia_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
-import 'package:uniprintgestao/src/extensions/date.dart';
 
 class FilaImpressoesPage extends StatefulWidget {
   @override
@@ -27,6 +29,9 @@ class FilaImpressoesPage extends StatefulWidget {
 }
 
 class FilaImpressoesPageState extends State<FilaImpressoesPage> {
+  final FilaImpressoesController _controller =
+      FilaImpressoesModule.to.bloc<FilaImpressoesController>();
+
   List<Impressao> listaImpressoes = List();
   var currentPageValue = 0.0;
   PageController controller = PageController();
@@ -134,95 +139,97 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
   Widget _getCardImpressoes(Impressao impressao, int index) {
     Size size = MediaQuery.of(context).size;
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50),
+      padding: const EdgeInsets.only(left: 25, right: 25),
       child: SingleChildScrollView(
         child: Container(
           height: size.height * .80,
+          width: size.width * .80,
           child: (new Card(
               child: new Padding(
             padding: EdgeInsets.all(15.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Padding(
+                Container(
+                  alignment: Alignment.center,
                   padding: const EdgeInsets.only(top: 25),
                   child: CabecalhoDetalhesUsuario(impressao.usuario,
                       currentPageValue == currentPageValue.roundToDouble()),
                 ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'Sobre o cliente',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(left: 15, top: 6),
-                          child: Column(
-                            children: <Widget>[
-                              Text(
-                                  '-Usuário desde ${impressao.usuario?.data_criacao?.string('dd/MM/yyyy') ?? ''}\n'
-                                  '-${impressao.usuario?.impressaos_aggregate?.aggregate?.count} Impressões, '
-                                  '${impressao.usuario?.atendimentos_aggregate?.aggregate?.count} Atendimentos\n'
-                                  '-Pontuação ${impressao.usuario?.nivel_usuarios?.isNotEmpty == true ? impressao.usuario?.nivel_usuarios?.first?.pontuacao : '0'}')
-                            ],
-                          )),
-                      Padding(
-                        padding: EdgeInsets.only(top: 16, bottom: 16),
-                        child: Text(
-                          'Sobre a impressão',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Sobre o cliente',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.only(left: 15),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Column(
-                              children: impressao.arquivo_impressaos.map((e) {
-                                return Row(
-                                  children: <Widget>[
-                                    Text(
-                                        '-${e.quantidade} cópia${e.quantidade > 1 ? 's' : ''} ${e.tipofolha?.nome}'),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 5),
-                                      child: InkWell(
-                                          onTap: () {},
-                                          child: Text(e.nome,
-                                              style: TextStyle(
-                                                  color: Colors.cyan))),
-                                    )
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: Text(
-                                ' ${impressao.comentario.isNotEmpty ? 'Comentário: ${impressao.comentario}' : ''}',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
+                            Text(
+                                '-Usuário desde ${impressao.usuario?.data_criacao?.string('dd/MM/yyyy') ?? ''}\n'
+                                '-${impressao.usuario?.impressaos_aggregate?.aggregate?.count} Impressões, '
+                                '${impressao.usuario?.atendimentos_aggregate?.aggregate?.count} Atendimentos\n'
+                                '-Pontuação ${impressao.usuario?.nivel_usuarios?.isNotEmpty == true ? impressao.usuario?.nivel_usuarios?.first?.pontuacao : '0'}')
                           ],
-                        ),
-                      )
-                    ],
-                  ),
+                        )),
+                  ],
                 ),
-                _getButtons(impressao)
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 16, bottom: 16),
+                    child: Text(
+                      'Sobre a impressão',
+                      textAlign: TextAlign.left,
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: impressao.arquivo_impressaos.map((e) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(
+                                    '-${e.quantidade} cópia${e.quantidade > 1 ? 's' : ''} ${e.tipofolha?.nome}'),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  child: InkWell(
+                                      onTap: () {},
+                                      child: Text(
+                                        e.nome,
+                                      )),
+                                )
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: Text(
+                            ' ${impressao.comentario.isNotEmpty ? 'Comentário: ${impressao.comentario}' : ''}',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _getButtons(impressao)
+                ]),
               ],
             ),
           ))),
@@ -257,14 +264,17 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         });
   }
 
+  abrirArquivosExplorador(Impressao impressao) async {
+    UtilsImpressao.abrirArquivosExplorador(impressao);
+  }
+
   Future<void> imprimirArquivos(
       Impressao impressao, BuildContext context) async {
-    //if (UtilsPlatform.isWindows()) {
     ProgressDialog progressDialog = ProgressDialog(context);
     progressDialog.style(message: 'Baixando e imprimindo arquivos');
     progressDialog.show();
     try {
-      var files = await UtilsImpressao.baixarArquivosImpressao(impressao);
+      List<File> files = await _controller.baixarArquivos(impressao);
       bool sucess = await UtilsImpressao.imprimirArquivos(files);
       if (progressDialog.isShowing()) {
         progressDialog?.dismiss();
@@ -284,12 +294,12 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
       ));
     }
-    /*} else {
-      Scaffold.of(buildContext).showSnackBar(SnackBar(
-        content: Text(
-            'Infelizmente as impressões são suportadas somente no windows'),
-      ));
-    }*/
+    // } else {
+    //   Scaffold.of(buildContext).showSnackBar(SnackBar(
+    //     content: Text(
+    //         'Infelizmente as impressões são suportadas somente no windows'),
+    //   ));
+    // }
   }
 
   _getButtons(Impressao impressao) {
@@ -315,8 +325,8 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                 child: Text('REJEITAR'),
               ),
               Button('AUTORIZAR', () async {
+                imprimirArquivos(impressao, context);
                 if (Platform.isWindows) {
-                  imprimirArquivos(impressao, context);
                 } else {
                   bool result = await UtilsImpressao.gerarMovimentacao(
                       Constants.MOV_IMPRESSAO_AUTORIZADO,
@@ -336,37 +346,26 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
       return Container(
         alignment: Alignment.center,
-        child: new ButtonTheme(
-            height: 45,
-            minWidth: 150,
-            child: RaisedButton(
-              onPressed: () async {
-                ProgressDialog progressDialog = ProgressDialog(context);
-                progressDialog.style(message: 'Marcando como concluída');
-                progressDialog.show();
-                bool result = await UtilsImpressao.gerarMovimentacao(
-                    Constants.MOV_IMPRESSAO_RETIRADA,
-                    Constants.STATUS_IMPRESSAO_RETIRADA,
-                    impressao);
-                progressDialog.dismiss();
-                if (result) {
-                  showSnack(buildContext,
-                      'Impressão marcada como entregue com sucesso!');
-                } else {
-                  showSnack(buildContext,
-                      'Ops, houve uma falha ao atualizar a impressão');
-                }
-              },
-              color: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22.0),
-              ),
-              child: new Text(
-                "Marcar como entregue",
-                style: new TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            )),
+        child: Button(
+          "Marcar como entregue",
+          () async {
+            ProgressDialog progressDialog = ProgressDialog(context);
+            progressDialog.style(message: 'Marcando como concluída');
+            progressDialog.show();
+            bool result = await UtilsImpressao.gerarMovimentacao(
+                Constants.MOV_IMPRESSAO_RETIRADA,
+                Constants.STATUS_IMPRESSAO_RETIRADA,
+                impressao);
+            progressDialog.dismiss();
+            if (result) {
+              showSnack(
+                  buildContext, 'Impressão marcada como entregue com sucesso!');
+            } else {
+              showSnack(buildContext,
+                  'Ops, houve uma falha ao atualizar a impressão');
+            }
+          },
+        ),
       );
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
       return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [

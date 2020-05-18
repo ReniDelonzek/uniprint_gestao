@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
@@ -8,6 +9,7 @@ import 'package:uniprintgestao/src/models/graph/atendimento_g.dart';
 import 'package:uniprintgestao/src/modules/cadastro_atendente/cadastro_atendente_module.dart';
 import 'package:uniprintgestao/src/modules/cadastro_preco/cadastro_preco_module.dart';
 import 'package:uniprintgestao/src/modules/cadastro_professor/cadastro_professor_module.dart';
+import 'package:uniprintgestao/src/modules/fila_atendimento/fila_atendimento_module.dart';
 import 'package:uniprintgestao/src/modules/fila_impressoes/fila_impressoes_module.dart';
 import 'package:uniprintgestao/src/modules/ler_qr_code.dart/ler_qr_code_module.dart';
 import 'package:uniprintgestao/src/modules/login/login_page.dart';
@@ -20,9 +22,12 @@ import 'package:uniprintgestao/src/utils/utils_atendimento.dart';
 import 'package:uniprintgestao/src/utils/utils_notificacao.dart';
 import 'package:uniprintgestao/src/utils/utils_platform.dart';
 import 'package:uniprintgestao/src/utils/view_page_aux.dart';
+import 'package:uniprintgestao/src/widgets/cabecalho_detalhes_usuario/cabecalho_detalhes_usuario.dart';
 import 'package:uniprintgestao/src/widgets/falha/falha_widget.dart';
 import 'package:uniprintgestao/src/widgets/lista_vazia/lista_vazia_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
+
+import 'fila_atendimento_controller.dart';
 
 class FilaAtendimentoPage extends StatefulWidget {
   @override
@@ -32,9 +37,10 @@ class FilaAtendimentoPage extends StatefulWidget {
 }
 
 class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
+  final FilaAtendimentoController _controller =
+      FilaAtendimentoModule.to.bloc<FilaAtendimentoController>();
   List<Atendimento> atendimentos = List();
-  double currentPageValue = 0.0;
-  PageController controller = PageController();
+  PageController _pagecontroller = PageController();
   BuildContext buildContext;
   final FocusNode _focusNode = FocusNode();
 
@@ -46,17 +52,16 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
 
   @override
   void initState() {
+    _pagecontroller.addListener(() {
+      setState(() {
+        _controller.paginaAtual = _pagecontroller.page.floor();
+      });
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    controller.addListener(() {
-      setState(() {
-        currentPageValue = controller.page;
-      });
-    });
-
     return new Scaffold(
         appBar: new AppBar(
           title: new Text(
@@ -211,11 +216,11 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
     }
     if (atendimentos.isNotEmpty) {
       return new PageView.builder(
-        controller: controller,
+        controller: _pagecontroller,
         itemCount: atendimentos.length,
         itemBuilder: (context, position) {
           return _buildStoryPage(atendimentos[position],
-              position == currentPageValue.floor(), position);
+              position == _controller.paginaAtual.floor(), position);
         },
       );
     } else
@@ -260,8 +265,12 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  CabecalhoDetalhesUsuario(atendimento.usuario,
-                      currentPageValue == currentPageValue.roundToDouble()),
+                  Observer(
+                    builder: (_) => CabecalhoDetalhesUsuario(
+                        atendimento.usuario,
+                        _controller.paginaAtual ==
+                            _controller.paginaAtual.roundToDouble()),
+                  ),
                   InkWell(
                     onTap: () {
                       if (UtilsPlatform.isMobile()) {
@@ -388,14 +397,14 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
     switch (keyCode) {
       case 124: //left
         setState(() {
-          controller.nextPage(
+          _pagecontroller.nextPage(
               duration: Duration(milliseconds: 600), curve: Curves.ease);
         });
 
         break;
       case 123:
         setState(() {
-          controller.previousPage(
+          _pagecontroller.previousPage(
               duration: Duration(milliseconds: 600), curve: Curves.ease);
         });
 

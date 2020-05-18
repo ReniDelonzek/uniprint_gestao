@@ -32,5 +32,7 @@ class HiveService extends Disposable {
   }
 
   @override
-  void dispose() {}
+  Future<void> dispose() async {
+    await Hive.close();
+  }
 }

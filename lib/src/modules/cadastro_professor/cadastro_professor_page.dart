@@ -1,19 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/querys.dart';
 import 'package:uniprintgestao/src/models/graph/usuario_g.dart';
-import 'package:uniprintgestao/src/modules/cadastro_preco/cadastro_preco_controller.dart';
 import 'package:uniprintgestao/src/modules/cadastro_professor/cadastro_professor_controller.dart';
 import 'package:uniprintgestao/src/modules/cadastro_professor/cadastro_professor_module.dart';
 import 'package:uniprintgestao/src/modules/select_any/models/select_model.dart';
 import 'package:uniprintgestao/src/modules/select_any/select_any_module.dart';
 import 'package:uniprintgestao/src/modules/select_any/select_any_page.dart';
+import 'package:uniprintgestao/src/utils/network/network.dart';
 import 'package:uniprintgestao/src/widgets/select_widget.dart';
 import 'package:uniprintgestao/src/widgets/widgets.dart';
-
-import 'package:uniprintgestao/src/utils/network/network.dart';
 
 class CadastroProfessorPage extends StatefulWidget {
   @override
@@ -93,24 +92,26 @@ class CadastroProfessorPageState extends State<CadastroProfessorPage> {
               child: new Container(
                 child: Column(
                   children: <Widget>[
-                    SelectWidget(
-                        'Selecione o Usuário',
-                        _controller.user?.pessoa?.nome ??
-                            'Clique para selecionar', () async {
-                      var res = await Navigator.of(context).push(
-                          new MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  new SelectAnyModule(SelectModel(
-                                      'Selecione o Usuário',
-                                      'id',
-                                      [Linha('pessoa/nome'), Linha('email')],
-                                      SelectAnyPage.TIPO_SELECAO_SIMPLES,
-                                      query: Querys.getUsuariosProf,
-                                      chaveLista: 'usuario'))));
-                      if (res != null) {
-                        _controller.user = Usuario.fromMap(res);
-                      }
-                    }),
+                    Observer(
+                      builder: (_) => SelectWidget(
+                          'Selecione o Usuário',
+                          _controller.user?.pessoa?.nome ??
+                              'Clique para selecionar', () async {
+                        var res = await Navigator.of(context).push(
+                            new MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    new SelectAnyModule(SelectModel(
+                                        'Selecione o Usuário',
+                                        'id',
+                                        [Linha('pessoa/nome'), Linha('email')],
+                                        SelectAnyPage.TIPO_SELECAO_SIMPLES,
+                                        query: Querys.getUsuariosProf,
+                                        chaveLista: 'usuario'))));
+                        if (res != null) {
+                          _controller.user = Usuario.fromMap(res);
+                        }
+                      }),
+                    ),
                     Expanded(
                       child: ListView.builder(
                           shrinkWrap: true,

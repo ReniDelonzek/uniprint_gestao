@@ -20,8 +20,10 @@ int getBotaoPressionado(RawKeyEvent event) {
       final RawKeyEventDataMacOs data = event.data;
       keyCode = data.keyCode;
       break;
-    // TODO(https://github.com/flutter/flutter/issues/37830): The Windows and Linux shells share a
-    // GLFW implementation. Update once RawKeyEventDataWindows is implemented.
+    case RawKeyEventDataWindows:
+      final RawKeyEventDataWindows data = event.data;
+      keyCode = data.keyCode;
+      break;
     case RawKeyEventDataLinux:
       final RawKeyEventDataLinux data = event.data;
       keyCode = data.keyCode;

@@ -2,7 +2,7 @@ import 'network/network.dart';
 
 class UtilsNotificacao {
   static Future<bool> enviarNotificacao(
-      String title, String body, String usuario_uid) async {
+      String title, String body, String usuarioUid) async {
     try {
       var res = await NetWork.post(
           'https://us-central1-uniprint-uv.cloudfunctions.net/enviarNotificacao',
@@ -10,7 +10,7 @@ class UtilsNotificacao {
             'title': title
                 .toString(), //usa .toString() para garantir que seja sempre string
             'body': body.toString(),
-            'usuario_uid': usuario_uid.toString(),
+            'usuario_uid': usuarioUid.toString(),
             'action': "1".toString()
           });
       if (res != null && isSucesso(res.statusCode)) {

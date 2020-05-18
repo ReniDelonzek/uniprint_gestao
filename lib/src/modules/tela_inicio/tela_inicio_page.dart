@@ -25,15 +25,6 @@ class TelaInicioPageState extends State<TelaInicioPage> {
         height = 200;
       });
     });
-    Future.delayed(Duration(seconds: 3), () {
-      //setState(() {
-      //Route route = MaterialPageRoute(builder: (context) => ScreenLoginEmail());
-      //Navigator.pushReplacement(context, route);
-      //verificarLogin(buildContext);
-      //});
-      //Route route = MaterialPageRoute(builder: (context) => ScreenLoginEmail());
-      //Navigator.pushReplacement(context, route);
-    });
   }
 
   @override
