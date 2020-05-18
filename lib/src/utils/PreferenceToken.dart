@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:firedart/firedart.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uniprintgestao/src/db/utils_hive_service.dart';
+
+import '../app_module.dart';
 
 class PreferencesStore extends TokenStore {
   static const user = "user_id";
@@ -12,14 +15,15 @@ class PreferencesStore extends TokenStore {
   static const expiryTokenKey = "expiry_token";
 
   static Future<PreferencesStore> create() async {
-    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    /*if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
       Hive.init(Directory.current.path);
     } else {
       Hive.init((await getApplicationDocumentsDirectory()).path);
-    }
+    }()*/
     //if ()
+    await AppModule.to.getDependency<UtilsHiveService>().inicializarHive();
 
-    return PreferencesStore._internal(await Hive.openBox('token_box'));
+    return PreferencesStore._internal(Hive.isBoxOpen('token_box') ? Hive.box('token_box') : (await Hive.openBox('token_box')));
   }
 
   //PreferencesStore._internal(await SharedPreferences.getInstance());
