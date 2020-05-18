@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../PreferenceToken.dart';
+import '../preference_token.dart';
 import 'intercept.dart';
 
 class NetWork {

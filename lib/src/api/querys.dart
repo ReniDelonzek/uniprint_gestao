@@ -1,44 +1,7 @@
-String queryAtendimentos = '''subscription atendimentos { 
-  atendimento {
-    id
-    data_solicitacao
-    status
-    usuario {
-      email
-      id
-      pessoa {
-        nome
-      }
-    }
-  }
-}
-''';
-
-String getUsuarios = """query MyQuery {
-  usuario(order_by: {pessoa: {nome: asc}}) {
-    id 
-    uid
-    email
-    pessoa {
-      nome
-    }
-  }
-}
-""";
-
-String cadastroProfessor =
-    """mutation MyMutation(\$instituicao_id: Int!, \$usuario_id: Int!) {
-  __typename
-  insert_professor(objects: {instituicao_id: \$instituicao_id, usuario_id: \$usuario_id}) {
-    returning {
-      id
-    }
-  }
-}
-""";
+import 'package:uniprintgestao/src/utils/constans.dart';
 
 class Querys {
-  static String getAtendimentos = """
+  static const String getAtendimentos = """
 subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
   atendimento(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
     data_solicitacao
@@ -74,9 +37,9 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
 
 """;
 
-  static String getImpressoes = """
+  static const String getImpressoes = """
   subscription getImpressoes(\$ponto_atendimento_id: Int!) { 
-  impressao(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
+  impressao(where: {_or: [{status: {_eq: 1}}, {status: {_eq: 2}}, {status: {_eq: 3}}], ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}, order_by: {data_criacao: asc}) {
     id
     comentario
     status
@@ -86,6 +49,21 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
           url_foto
           pessoa {
             nome
+          }
+          impressaos_aggregate(where: {status: {_eq: ${Constants.STATUS_IMPRESSAO_RETIRADA}}}) {
+            aggregate {
+              count(columns: id)
+            }
+          }
+          atendimentos_aggregate(where: {status: {_eq: ${Constants.STATUS_ATENDIMENTO_ATENDIDO}}}) {
+            aggregate {
+              count(columns: id)
+            }
+          }
+          data_criacao
+          nivel_usuarios {
+            nivel_id
+            pontuacao
           }
         }
     arquivo_impressaos {
@@ -114,7 +92,7 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
   }
 }""";
 
-  static String somaAtendimentosDia = """
+  static const String somaAtendimentosDia = """
 query somaAtendimentos {
   ponto_atendimento {
     atendimentos_aggregate(where: {status: {_eq: 3}}) {
@@ -126,5 +104,84 @@ query somaAtendimentos {
   }
 }
 
+""";
+
+  static const String pontosAtendimento = """
+{
+  ponto_atendimento(where: {instituicao: {id: {_eq: 1}}}) {
+    nome
+    id
+  }
+}
+""";
+
+  static const String tiposFolha = """
+  {
+  tipo_folha {
+    id
+    nome
+  }
+}
+""";
+
+  static const queryAtendimentos = '''subscription atendimentos { 
+  atendimento {
+    id
+    data_solicitacao
+    status
+    usuario {
+      email
+      id
+      pessoa {
+        nome
+      }
+    }
+  }
+}
+''';
+
+  static const getUsuariosAtend = """query {
+  usuario(where:  { _not: { atendentes: {}}}) {
+    id
+    uid
+    email
+    pessoa {
+      nome
+    }
+    atendentes_aggregate {
+      aggregate {
+        count(columns: id)
+      }
+    }
+  }
+}
+""";
+
+  static const getUsuariosProf = """query {
+  usuario(where:  { _not: { professors: {}}}) {
+    id
+    uid
+    email
+    pessoa {
+      nome
+    }
+    professors_aggregate {
+      aggregate {
+        count(columns: id)
+      }
+    }
+  }
+}
+""";
+
+  static const String cadastroProfessor =
+      """mutation MyMutation(\$instituicao_id: Int!, \$usuario_id: Int!) {
+  __typename
+  insert_professor(objects: {instituicao_id: \$instituicao_id, usuario_id: \$usuario_id}) {
+    returning {
+      id
+    }
+  }
+}
 """;
 }

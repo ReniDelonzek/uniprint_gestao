@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SelectWidget extends StatelessWidget {
-  String title;
-  String value;
-  GestureTapCallback onTap;
+  final String title;
+  final String value;
+  final GestureTapCallback onTap;
 
   SelectWidget(this.title, this.value, this.onTap);
 

@@ -1,5 +1,5 @@
 class Mutations {
-  static String cadastroAtendente = """
+  static const String cadastroAtendente = """
 mutation cadastrarAtendente(\$ponto_atendimento_id: Int!, \$usuario_id: Int!) {
   insert_atendente(objects: {ponto_atendimento_id: \$ponto_atendimento_id, usuario_id: \$usuario_id}) {
     returning {
@@ -9,7 +9,7 @@ mutation cadastrarAtendente(\$ponto_atendimento_id: Int!, \$usuario_id: Int!) {
 }
 """;
 
-  static String cadastroMovimentacaoAtendimento = """
+  static const String cadastroMovimentacaoAtendimento = """
 mutation cadastroMovimentacaoAtendimento(\$data: timestamptz!, 
 \$tipo: Int!, \$usuario_id: Int!, \$atendimento_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: {data: \$data, 
@@ -24,7 +24,7 @@ mutation cadastroMovimentacaoAtendimento(\$data: timestamptz!,
 }
 """;
 
-  static String cadastroMovimentacaoImpressao = """
+  static const String cadastroMovimentacaoImpressao = """
 mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$impressao_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: {data: \$data, tipo: \$tipo, usuario_id: \$usuario_id, movimentacao_impressaos: {data: {impressao_id: \$impressao_id}}}) {
     affected_rows
@@ -35,7 +35,7 @@ mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usu
 }
 """;
 
-  static String autorizarImpressao = """
+  static const String autorizarImpressao = """
 mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$impressao_id: Int!, \$status: Int!, \$ponto_atendimento_id: Int!) {
   insert_movimentacao(objects: {data: \$data, tipo: \$tipo, usuario_id: \$usuario_id, movimentacao_impressaos: {data: {impressao_id: \$impressao_id}}}) {
     affected_rows

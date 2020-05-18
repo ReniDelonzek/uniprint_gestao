@@ -1,10 +1,9 @@
-import 'package:uniprintgestao/src/api/graphQlObjetct.dart';
+import 'package:uniprintgestao/src/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/src/api/mutations.dart';
 import 'package:uniprintgestao/src/app_module.dart';
 import 'package:uniprintgestao/src/extensions/date.dart';
 import 'package:uniprintgestao/src/models/graph/atendimento_g.dart';
 import 'package:uniprintgestao/src/utils/auth/hasura_auth_service.dart';
-import 'package:uniprintgestao/src/utils/network/network.dart';
 import 'package:uniprintgestao/src/utils/utils_notificacao.dart';
 
 class UtilsAtendimento {
@@ -17,7 +16,8 @@ class UtilsAtendimento {
         'tipo': tipo,
         'atendimento_id': atendimentoId,
         'status': status,
-        'usuario_id': 9
+        'usuario_id':
+            AppModule.to.getDependency<HasuraAuthService>().usuario?.codHasura
         //AppModule.to.getDependency<HasuraAuthService>().usuario?.id
       });
       return res != null;

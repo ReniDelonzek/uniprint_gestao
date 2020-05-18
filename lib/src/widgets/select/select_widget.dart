@@ -23,24 +23,25 @@ class SelectWidget extends StatelessWidget {
       InkWell(
           onTap: onTap,
           child: Container(
+              padding: EdgeInsets.only(left: 16),
               child: Container(
-            height: 45,
-            constraints: BoxConstraints(
-                minWidth: 45, maxWidth: 500, minHeight: 45, maxHeight: 60),
-            decoration: BoxDecoration(
-                color: Color(0xFFf5f5f5),
-                borderRadius: BorderRadius.circular(20)),
-            child: Container(
-              padding: EdgeInsets.only(left: 15, right: 15),
-              alignment: Alignment.centerLeft,
-              child: Observer(
-                builder: (_) => Text(
-                  controller.value ?? 'Clique para selecionar',
-                  maxLines: 2,
+                height: 45,
+                constraints: BoxConstraints(
+                    minWidth: 45, maxWidth: 500, minHeight: 45, maxHeight: 60),
+                decoration: BoxDecoration(
+                    color: Color(0xFFf5f5f5),
+                    borderRadius: BorderRadius.circular(20)),
+                child: Container(
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  alignment: Alignment.centerLeft,
+                  child: Observer(
+                    builder: (_) => Text(
+                      controller.value ?? 'Clique para selecionar',
+                      maxLines: 2,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          )))
+              )))
     ]);
   }
 }

@@ -50,4 +50,11 @@ mixin _$SelecionarRangeDataController on _SelecionarRangeDataController, Store {
       _$dataFinalAtom.reportChanged();
     }, _$dataFinalAtom, name: '${_$dataFinalAtom.name}_set');
   }
+
+  @override
+  String toString() {
+    final string =
+        'dataInicial: ${dataInicial.toString()},dataFinal: ${dataFinal.toString()},data: ${data.toString()}';
+    return '{$string}';
+  }
 }

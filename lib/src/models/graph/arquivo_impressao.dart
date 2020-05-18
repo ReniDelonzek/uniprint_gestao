@@ -1,21 +1,23 @@
 import 'dart:convert';
 
+import 'package:uniprintgestao/src/models/graph/tipo_folha.dart';
+
 class ArquivoImpressao {
   String url;
   String nome;
   bool colorido;
   int quantidade;
   String tipo_folha_id;
+  TipoFolha tipofolha;
 
-  //ingorar
-  String patch;
+  String path;
   ArquivoImpressao({
     this.url,
     this.nome,
     this.colorido,
     this.quantidade,
     this.tipo_folha_id,
-    this.patch,
+    this.tipofolha,
   });
 
   ArquivoImpressao copyWith({
@@ -24,7 +26,7 @@ class ArquivoImpressao {
     bool colorido,
     int quantidade,
     String tipo_folha_id,
-    String patch,
+    TipoFolha tipo_folha,
   }) {
     return ArquivoImpressao(
       url: url ?? this.url,
@@ -32,6 +34,7 @@ class ArquivoImpressao {
       colorido: colorido ?? this.colorido,
       quantidade: quantidade ?? this.quantidade,
       tipo_folha_id: tipo_folha_id ?? this.tipo_folha_id,
+      tipofolha: tipo_folha ?? this.tipofolha,
     );
   }
 
@@ -42,6 +45,7 @@ class ArquivoImpressao {
       'colorido': colorido,
       'quantidade': quantidade,
       'tipo_folha_id': tipo_folha_id,
+      'tipofolha': tipofolha.toMap(),
     };
   }
 
@@ -54,6 +58,7 @@ class ArquivoImpressao {
       colorido: map['colorido'],
       quantidade: map['quantidade'],
       tipo_folha_id: map['tipo_folha_id'],
+      tipofolha: TipoFolha.fromMap(map['tipofolha']),
     );
   }
 
@@ -64,7 +69,7 @@ class ArquivoImpressao {
 
   @override
   String toString() {
-    return 'ArquivoImpressao url: $url, nome: $nome, colorido: $colorido, quantidade: $quantidade, tipo_folha_id: $tipo_folha_id, patch: $patch';
+    return 'ArquivoImpressao url: $url, nome: $nome, colorido: $colorido, quantidade: $quantidade, tipo_folha_id: $tipo_folha_id, tipo_folha: $tipofolha';
   }
 
   @override
@@ -77,7 +82,7 @@ class ArquivoImpressao {
         o.colorido == colorido &&
         o.quantidade == quantidade &&
         o.tipo_folha_id == tipo_folha_id &&
-        o.patch == patch;
+        o.tipofolha == tipofolha;
   }
 
   @override
@@ -87,6 +92,6 @@ class ArquivoImpressao {
         colorido.hashCode ^
         quantidade.hashCode ^
         tipo_folha_id.hashCode ^
-        patch.hashCode;
+        tipofolha.hashCode;
   }
 }
