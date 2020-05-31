@@ -59,19 +59,11 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
 
     return new Scaffold(
         appBar: new AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
           title: new Text(
             "Lista de Impressões",
             style: new TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.white,
         ),
-        backgroundColor: Colors.white,
         body: Builder(builder: (BuildContext context) => _getBodyImpressoes()));
   }
 
@@ -164,10 +156,8 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                     Text(
                       'Sobre o cliente',
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                     Padding(
                         padding: const EdgeInsets.only(left: 15),
@@ -294,12 +284,6 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
       ));
     }
-    // } else {
-    //   Scaffold.of(buildContext).showSnackBar(SnackBar(
-    //     content: Text(
-    //         'Infelizmente as impressões são suportadas somente no windows'),
-    //   ));
-    // }
   }
 
   _getButtons(Impressao impressao) {

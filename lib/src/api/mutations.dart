@@ -45,4 +45,12 @@ mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usu
   }
 }
 """;
+
+  static const String cadastroPrecoImpressao = """
+mutation cadastroValorImpressao(\$colorido: Boolean, \$data_fim: timestamp, \$data_inicio: timestamp, \$tipo_folha_id: Int, \$valor: numeric) {
+  insert_valor_impressao(objects: {colorido: \$colorido, data_fim: \$data_fim, data_inicio: \$data_inicio, tipo_folha_id: \$tipo_folha_id, valor: \$valor}) {
+    affected_rows
+  }
+}
+""";
 }

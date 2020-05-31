@@ -31,7 +31,9 @@ class SelecionarQuantidadeWidget extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                  color: Color(0xFFf5f5f5),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).cardColor
+                      : Color(0xFFf5f5f5),
                   borderRadius: BorderRadius.circular(15)),
               child: InkWell(
                 child: Icon(Icons.remove, size: 18),
@@ -54,7 +56,9 @@ class SelecionarQuantidadeWidget extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                  color: Color(0xFFf5f5f5),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).cardColor
+                      : Color(0xFFf5f5f5),
                   borderRadius: BorderRadius.circular(15)),
               child: InkWell(
                 child: Icon(Icons.add, size: 18),

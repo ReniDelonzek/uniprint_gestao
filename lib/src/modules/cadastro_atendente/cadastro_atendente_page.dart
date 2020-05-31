@@ -74,44 +74,22 @@ class CadastroAtendentePageState extends State<CadastroAtendentePage> {
                 }, PontosAtendimentoController(_controller.local)),
                 new Padding(padding: EdgeInsets.only(top: 25)),
                 Button('Salvar', () async {
-                  ProgressDialog progress = ProgressDialog(context)
-                    ..style(message: 'Cadastrando atendente')
-                    ..show();
-                  try {
-                    var res = await GraphQlObject.hasuraConnect
-                        .mutation(Mutations.cadastroAtendente, variables: {
-                      'ponto_atendimento_id': _controller.local.id,
-                      'usuario_id': _controller.user.id
-                    });
-
-                    if (res != null) {
-                      var atendenteID =
-                          res['data']['insert_atendente']['returning'][0]['id'];
-                      var resFire = await Dio().post(
-                          'https://us-central1-uniprint-uv.cloudfunctions.net/criarAtendente',
-                          data: {
-                            'usuario_uid': _controller.user?.uid,
-                            'atendente_id': atendenteID,
-                            'ponto_id': _controller.local.id
-                          });
-                      progress.dismiss();
-                      if (resFire.sucesso()) {
-                        showSnack(context, 'Atendente cadastrado com sucesso',
-                            dismiss: true);
-                      } else {
-                        showSnack(context,
-                            'Ops, houve uma falha ao cadastrar o atendente');
-                      }
+                  String msg = _controller.verificarDados();
+                  if (msg == null) {
+                    ProgressDialog progress = ProgressDialog(context)
+                      ..style(message: 'Cadastrando atendente');
+                    await progress.show();
+                    bool sucesso = await _controller.salvarDados();
+                    progress.dismiss();
+                    if (sucesso) {
+                      showSnack(context, 'Atendente cadastrado com sucesso',
+                          dismiss: true);
                     } else {
-                      progress.dismiss();
                       showSnack(context,
                           'Ops, houve uma falha ao cadastrar o atendente');
                     }
-                  } catch (e) {
-                    progress.dismiss();
-                    showSnack(context,
-                        'Ops, houve uma falha ao cadastrar o atendente');
-                    print(e);
+                  } else {
+                    showSnack(context, msg);
                   }
                 })
               ],

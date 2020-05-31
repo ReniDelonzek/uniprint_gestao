@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 extension St on String {
   double toDouble({double defaultValue}) {
     return double.tryParse(this.replaceAll(',', '.')) ?? defaultValue ?? 0.0;
@@ -28,5 +30,27 @@ extension St on String {
         return this.toUpperCase();
     } else
       return this;
+  }
+
+  bool get isNullOrBlank {
+    return this == null || this.trim().isEmpty;
+  }
+
+  DateTime dateFromHasura({DateTime defaultDate}) {
+    try {
+      return DateFormat('yyyy-MM-ddTHH:mm:ss').parse(this);
+    } catch (e) {
+      print(e);
+      return defaultDate ?? null;
+    }
+  }
+
+  DateTime toDate(String format, {DateTime defaultDate}) {
+    try {
+      return DateFormat(format).parse(this);
+    } catch (e) {
+      print(e);
+      return defaultDate ?? null;
+    }
   }
 }

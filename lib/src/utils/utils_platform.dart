@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' as Foundation;
 
 class UtilsPlatform {
   static bool isDebug() {
-    return !(Foundation.kReleaseMode);
+    return (Foundation.kDebugMode);
   }
 
   static isMobile() {

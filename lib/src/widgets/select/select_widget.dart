@@ -29,7 +29,9 @@ class SelectWidget extends StatelessWidget {
                 constraints: BoxConstraints(
                     minWidth: 45, maxWidth: 500, minHeight: 45, maxHeight: 60),
                 decoration: BoxDecoration(
-                    color: Color(0xFFf5f5f5),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context).cardColor
+                        : Color(0xFFf5f5f5),
                     borderRadius: BorderRadius.circular(20)),
                 child: Container(
                   padding: EdgeInsets.only(left: 15, right: 15),

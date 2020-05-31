@@ -26,4 +26,10 @@ mixin _$PontosAtendimentoController on _PontosAtendimentoBase, Store {
       _$pontoAtendimentoAtom.reportChanged();
     }, _$pontoAtendimentoAtom, name: '${_$pontoAtendimentoAtom.name}_set');
   }
+
+  @override
+  String toString() {
+    final string = 'pontoAtendimento: ${pontoAtendimento.toString()}';
+    return '{$string}';
+  }
 }

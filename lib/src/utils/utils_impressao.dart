@@ -47,8 +47,7 @@ class UtilsImpressao {
       }
     } else if (UtilsPlatform.isMobile()) {
       for (File file in arquivos) {
-        await FlutterPdfPrinter.printFile(file
-            .path); //"/.//data/user/0/app.rd.uniprint.uniprintgestao/app_flutter/26/4961070139.pdf"
+        await FlutterPdfPrinter.printFile(file.path); 
       }
     }
     return true;

@@ -57,6 +57,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
         _controller.paginaAtual = _pagecontroller.page.floor();
       });
     });
+    _controller.snapshot = _controller.getAtendimentos();
     super.initState();
   }
 
@@ -68,7 +69,6 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
             "Fila de atendimentos",
             style: new TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.white,
         ),
         floatingActionButton: new FloatingActionButton(
           onPressed: () {
@@ -81,97 +81,91 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
         drawer: new Drawer(
             semanticLabel: 'Menu',
             child: Container(
-                color: Colors.white,
                 child: new Column(children: <Widget>[
-                  new UserAccountsDrawerHeader(
-                    accountName: new Text(
-                      "Uniguaçu",
-                      style: new TextStyle(color: Colors.white),
+              new UserAccountsDrawerHeader(
+                accountName: new Text(
+                  "Uniguaçu",
+                  style: new TextStyle(color: Colors.white),
+                ),
+                accountEmail:
+                    new Text("", style: new TextStyle(color: Colors.white)),
+                currentAccountPicture: new GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(new MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            new CadastroProfessorModule()));
+                  },
+                  child: Hero(
+                    tag: "imagem_perfil",
+                    child: new CircleAvatar(
+                      backgroundImage:
+                          new AssetImage('imagens/uniguacu_icon.png'),
                     ),
-                    accountEmail:
-                        new Text("", style: new TextStyle(color: Colors.white)),
-                    currentAccountPicture: new GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(new MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                new CadastroProfessorModule()));
-                      },
-                      child: Hero(
-                        tag: "imagem_perfil",
-                        child: new CircleAvatar(
-                          backgroundImage:
-                              new AssetImage('imagens/uniguacu_icon.png'),
-                        ),
-                      ),
-                    ),
-                    decoration: new BoxDecoration(
-                        image: new DecorationImage(
-                            fit: BoxFit.fill,
-                            image: AssetImage('imagens/back_drawer.jpg'))),
                   ),
-                  new ListTile(
-                      title: new Text("Cadastro professor"),
-                      trailing: new Icon(Icons.school),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CadastroProfessorModule()));
-                      }),
-                  new ListTile(
-                      title: new Text("Cadastro atendente"),
-                      trailing: new Icon(Icons.work),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    CadastroAtendenteModule()));
-                      }),
-                  new ListTile(
-                      title: new Text("Cadastro preços"),
-                      trailing: new Icon(Icons.work),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CadastroPrecoModule()));
-                      }),
-                  new ListTile(
-                      title: new Text("Soma atendimentos"),
-                      trailing: new Icon(Icons.work),
-                      onTap: () {
-                        Navigator.of(context).push(new MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                new SelectAnyModule(SelectModel(
-                                    'Contagem de atendimentos',
-                                    'id',
-                                    [
-                                      Linha(
-                                          'atendimentos_aggregate/aggregate/count',
-                                          involucro: '??? Atendimentos'),
-                                      Linha('nome')
-                                    ],
-                                    SelectAnyPage.TIPO_SELECAO_ACAO,
-                                    query: Querys.somaAtendimentosDia,
-                                    chaveLista: 'ponto_atendimento'))));
-                      }),
-                  new ListTile(
-                      title: new Text("Sair"),
-                      trailing: new Icon(Icons.power_settings_new),
-                      onTap: () async {
-                        await AppModule.to
-                            .getDependency<HasuraAuthService>()
-                            .logOut();
-                        Navigator.of(context).pop();
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginPage()));
-                      }),
-                ]))),
-        backgroundColor: Colors.white,
+                ),
+                decoration: new BoxDecoration(
+                    image: new DecorationImage(
+                        fit: BoxFit.fill,
+                        image: AssetImage('imagens/back_drawer.jpg'))),
+              ),
+              new ListTile(
+                  title: new Text("Cadastro professor"),
+                  trailing: new Icon(Icons.school),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CadastroProfessorModule()));
+                  }),
+              new ListTile(
+                  title: new Text("Cadastro atendente"),
+                  trailing: new Icon(Icons.work),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CadastroAtendenteModule()));
+                  }),
+              new ListTile(
+                  title: new Text("Cadastro preços"),
+                  trailing: new Icon(Icons.work),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CadastroPrecoModule()));
+                  }),
+              new ListTile(
+                  title: new Text("Soma atendimentos"),
+                  trailing: new Icon(Icons.work),
+                  onTap: () {
+                    Navigator.of(context).push(new MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            new SelectAnyModule(SelectModel(
+                                'Contagem de atendimentos',
+                                'id',
+                                [
+                                  Linha(
+                                      'atendimentos_aggregate/aggregate/count',
+                                      involucro: '??? Atendimentos'),
+                                  Linha('nome')
+                                ],
+                                SelectAnyPage.TIPO_SELECAO_ACAO,
+                                query: Querys.somaAtendimentosDia,
+                                chaveLista: 'ponto_atendimento'))));
+                  }),
+              new ListTile(
+                  title: new Text("Sair"),
+                  trailing: new Icon(Icons.power_settings_new),
+                  onTap: () async {
+                    await AppModule.to
+                        .getDependency<HasuraAuthService>()
+                        .logOut();
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => LoginPage()));
+                  }),
+            ]))),
         body: Builder(builder: (context) {
           buildContext = context;
           return _getBody(context);
@@ -180,13 +174,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
 
   Widget _getBody(BuildContext context) {
     return StreamBuilder(
-      stream: GraphQlObject.hasuraConnect
-          .subscription(Querys.getAtendimentos, variables: {
-        'ponto_atendimento_id': AppModule.to
-            .getDependency<HasuraAuthService>()
-            .usuario
-            .codPontoAtendimento
-      }),
+      stream: _controller.snapshot,
       builder: (_, snap) {
         return new RawKeyboardListener(
             focusNode: _focusNode,

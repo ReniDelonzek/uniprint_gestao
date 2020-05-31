@@ -10,7 +10,6 @@ class AppWidget extends StatelessWidget {
       title: 'UniPrint ADMIN',
       theme: Tema.getTema(context),
       darkTheme: Tema.getTema(context, darkMode: true),
-      //themeMode: ThemeMode.dark,
       home: TelaInicioModule(),
     );
   }
