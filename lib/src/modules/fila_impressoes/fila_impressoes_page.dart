@@ -218,7 +218,11 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                       ],
                     ),
                   ),
-                  _getButtons(impressao)
+                  Container(
+                    padding: const EdgeInsets.only(top: 8),
+                    height: 120,
+                    child: _getButtons(impressao),
+                  )
                 ]),
               ],
             ),
@@ -293,46 +297,39 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              FlatButton(
-                onPressed: () async {
-                  bool result = await UtilsImpressao.gerarMovimentacao(
-                      Constants.MOV_IMPRESSAO_NEGADA,
-                      Constants.STATUS_IMPRESSAO_NEGADA,
-                      impressao);
-                  if (result) {
-                    showSnack(buildContext, 'Impressão negada com sucesso');
-                  } else {
-                    showSnack(buildContext,
-                        'Ops, houve uma falha ao rejeitar a impressão');
-                  }
-                },
-                child: Text('REJEITAR'),
-              ),
-              Button('AUTORIZAR', () async {
-                imprimirArquivos(impressao, context);
-                if (Platform.isWindows) {
+              _botaoCard(Icon(Icons.close), 'Rejeitar', () async {
+                bool result = await UtilsImpressao.gerarMovimentacao(
+                    Constants.MOV_IMPRESSAO_NEGADA,
+                    Constants.STATUS_IMPRESSAO_NEGADA,
+                    impressao);
+                if (result) {
+                  showSnack(buildContext, 'Impressão negada com sucesso');
                 } else {
-                  bool result = await UtilsImpressao.gerarMovimentacao(
-                      Constants.MOV_IMPRESSAO_AUTORIZADO,
-                      Constants.STATUS_IMPRESSAO_AUTORIZADO,
-                      impressao);
-                  if (result) {
-                    showSnack(buildContext, 'Impressão autorizada com sucesso');
-                  } else {
-                    showSnack(buildContext,
-                        'Ops, houve uma falha ao autorizar a impressão');
-                  }
+                  showSnack(buildContext,
+                      'Ops, houve uma falha ao rejeitar a impressão');
                 }
-              })
+              }),
+              _botaoCard(Icon(Icons.done), 'Autorizar', () async {
+                //imprimirArquivos(impressao, context);
+                bool result = await UtilsImpressao.gerarMovimentacao(
+                    Constants.MOV_IMPRESSAO_AUTORIZADO,
+                    Constants.STATUS_IMPRESSAO_AUTORIZADO,
+                    impressao);
+                if (result) {
+                  showSnack(buildContext, 'Impressão autorizada com sucesso');
+                } else {
+                  showSnack(buildContext,
+                      'Ops, houve uma falha ao autorizar a impressão');
+                }
+              }),
             ],
           ));
     } else if (impressao.status ==
         Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
-      return Container(
-        alignment: Alignment.center,
-        child: Button(
-          "Marcar como entregue",
-          () async {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _botaoCard(Icon(Icons.done), 'Retirado', () async {
             ProgressDialog progressDialog = ProgressDialog(context);
             progressDialog.style(message: 'Marcando como concluída');
             progressDialog.show();
@@ -348,15 +345,15 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
               showSnack(buildContext,
                   'Ops, houve uma falha ao atualizar a impressão');
             }
-          },
-        ),
+          })
+        ],
       );
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
       return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        Button('Imprimir', () {
+        _botaoCard(Icon(Icons.print), 'Imprimir', () {
           imprimirArquivos(impressao, context);
         }),
-        Button('Marcar como impresso', () async {
+        _botaoCard(Icon(Icons.done_all), 'Marcar como impresso', () async {
           marcarComoImpresso(impressao, context);
         })
       ]);
@@ -381,6 +378,37 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
     } else {
       showSnack(buildContext, 'Ops, houve uma falha ao autorizada a impressão');
     }
+  }
+
+  Widget _botaoCard(Widget icone, String texto, GestureTapCallback onTap) {
+    return Container(
+      width: 120,
+      child: Expanded(
+        child: Card(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.white70, width: 1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 2,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  icone,
+                  Text(
+                    texto,
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void onKey(RawKeyEvent event) {
