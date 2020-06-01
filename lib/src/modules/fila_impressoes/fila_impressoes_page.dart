@@ -276,17 +276,15 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
       if (sucess) {
         showSnack(buildContext, 'Impresso com sucesso');
       } else {
-        Scaffold.of(buildContext).showSnackBar(SnackBar(
-          content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
-        ));
+        showSnack(buildContext,
+            'Ops, houve uma falha ao tentar imprimir os arquivos');
       }
     } catch (e) {
       if (progressDialog.isShowing()) {
         progressDialog?.dismiss();
       }
-      Scaffold.of(buildContext).showSnackBar(SnackBar(
-        content: Text('Ops, houve uma falha ao tentar imprimir os arquivos'),
-      ));
+      showSnack(
+          buildContext, 'Ops, houve uma falha ao tentar imprimir os arquivos');
     }
   }
 

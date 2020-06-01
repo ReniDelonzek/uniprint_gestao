@@ -20,10 +20,7 @@ class ListaVaziaWidget extends StatelessWidget {
             padding: const EdgeInsets.only(top: 16.0, bottom: 2),
             child: Text(
               mensagem1,
-              style: TextStyle(
-                  fontSize: 17,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
             ),
           ),
           Text(mensagem2)
