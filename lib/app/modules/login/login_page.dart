@@ -22,7 +22,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginEmailPage extends State<LoginPage> {
-  final _controller = LoginModule.to.bloc<LoginController>();
+  final LoginController _controller = LoginModule.to.bloc<LoginController>();
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class LoginEmailPage extends State<LoginPage> {
               image: AssetImage('imagens/back_login.jpg'), fit: BoxFit.cover),
         ),
         child: new SizedBox(
-            height: 340,
+            height: 290,
             width: 300,
             child: Card(
               shape: RoundedRectangleBorder(
@@ -51,9 +51,8 @@ class LoginEmailPage extends State<LoginPage> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      decoration: InputDecoration(
-                          hintText: 'Insira seu e-mail',
-                          labelText: 'Insira seu e-mail'),
+                      decoration:
+                          InputDecoration(labelText: 'Insira seu e-mail'),
                       controller: _controller.controllerEmail,
                     ),
                     Observer(
@@ -61,7 +60,6 @@ class LoginEmailPage extends State<LoginPage> {
                         obscureText: !_controller.exibirSenha,
                         decoration: InputDecoration(
                           labelText: 'Insira sua senha',
-                          hintText: 'Insira sua senha',
                           suffixIcon: new GestureDetector(
                             onTap: () {
                               _controller.exibirSenha =
@@ -121,20 +119,20 @@ class LoginEmailPage extends State<LoginPage> {
                             style: TextStyle(color: Colors.white),
                           )),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: FlatButton(
-                        child: Text('Criar Conta'),
-                        onPressed: () {
-                          String msg = verificarDados();
-                          if (msg == null) {
-                            criarConta(context);
-                          } else {
-                            showSnack(context, msg);
-                          }
-                        },
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 16),
+                    //   child: FlatButton(
+                    //     child: Text('Criar Conta'),
+                    //     onPressed: () {
+                    //       String msg = verificarDados();
+                    //       if (msg == null) {
+                    //         criarConta(context);
+                    //       } else {
+                    //         showSnack(context, msg);
+                    //       }
+                    //     },
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

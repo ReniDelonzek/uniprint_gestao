@@ -15,6 +15,7 @@ import 'package:uniprintgestao/app/modules/select_any/select_any_module.dart';
 import 'package:uniprintgestao/app/modules/select_any/select_any_page.dart';
 import 'package:uniprintgestao/app/shared/api/querys.dart';
 import 'package:uniprintgestao/app/shared/graph/atendimento.dart';
+import 'package:uniprintgestao/app/shared/temas/tema.dart';
 import 'package:uniprintgestao/app/shared/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/app/shared/utils/constans.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_atendimento.dart';
@@ -272,12 +273,13 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
                       width: 200,
                       height: 200,
                       alignment: Alignment.center,
-                      child: Image.asset(
-                        'imagens/qr_code.png',
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset('imagens/qr_code.png',
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          color: isDarkMode(context)
+                              ? Colors.white
+                              : Colors.black),
                     ),
                   ),
                   new Container(

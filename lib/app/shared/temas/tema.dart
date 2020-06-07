@@ -20,3 +20,7 @@ class Tema {
 getCorPadrao() {
   return Colors.blue;
 }
+
+bool isDarkMode(BuildContext context) {
+  return Theme.of(context).brightness == Brightness.dark;
+}
