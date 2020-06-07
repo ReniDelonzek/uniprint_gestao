@@ -157,30 +157,22 @@ query somaAtendimentos {
 }
 """;
 
-  static const getUsuariosProf = """query {
-  usuario(where:  { _not: { professors: {}}}) {
+  static const getUsuariosProf = """query getUsuariosNaoProfessores {
+  usuario(where: {tipo_usuario_id: {_neq: 3}}) {
     id
     uid
     email
     pessoa {
       nome
     }
-    professors_aggregate {
-      aggregate {
-        count(columns: id)
-      }
-    }
   }
 }
 """;
 
   static const String cadastroProfessor =
-      """mutation MyMutation(\$instituicao_id: Int!, \$usuario_id: Int!) {
-  __typename
-  insert_professor(objects: {instituicao_id: \$instituicao_id, usuario_id: \$usuario_id}) {
-    returning {
-      id
-    }
+      """mutation cadastroProfessor(\$usuario_id: Int!) {
+  update_usuario(where: {id: {_eq: \$usuario_id}}, _set: {tipo_usuario_id: 3}) {
+    affected_rows
   }
 }
 """;

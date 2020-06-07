@@ -56,12 +56,6 @@ class TelaInicioPageState extends State<TelaInicioPage> {
                 duration: Duration(milliseconds: 1500),
               ),
             ),
-            /* new Image.asset(
-                  'imagens/back_login.jpg',
-                  width: 200,
-                  height: 200,
-                  fit: BoxFit.cover, //logo do app
-                ),*/
           ],
         ),
       ),

@@ -37,7 +37,6 @@ class UtilsImpressao {
     if (UtilsPlatform.isWindows()) {
       for (File file in arquivos) {
         String win7Path = Directory.current.path + "\\PDFtoPrinter";
-        //'C:\\Users\\Reni\\Downloads\\Programas\\pdf\\PDFtoPrinter';
         try {
           await Process.run(win7Path, [file.absolute.path]);
         } catch (e) {
@@ -47,7 +46,7 @@ class UtilsImpressao {
       }
     } else if (UtilsPlatform.isMobile()) {
       for (File file in arquivos) {
-        await FlutterPdfPrinter.printFile(file.path); 
+        await FlutterPdfPrinter.printFile(file.path);
       }
     }
     return true;
