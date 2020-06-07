@@ -1,14 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' as Foundation;
-import 'package:flutter/foundation.dart'
-    show debugDefaultTargetPlatformOverride;
-
-import 'src/app_module.dart';
-import 'src/utils/utils_sentry.dart';
+import 'package:uniprintgestao/app/app_module.dart';
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 
 //Nao é mais necessirio
 // void _setTargetPlatformForDesktop() {
