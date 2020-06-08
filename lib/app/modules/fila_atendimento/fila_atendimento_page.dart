@@ -9,7 +9,6 @@ import 'package:uniprintgestao/app/modules/cadastro_professor/cadastro_professor
 import 'package:uniprintgestao/app/modules/fila_impressoes/fila_impressoes_module.dart';
 import 'package:uniprintgestao/app/modules/ler_qr_code.dart/ler_qr_code_module.dart';
 import 'package:uniprintgestao/app/modules/login/login_module.dart';
-import 'package:uniprintgestao/app/modules/login/login_page.dart';
 import 'package:uniprintgestao/app/modules/select_any/models/select_model.dart';
 import 'package:uniprintgestao/app/modules/select_any/select_any_module.dart';
 import 'package:uniprintgestao/app/modules/select_any/select_any_page.dart';
@@ -26,6 +25,7 @@ import 'package:uniprintgestao/app/shared/widgets/cabecalho_detalhes_usuario/cab
 import 'package:uniprintgestao/app/shared/widgets/falha/falha_widget.dart';
 import 'package:uniprintgestao/app/shared/widgets/lista_vazia/lista_vazia_widget.dart';
 import 'package:uniprintgestao/app/shared/widgets/widgets.dart';
+
 import 'fila_atendimento_controller.dart';
 import 'fila_atendimento_module.dart';
 
@@ -252,12 +252,21 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Observer(
-                    builder: (_) => CabecalhoDetalhesUsuario(
-                        atendimento.usuario,
-                        _controller.paginaAtual ==
-                            _controller.paginaAtual.roundToDouble()),
-                  ),
+                  CabecalhoDetalhesUsuario(atendimento.usuario),
+                  atendimento.status ==
+                          Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child:
+                                  Icon(Icons.settings, color: getCorPadrao()),
+                            ),
+                            Text('Em atendimento...'),
+                          ],
+                        )
+                      : Container(),
                   InkWell(
                     onTap: () {
                       if (UtilsPlatform.isMobile()) {
@@ -304,52 +313,24 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
                               }
                             },
                           ),
+                          atendimento.status ==
+                                  Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO
+                              ? Container()
+                              : FloatingActionButton(
+                                  heroTag: 'em_atendimento',
+                                  tooltip: 'Em atendimento',
+                                  onPressed: () async {
+                                    _marcarEmAtendimento(atendimento);
+                                  },
+                                  child: Icon(Icons.done),
+                                ),
                           FloatingActionButton(
                             heroTag: 'finalizar_atendimento',
                             tooltip: 'Finalizar atendimento',
                             onPressed: () async {
-                              List<Atendimento> atendimentosCopia =
-                                  List.of(atendimentos); //faz uma copia dos
-                              //atendimentos pra nao rolar um erro quando a lista atualizar
-                              bool result =
-                                  await UtilsAtendimento.gerarMovimentacao(
-                                      Constants.MOV_ATENDIMENTO_ATENDIDO,
-                                      Constants.STATUS_ATENDIMENTO_ATENDIDO,
-                                      atendimento.id);
-                              if (result) {
-                                showSnack(buildContext,
-                                    'Atendimento confirmado com sucesso');
-
-                                int pos = 0;
-                                for (int i = 0;
-                                    i <
-                                        (atendimentosCopia.length > 3
-                                            ? 3
-                                            : atendimentosCopia.length);
-                                    i++) {
-                                  if (atendimento.id !=
-                                      atendimentosCopia[i].id) {
-                                    if (pos == 0) {
-                                      //proximo da fila
-                                      UtilsNotificacao.enviarNotificacao(
-                                          'Ei, chegou sua vez de ser atendido',
-                                          'Estamos esperando você agora no ${atendimentosCopia[i].ponto_atendimento?.nome}',
-                                          atendimentosCopia[i].usuario.uid);
-                                    } else {
-                                      UtilsNotificacao.enviarNotificacao(
-                                          'Só tem mais $pos pessoa${pos > 1 ? 's' : ''} na sua frente',
-                                          'Fique nas proximidades do ${atendimentosCopia[i].ponto_atendimento?.nome}',
-                                          atendimentosCopia[i].usuario.uid);
-                                    }
-                                    pos++;
-                                  }
-                                }
-                              } else {
-                                showSnack(buildContext,
-                                    'Ops, houve uma falha ao confirmar o atendimento');
-                              }
+                              _finalizarAtendimento(atendimento);
                             },
-                            child: Icon(Icons.done),
+                            child: Icon(Icons.done_all),
                           ),
                         ],
                       )),
@@ -397,6 +378,55 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
         });
 
         break;
+    }
+  }
+
+  Future<void> _finalizarAtendimento(Atendimento atendimento) async {
+    List<Atendimento> atendimentosCopia =
+        List.of(atendimentos); //faz uma copia dos
+    //atendimentos pra nao rolar um erro quando a lista atualizar
+    bool result = await UtilsAtendimento.gerarMovimentacao(
+        Constants.MOV_ATENDIMENTO_ATENDIDO,
+        Constants.STATUS_ATENDIMENTO_ATENDIDO,
+        atendimento.id);
+    if (result) {
+      showSnack(buildContext, 'Atendimento confirmado com sucesso');
+
+      int pos = 0;
+      for (int i = 0;
+          i < (atendimentosCopia.length > 3 ? 3 : atendimentosCopia.length);
+          i++) {
+        if (atendimento.id != atendimentosCopia[i].id) {
+          if (pos == 0) {
+            //proximo da fila
+            UtilsNotificacao.enviarNotificacao(
+                'Ei, chegou sua vez de ser atendido',
+                'Estamos esperando você agora no ${atendimentosCopia[i].ponto_atendimento?.nome}',
+                atendimentosCopia[i].usuario.uid);
+          } else {
+            UtilsNotificacao.enviarNotificacao(
+                'Só tem mais $pos pessoa${pos > 1 ? 's' : ''} na sua frente',
+                'Fique nas proximidades do ${atendimentosCopia[i].ponto_atendimento?.nome}',
+                atendimentosCopia[i].usuario.uid);
+          }
+          pos++;
+        }
+      }
+    } else {
+      showSnack(
+          buildContext, 'Ops, houve uma falha ao confirmar o atendimento');
+    }
+  }
+
+  Future<void> _marcarEmAtendimento(Atendimento atendimento) async {
+    bool result = await UtilsAtendimento.gerarMovimentacao(
+        Constants.MOV_ATENDIMENTO_EM_ATENDIMENTO,
+        Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO,
+        atendimento.id);
+    if (result) {
+      showSnack(buildContext, 'Atendimento confirmado com sucesso');
+    } else {
+      showSnack(context, 'Ops, houve uma falha ao marcar como em atendimento');
     }
   }
 }

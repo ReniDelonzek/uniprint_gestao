@@ -146,8 +146,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                 Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.only(top: 25),
-                  child: CabecalhoDetalhesUsuario(impressao.usuario,
-                      currentPageValue == currentPageValue.roundToDouble()),
+                  child: CabecalhoDetalhesUsuario(impressao.usuario),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

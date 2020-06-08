@@ -3,7 +3,7 @@ import 'package:uniprintgestao/app/shared/utils/constans.dart';
 class Querys {
   static const String getAtendimentos = """
 subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
-  atendimento(where: {status: {_eq: 1}, ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
+  atendimento(where: {_or: [{status: {_eq: 1}}, {status: {_eq: 2}}], ponto_atendimento_id: {_eq: \$ponto_atendimento_id}}) {
     data_solicitacao
     status
     id
