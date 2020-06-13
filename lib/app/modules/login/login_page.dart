@@ -260,7 +260,7 @@ class LoginEmailPage extends State<LoginPage> {
             .obterDadosUsuario(user.id, (value) async {
           if (value != null) {
             progressDialog.dismiss();
-            await FirebaseAuth.instance.tokenProvider.refresh();
+            // TODO descomentar isso await FirebaseAuth.instance.tokenProvider.refresh();
             Box box = await AppModule.to
                 .getDependency<HiveService>()
                 .getBox('utils_auth');

@@ -22,11 +22,12 @@ class UtilsImpressao {
     List<ArquivoImpressao> arquivos = impressao.arquivo_impressaos;
     String dir = '';
     if (UtilsPlatform.isDesktop()) {
-      dir = 'Impressoes/${impressao.id}';
+      dir =  '${Directory.current.path}\\Impressoes\\${impressao.id}';
     } else {
       dir = (await getExternalStorageDirectory()).absolute.path +
           '/${impressao.id}';
     }
+    
     for (ArquivoImpressao arquivo in arquivos) {
       files.add(await UtilsDownload.baixarArquivo(
           arquivo.url, dir, '${arquivo.nome}'));
@@ -37,9 +38,9 @@ class UtilsImpressao {
   static Future<bool> imprimirArquivos(List<File> arquivos) async {
     if (UtilsPlatform.isWindows()) {
       for (File file in arquivos) {
-        String win7Path = Directory.current.path + "\\PDFtoPrinter";
+        String path = Directory.current.path + "\\PDFtoPrinter";
         try {
-          await Process.run(win7Path, [file.absolute.path]);
+          await Process.run(path, [file.absolute.path]);
         } catch (e) {
           print(e);
           return false;
@@ -53,16 +54,18 @@ class UtilsImpressao {
     return true;
   }
 
-  static abrirArquivosExplorador(Impressao impressao) async {
+  static Future<bool> abrirArquivosExplorador(Impressao impressao) async {
     List<File> _ = await baixarArquivosImpressao(impressao);
     try {
-      await Process.run(
-          'start %windir%\\explorer.exe "${(await getDownloadsDirectory()).parent.path}\\Impressoes\\${impressao.id}',
-          []);
+      Process.run(
+          "start %windir%\\explorer.exe",
+          ["${Directory.current.path}\\Impressoes\\${impressao.id}"],
+          runInShell: true);
     } catch (e) {
       print(e);
       return false;
     }
+    return true;
   }
 
   static Future<bool> gerarMovimentacao(

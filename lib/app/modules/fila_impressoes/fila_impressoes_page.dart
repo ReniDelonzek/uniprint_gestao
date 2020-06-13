@@ -1,5 +1,6 @@
 import 'dart:io' show File, Platform;
 
+import 'package:uniprintgestao/app/shared/utils/utils_platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -258,14 +259,21 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
   }
 
   abrirArquivosExplorador(Impressao impressao) async {
-    UtilsImpressao.abrirArquivosExplorador(impressao);
+    ProgressDialog progressDialog = ProgressDialog(context);
+    progressDialog.style(message: 'Baixando arquivos');
+    await progressDialog.show();
+    bool b = await UtilsImpressao.abrirArquivosExplorador(impressao);
+    progressDialog.hide();
+    if (!b) {
+      showSnack(buildContext, 'Ops, houve uma falha ao abrir os arquivos');
+    }
   }
 
   Future<void> imprimirArquivos(
       Impressao impressao, BuildContext context) async {
     ProgressDialog progressDialog = ProgressDialog(context);
     progressDialog.style(message: 'Baixando e imprimindo arquivos');
-    progressDialog.show();
+    await progressDialog.show();
     try {
       List<File> files = await _controller.baixarArquivos(impressao);
       bool sucess = await UtilsImpressao.imprimirArquivos(files);
@@ -323,33 +331,39 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
           ));
     } else if (impressao.status ==
         Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _botaoCard(
-              Image.asset('imagens/qr_code.png', width: 50), 'Escanear QR',
-              () async {
-            var res = await Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new LerQrCodeModule()));
-            if (res != null && res.isNotEmpty) {
-              if (res == impressao.id.toString()) {
-                _marcarImpressaoRetirada(impressao);
-              } else {
-                showSnack(buildContext, 'Oops, o QR não foi reconhecido');
-              }
+      List<Widget> widgets = List();
+      if (UtilsPlatform.isMobile()) {
+        widgets.add(_botaoCard(
+            Image.asset('imagens/qr_code.png', width: 50), 'Escanear QR',
+            () async {
+          var res = await Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) => new LerQrCodeModule()));
+          if (res != null && res.isNotEmpty) {
+            if (res == impressao.id.toString()) {
+              _marcarImpressaoRetirada(impressao);
+            } else {
+              showSnack(buildContext, 'Oops, o QR não foi reconhecido');
             }
-          }),
-          _botaoCard(Icon(Icons.done), 'Retirado', () async {
-            _marcarImpressaoRetirada(impressao);
-          })
-        ],
+          }
+        }));
+      }
+      widgets.add(_botaoCard(Icon(Icons.done_all), 'Retirado', () async {
+        _marcarImpressaoRetirada(impressao);
+      }));
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: widgets,
       );
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
       return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         _botaoCard(Icon(Icons.print), 'Imprimir', () {
           imprimirArquivos(impressao, context);
         }),
-        _botaoCard(Icon(Icons.done_all), 'Marcar como impresso', () async {
+        _botaoCard(Icon(Icons.file_download), 'Ver arquivos', () {
+          abrirArquivosExplorador(impressao);
+        }),
+        _botaoCard(Icon(Icons.done), 'Impresso', () async {
           marcarComoImpresso(impressao, context);
         })
       ]);
