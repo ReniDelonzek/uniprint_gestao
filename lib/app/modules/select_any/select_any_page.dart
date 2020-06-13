@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 import 'package:uniprintgestao/app/shared/widgets/falha/falha_widget.dart';
 
 import 'filtro/filtro_page.dart';
@@ -330,8 +331,8 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
           return <ItemSelect>[];
         }
       }
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
     }
     return <ItemSelect>[];
   }

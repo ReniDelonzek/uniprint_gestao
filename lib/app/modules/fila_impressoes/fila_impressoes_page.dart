@@ -12,6 +12,7 @@ import 'package:uniprintgestao/app/shared/graph/impressao.dart';
 import 'package:uniprintgestao/app/shared/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/app/shared/utils/constans.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_impressao.dart';
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 import 'package:uniprintgestao/app/shared/utils/view_page_aux.dart';
 import 'package:uniprintgestao/app/shared/widgets/cabecalho_detalhes_usuario/cabecalho_detalhes_usuario.dart';
 import 'package:uniprintgestao/app/shared/widgets/falha/falha_widget.dart';
@@ -286,7 +287,8 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         showSnack(buildContext,
             'Ops, houve uma falha ao tentar imprimir os arquivos');
       }
-    } catch (e) {
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       if (progressDialog.isShowing()) {
         progressDialog?.dismiss();
       }

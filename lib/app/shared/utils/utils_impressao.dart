@@ -13,6 +13,7 @@ import 'package:uniprintgestao/app/shared/utils/utils_notificacao.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_platform.dart';
 
 import 'package:uniprintgestao/app/shared/extensions/date.dart';
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 
 import 'utils_download.dart';
 
@@ -22,12 +23,12 @@ class UtilsImpressao {
     List<ArquivoImpressao> arquivos = impressao.arquivo_impressaos;
     String dir = '';
     if (UtilsPlatform.isDesktop()) {
-      dir =  '${Directory.current.path}\\Impressoes\\${impressao.id}';
+      dir = '${Directory.current.path}\\Impressoes\\${impressao.id}';
     } else {
       dir = (await getExternalStorageDirectory()).absolute.path +
           '/${impressao.id}';
     }
-    
+
     for (ArquivoImpressao arquivo in arquivos) {
       files.add(await UtilsDownload.baixarArquivo(
           arquivo.url, dir, '${arquivo.nome}'));
@@ -41,8 +42,8 @@ class UtilsImpressao {
         String path = Directory.current.path + "\\PDFtoPrinter";
         try {
           await Process.run(path, [file.absolute.path]);
-        } catch (e) {
-          print(e);
+        } catch (error, stackTrace) {
+          UtilsSentry.reportError(error, stackTrace);
           return false;
         }
       }
@@ -57,12 +58,11 @@ class UtilsImpressao {
   static Future<bool> abrirArquivosExplorador(Impressao impressao) async {
     List<File> _ = await baixarArquivosImpressao(impressao);
     try {
-      Process.run(
-          "start %windir%\\explorer.exe",
+      Process.run("start %windir%\\explorer.exe",
           ["${Directory.current.path}\\Impressoes\\${impressao.id}"],
           runInShell: true);
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       return false;
     }
     return true;
@@ -84,8 +84,8 @@ class UtilsImpressao {
       });
       enviarNotificacaoImpressao(tipo, impressao);
       return res != null;
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       return false;
     }
   }
@@ -108,8 +108,8 @@ class UtilsImpressao {
       });
       enviarNotificacaoImpressao(tipo, impressao);
       return res != null;
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       return false;
     }
   }

@@ -6,6 +6,7 @@ import 'package:uniprintgestao/app/shared/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_notificacao.dart';
 
 import 'package:uniprintgestao/app/shared/extensions/date.dart';
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 
 class UtilsAtendimento {
   static Future<bool> gerarMovimentacao(
@@ -22,8 +23,9 @@ class UtilsAtendimento {
         //AppModule.to.getDependency<HasuraAuthService>().usuario?.id
       });
       return res != null;
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
+
       return false;
     }
   }

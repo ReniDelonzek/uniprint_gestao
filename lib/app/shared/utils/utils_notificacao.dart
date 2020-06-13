@@ -1,3 +1,5 @@
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
+
 import 'network/network.dart';
 
 class UtilsNotificacao {
@@ -17,8 +19,8 @@ class UtilsNotificacao {
         print('Resposta: ${res.data.toString()}');
         return true;
       }
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
     }
     return false;
   }
