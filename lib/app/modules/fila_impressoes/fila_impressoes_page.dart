@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/app/app_module.dart';
+import 'package:uniprintgestao/app/modules/ler_qr_code.dart/ler_qr_code_module.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/app/shared/api/querys.dart';
 import 'package:uniprintgestao/app/shared/graph/impressao.dart';
@@ -325,22 +326,21 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _botaoCard(Icon(Icons.done), 'Retirado', () async {
-            ProgressDialog progressDialog = ProgressDialog(context);
-            progressDialog.style(message: 'Marcando como concluída');
-            progressDialog.show();
-            bool result = await UtilsImpressao.gerarMovimentacao(
-                Constants.MOV_IMPRESSAO_RETIRADA,
-                Constants.STATUS_IMPRESSAO_RETIRADA,
-                impressao);
-            progressDialog.dismiss();
-            if (result) {
-              showSnack(
-                  buildContext, 'Impressão marcada como entregue com sucesso!');
-            } else {
-              showSnack(buildContext,
-                  'Ops, houve uma falha ao atualizar a impressão');
+          _botaoCard(
+              Image.asset('imagens/qr_code.png', width: 50), 'Escanear QR',
+              () async {
+            var res = await Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) => new LerQrCodeModule()));
+            if (res != null && res.isNotEmpty) {
+              if (res == impressao.id.toString()) {
+                _marcarImpressaoRetirada(impressao);
+              } else {
+                showSnack(buildContext, 'Oops, o QR não foi reconhecido');
+              }
             }
+          }),
+          _botaoCard(Icon(Icons.done), 'Retirado', () async {
+            _marcarImpressaoRetirada(impressao);
           })
         ],
       );
@@ -424,6 +424,22 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         });
 
         break;
+    }
+  }
+
+  Future<void> _marcarImpressaoRetirada(Impressao impressao) async {
+    ProgressDialog progressDialog = ProgressDialog(context);
+    progressDialog.style(message: 'Marcando como concluída');
+    progressDialog.show();
+    bool result = await UtilsImpressao.gerarMovimentacao(
+        Constants.MOV_IMPRESSAO_RETIRADA,
+        Constants.STATUS_IMPRESSAO_RETIRADA,
+        impressao);
+    progressDialog.dismiss();
+    if (result) {
+      showSnack(buildContext, 'Impressão marcada como entregue com sucesso!');
+    } else {
+      showSnack(buildContext, 'Ops, houve uma falha ao atualizar a impressão');
     }
   }
 }

@@ -54,10 +54,10 @@ class UtilsImpressao {
   }
 
   static abrirArquivosExplorador(Impressao impressao) async {
-    List<File> files = await baixarArquivosImpressao(impressao);
+    List<File> _ = await baixarArquivosImpressao(impressao);
     try {
       await Process.run(
-          'start %windir%\\explorer.exe "${(await getDownloadsDirectory()).parent.path}"',
+          'start %windir%\\explorer.exe "${(await getDownloadsDirectory()).parent.path}\\Impressoes\\${impressao.id}',
           []);
     } catch (e) {
       print(e);

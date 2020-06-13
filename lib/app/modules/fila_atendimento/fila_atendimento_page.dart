@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/app/app_module.dart';
 import 'package:uniprintgestao/app/modules/cadastro_atendente/cadastro_atendente_module.dart';
@@ -268,11 +269,20 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
                         )
                       : Container(),
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
                       if (UtilsPlatform.isMobile()) {
-                        Navigator.of(context).push(new MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                new LerQrCodeModule(atendimento.id)));
+                        var res = await Navigator.of(context).push(
+                            new MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    new LerQrCodeModule()));
+                        if (res != null && res.isNotEmpty) {
+                          if (res == atendimento.id.toString()) {
+                            _marcarEmAtendimento(atendimento);
+                          } else {
+                            showSnack(
+                                buildContext, 'Oops, o QR não foi reconhecido');
+                          }
+                        }
                       } else {
                         showSnack(
                             buildContext, 'Não é possível ler o qr por aqui');
@@ -341,26 +351,6 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
     );
   }
 
-  Future lerCodigo(BuildContext context, Atendimento atendimento) async {
-    String _barcodeString = await new QRCodeReader().scan();
-    if (_barcodeString == atendimento.id.toString()) {
-      bool result = await UtilsAtendimento.gerarMovimentacao(
-          Constants.MOV_ATENDIMENTO_EM_ATENDIMENTO,
-          Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO,
-          atendimento.id);
-      if (result) {
-        showSnack(buildContext, 'Atendimento marcado como em atendimento');
-      } else {
-        showSnack(
-            buildContext, 'Ops, houve uma falha ao atualizar o atendimento');
-      }
-    } else if (_barcodeString.isNotEmpty) {
-      showSnack(context, 'Ops, não foi possível confirmar a senha');
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
   void onKey(RawKeyEvent event) {
     int keyCode = getBotaoPressionado(event);
     switch (keyCode) {
@@ -419,10 +409,15 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
   }
 
   Future<void> _marcarEmAtendimento(Atendimento atendimento) async {
+    ProgressDialog progressDialog = ProgressDialog(context)
+      ..style(message: 'Marcando como em atendimento');
+    await progressDialog.show();
+
     bool result = await UtilsAtendimento.gerarMovimentacao(
         Constants.MOV_ATENDIMENTO_EM_ATENDIMENTO,
         Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO,
         atendimento.id);
+    progressDialog.dismiss();
     if (result) {
       showSnack(buildContext, 'Atendimento confirmado com sucesso');
     } else {

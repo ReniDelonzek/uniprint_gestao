@@ -12,9 +12,7 @@ import 'ler_qr_code_controller.dart';
 import 'ler_qr_code_module.dart';
 
 class LerQrCode extends StatefulWidget {
-  final int codAtendimento;
-
-  LerQrCode(this.codAtendimento);
+  LerQrCode();
 
   @override
   State<StatefulWidget> createState() {
@@ -50,16 +48,6 @@ class LerQrCodePageState extends State<LerQrCode> {
                     lerCodigo(context);
                   },
                 )
-
-                // Padding(
-                //   padding: const EdgeInsets.only(top: 15),
-                //   child: Observer(
-                //     builder: (_) => Text(
-                //       _controller.status,
-                //       style: TextStyle(fontSize: 16),
-                //     ),
-                //   ),
-                // )
               ],
             ),
           );
@@ -73,42 +61,7 @@ class LerQrCodePageState extends State<LerQrCode> {
         .setTorchEnabled(true)
         .setHandlePermissions(true)
         .setExecuteAfterPermissionGranted(true)
-        //.setFrontCamera(false)
         .scan();
-    if (_barcodeString == widget.codAtendimento.toString()) {
-      atualizarStatus(_barcodeString);
-    } else if (_barcodeString != null && _barcodeString.isNotEmpty) {
-      Scaffold.of(buildContext).showSnackBar(SnackBar(
-        content: Text('Ops, não foi possível confirmar a senha'),
-      ));
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
-  Future<void> atualizarStatus(String barcodeString) async {
-    ProgressDialog progressDialog = ProgressDialog(buildContext);
-    progressDialog.style(message: 'Confirmando atendimento');
-    await progressDialog.show();
-    if (barcodeString == widget.codAtendimento.toString()) {
-      bool result = await UtilsAtendimento.gerarMovimentacao(
-          Constants.MOV_ATENDIMENTO_EM_ATENDIMENTO,
-          Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO,
-          widget.codAtendimento);
-      progressDialog.dismiss();
-      if (result) {
-        showSnack(buildContext, 'Atendimento marcado como em atendimento',
-            dismiss: true);
-      } else {
-        showSnack(
-            buildContext, 'Ops, houve uma falha ao atualizar o atendimento');
-      }
-    } else if (barcodeString.isNotEmpty) {
-      progressDialog.dismiss();
-      showSnack(context, 'Ops, não foi possível confirmar a senha');
-    } else {
-      progressDialog.dismiss();
-      Navigator.pop(context);
-    }
+    Navigator.pop(context, _barcodeString);
   }
 }
