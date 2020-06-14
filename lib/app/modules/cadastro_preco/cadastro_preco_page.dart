@@ -77,7 +77,7 @@ class _CadastroPrecoPageState extends State<CadastroPrecoPage> {
                       ..style(message: 'Cadastrando preço...');
                     await progressDialog.show();
                     bool sucesso = await _controller.salvarDados();
-                    progressDialog.dismiss();
+                    progressDialog.hide();
                     if (sucesso) {
                       showSnack(context, 'Preço cadastrado com sucesso',
                           dismiss: true);

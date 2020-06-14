@@ -168,7 +168,7 @@ class LoginEmailPage extends State<LoginPage> {
           .then((user) {
         FirebaseAuth.instance.getUser().then((user) {
           if (user == null) {
-            progressDialog.dismiss();
+            progressDialog.hide();
             Scaffold.of(context).showSnackBar(new SnackBar(
               content: new Text("Ops, houve uma falha ao realizar o login"),
             ));
@@ -176,7 +176,7 @@ class LoginEmailPage extends State<LoginPage> {
             AppModule.to
                 .getDependency<HasuraAuthService>()
                 .obterDadosUsuario(user.id, (usuario) {
-              progressDialog.dismiss();
+              progressDialog.hide();
               if (usuario != null) {
                 Route route = MaterialPageRoute(
                     builder: (context) => FilaAtendimentoModule());
@@ -193,7 +193,7 @@ class LoginEmailPage extends State<LoginPage> {
         });
       }).catchError((error, stackTrace) {
         UtilsSentry.reportError(error, stackTrace);
-        progressDialog.dismiss();
+        progressDialog.hide();
         if (error is PlatformException) {
           if (error.code == 'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL') {
             Scaffold.of(context).showSnackBar(new SnackBar(
@@ -249,7 +249,7 @@ class LoginEmailPage extends State<LoginPage> {
             _controller.controllerSenha.text.trim())
         .then((user) {
       if (user == null) {
-        progressDialog.dismiss();
+        progressDialog.hide();
         Scaffold.of(buildContext).showSnackBar(new SnackBar(
           content:
               new Text("Ops, houve uma falha ao realizar ao criar a conta"),
@@ -259,7 +259,7 @@ class LoginEmailPage extends State<LoginPage> {
             .getDependency<HasuraAuthService>()
             .obterDadosUsuario(user.id, (value) async {
           if (value != null) {
-            progressDialog.dismiss();
+            progressDialog.hide();
             // TODO descomentar isso await FirebaseAuth.instance.tokenProvider.refresh();
             Box box = await AppModule.to
                 .getDependency<HiveService>()
@@ -273,7 +273,7 @@ class LoginEmailPage extends State<LoginPage> {
       }
     }).catchError((error, stackTrace) {
       UtilsSentry.reportError(error, stackTrace);
-      progressDialog.dismiss();
+      progressDialog.hide();
       showSnack(buildContext,
           'Ops, houve uma falha ao criar a conta, você já não tem uma conta com esse email?',
           duration: Duration(seconds: 5));

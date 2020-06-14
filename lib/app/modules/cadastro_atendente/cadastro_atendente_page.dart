@@ -76,7 +76,7 @@ class CadastroAtendentePageState extends State<CadastroAtendentePage> {
                       ..style(message: 'Cadastrando atendente');
                     await progress.show();
                     bool sucesso = await _controller.salvarDados();
-                    progress.dismiss();
+                    progress.hide();
                     if (sucesso) {
                       showSnack(context, 'Atendente cadastrado com sucesso',
                           dismiss: true);

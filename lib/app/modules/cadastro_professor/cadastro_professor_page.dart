@@ -94,7 +94,7 @@ class CadastroProfessorPageState extends State<CadastroProfessorPage> {
         ..show();
 
       bool sucesso = await _controller.enviarDadosServidor();
-      progressDialog.dismiss();
+      progressDialog.hide();
       if (sucesso) {
         showSnack(context, 'Professor cadastrado com sucesso', dismiss: true);
       } else {

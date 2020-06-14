@@ -279,7 +279,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
       List<File> files = await _controller.baixarArquivos(impressao);
       bool sucess = await UtilsImpressao.imprimirArquivos(files);
       if (progressDialog.isShowing()) {
-        progressDialog?.dismiss();
+        progressDialog?.hide();
       }
       if (sucess) {
         showSnack(buildContext, 'Impresso com sucesso');
@@ -290,7 +290,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
     } catch (error, stackTrace) {
       UtilsSentry.reportError(error, stackTrace);
       if (progressDialog.isShowing()) {
-        progressDialog?.dismiss();
+        progressDialog?.hide();
       }
       showSnack(
           buildContext, 'Ops, houve uma falha ao tentar imprimir os arquivos');
@@ -451,7 +451,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         Constants.MOV_IMPRESSAO_RETIRADA,
         Constants.STATUS_IMPRESSAO_RETIRADA,
         impressao);
-    progressDialog.dismiss();
+    progressDialog.hide();
     if (result) {
       showSnack(buildContext, 'Impressão marcada como entregue com sucesso!');
     } else {

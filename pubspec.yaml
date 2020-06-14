@@ -17,6 +17,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies: 
+  after_layout: ^1.0.7+2
   flutter_full_pdf_viewer: ^1.0.6
   device_info: ^0.4.1+5
   sentry: ^3.0.1

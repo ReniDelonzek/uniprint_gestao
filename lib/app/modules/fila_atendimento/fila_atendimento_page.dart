@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:qrcode_reader/qrcode_reader.dart';
 import 'package:uniprintgestao/app/app_module.dart';
 import 'package:uniprintgestao/app/modules/cadastro_atendente/cadastro_atendente_module.dart';
 import 'package:uniprintgestao/app/modules/cadastro_preco/cadastro_preco_module.dart';
@@ -48,7 +46,10 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    FocusScope.of(context).requestFocus(_focusNode);
+    if (UtilsPlatform.isDesktop()) {
+      // Isso está impedindo do teclado abrir corretamente em outras telas
+      FocusScope.of(context).requestFocus(_focusNode);
+    }
   }
 
   @override
@@ -130,7 +131,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
               new ListTile(
                   title: new Text("Cadastro preços"),
                   trailing: new Icon(Icons.work),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -417,7 +418,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
         Constants.MOV_ATENDIMENTO_EM_ATENDIMENTO,
         Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO,
         atendimento.id);
-    progressDialog.dismiss();
+    progressDialog.hide();
     if (result) {
       showSnack(buildContext, 'Atendimento confirmado com sucesso');
     } else {

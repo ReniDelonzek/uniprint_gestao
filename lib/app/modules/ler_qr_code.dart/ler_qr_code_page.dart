@@ -1,15 +1,5 @@
-import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrcode_reader/qrcode_reader.dart';
-import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
-import 'package:uniprintgestao/app/shared/utils/constans.dart';
-import 'package:uniprintgestao/app/shared/utils/utils_atendimento.dart';
-import 'package:uniprintgestao/app/shared/widgets/widgets.dart';
-
-import 'ler_qr_code_controller.dart';
-import 'ler_qr_code_module.dart';
 
 class LerQrCode extends StatefulWidget {
   LerQrCode();

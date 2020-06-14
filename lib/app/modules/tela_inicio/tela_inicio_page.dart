@@ -1,4 +1,10 @@
+import 'package:firedart/auth/user_gateway.dart';
 import 'package:flutter/material.dart';
+import 'package:after_layout/after_layout.dart';
+import 'package:uniprintgestao/app/app_module.dart';
+import 'package:uniprintgestao/app/modules/fila_atendimento/fila_atendimento_module.dart';
+import 'package:uniprintgestao/app/modules/login/login_module.dart';
+import 'package:uniprintgestao/app/shared/utils/auth/hasura_auth_service.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_login.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_notification.dart';
 
@@ -9,7 +15,8 @@ class TelaInicioPage extends StatefulWidget {
   }
 }
 
-class TelaInicioPageState extends State<TelaInicioPage> {
+class TelaInicioPageState extends State<TelaInicioPage>
+    with AfterLayoutMixin<TelaInicioPage> {
   int opacity = 0;
   var buildContext;
   double width = 0, height = 0;
@@ -28,15 +35,7 @@ class TelaInicioPageState extends State<TelaInicioPage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(seconds: 3), () async {
-      verificarLogin(context);
-    });
     return new Scaffold(
       body: new Container(
         alignment: Alignment.center,
@@ -104,13 +103,34 @@ class TelaInicioPageState extends State<TelaInicioPage> {
     return '';
   }
 
-// ignore: missing_return
-  Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  myBackgroundMessageHandler(Map<String, dynamic> message) {
     String action = getAction(message);
     if (message.containsKey('notification')) {
       // Handle notification message
       final dynamic not = message['notification'];
       shoNotification(not['title'], not['body'], action, context);
     }
+  }
+
+  @override
+  Future<void> afterFirstLayout(BuildContext context) async {
+    Future.delayed(Duration(seconds: 3), () async {
+      User user = await verificarLogin(context);
+      if (user != null) {
+        AppModule.to
+            .getDependency<HasuraAuthService>()
+            .obterDadosUsuario(user.id, (value) {
+          if (value != null) {
+            Route route = MaterialPageRoute(
+                builder: (context) => FilaAtendimentoModule());
+            Navigator.pushReplacement(context, route);
+          } else {
+            Route route =
+                MaterialPageRoute(builder: (context) => LoginModule());
+            Navigator.pushReplacement(context, route);
+          }
+        });
+      }
+    });
   }
 }

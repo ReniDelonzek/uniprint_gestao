@@ -1,17 +1,17 @@
 import 'package:hasura_connect/hasura_connect.dart';
 import 'package:uniprintgestao/app/shared/utils/preference_token.dart';
-import 'package:uniprintgestao/app/shared/utils/utils_platform.dart';
 
 class GraphQlObject {
   static String url = 'https://uniprint-uv.herokuapp.com/v1/graphql';
 
   static HasuraConnect hasuraConnect = HasuraConnect(url,
-      localStorageDelegate: UtilsPlatform.isMobile()
-          ? () => LocalStorageSharedPreferences()
-          : () => LocalStorageHive(), token: (isError) async {
-    var a = await PreferencesStore.create();
-    return "Bearer ${a?.refreshToken ?? ''}";
-  });
+      localStorageDelegate: //UtilsPlatform.isMobile()
+          //? () => LocalStorageSharedPreferences() :
+          () => LocalStorageHive(),
+      token: (isError) async {
+        var a = await PreferencesStore.create();
+        return "Bearer ${a?.refreshToken ?? ''}";
+      });
 }
 
 validarRespostaQuery(var res, String chave, {bool podeSerVazia = true}) {
