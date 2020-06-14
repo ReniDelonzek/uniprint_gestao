@@ -14,22 +14,21 @@ mixin _$PontosAtendimentoController on _PontosAtendimentoBase, Store {
 
   @override
   PontoAtendimento get pontoAtendimento {
-    _$pontoAtendimentoAtom.context.enforceReadPolicy(_$pontoAtendimentoAtom);
-    _$pontoAtendimentoAtom.reportObserved();
+    _$pontoAtendimentoAtom.reportRead();
     return super.pontoAtendimento;
   }
 
   @override
   set pontoAtendimento(PontoAtendimento value) {
-    _$pontoAtendimentoAtom.context.conditionallyRunInAction(() {
+    _$pontoAtendimentoAtom.reportWrite(value, super.pontoAtendimento, () {
       super.pontoAtendimento = value;
-      _$pontoAtendimentoAtom.reportChanged();
-    }, _$pontoAtendimentoAtom, name: '${_$pontoAtendimentoAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'pontoAtendimento: ${pontoAtendimento.toString()}';
-    return '{$string}';
+    return '''
+pontoAtendimento: ${pontoAtendimento}
+    ''';
   }
 }

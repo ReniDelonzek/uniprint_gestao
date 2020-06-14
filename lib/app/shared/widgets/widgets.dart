@@ -13,7 +13,7 @@ class TextTitle extends StatelessWidget {
         child: Text(
           title,
           textAlign: TextAlign.left,
-          style: TextStyle(fontSize: 18, color: Colors.black),
+          style: TextStyle(fontSize: 18),
         ));
   }
 }

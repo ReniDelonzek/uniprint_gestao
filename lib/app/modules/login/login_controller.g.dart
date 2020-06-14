@@ -13,22 +13,21 @@ mixin _$LoginController on _LoginBase, Store {
 
   @override
   bool get exibirSenha {
-    _$exibirSenhaAtom.context.enforceReadPolicy(_$exibirSenhaAtom);
-    _$exibirSenhaAtom.reportObserved();
+    _$exibirSenhaAtom.reportRead();
     return super.exibirSenha;
   }
 
   @override
   set exibirSenha(bool value) {
-    _$exibirSenhaAtom.context.conditionallyRunInAction(() {
+    _$exibirSenhaAtom.reportWrite(value, super.exibirSenha, () {
       super.exibirSenha = value;
-      _$exibirSenhaAtom.reportChanged();
-    }, _$exibirSenhaAtom, name: '${_$exibirSenhaAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'exibirSenha: ${exibirSenha.toString()}';
-    return '{$string}';
+    return '''
+exibirSenha: ${exibirSenha}
+    ''';
   }
 }

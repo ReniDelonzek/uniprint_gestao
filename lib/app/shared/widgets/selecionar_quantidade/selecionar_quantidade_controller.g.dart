@@ -13,22 +13,21 @@ mixin _$SelecionarQuantidadeController on _SelecionarQuantidadeBase, Store {
 
   @override
   double get quantidade {
-    _$quantidadeAtom.context.enforceReadPolicy(_$quantidadeAtom);
-    _$quantidadeAtom.reportObserved();
+    _$quantidadeAtom.reportRead();
     return super.quantidade;
   }
 
   @override
   set quantidade(double value) {
-    _$quantidadeAtom.context.conditionallyRunInAction(() {
+    _$quantidadeAtom.reportWrite(value, super.quantidade, () {
       super.quantidade = value;
-      _$quantidadeAtom.reportChanged();
-    }, _$quantidadeAtom, name: '${_$quantidadeAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'quantidade: ${quantidade.toString()}';
-    return '{$string}';
+    return '''
+quantidade: ${quantidade}
+    ''';
   }
 }

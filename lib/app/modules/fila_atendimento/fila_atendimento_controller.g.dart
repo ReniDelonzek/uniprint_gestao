@@ -13,22 +13,21 @@ mixin _$FilaAtendimentoController on _FilaAtendimentoBase, Store {
 
   @override
   int get paginaAtual {
-    _$paginaAtualAtom.context.enforceReadPolicy(_$paginaAtualAtom);
-    _$paginaAtualAtom.reportObserved();
+    _$paginaAtualAtom.reportRead();
     return super.paginaAtual;
   }
 
   @override
   set paginaAtual(int value) {
-    _$paginaAtualAtom.context.conditionallyRunInAction(() {
+    _$paginaAtualAtom.reportWrite(value, super.paginaAtual, () {
       super.paginaAtual = value;
-      _$paginaAtualAtom.reportChanged();
-    }, _$paginaAtualAtom, name: '${_$paginaAtualAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'paginaAtual: ${paginaAtual.toString()}';
-    return '{$string}';
+    return '''
+paginaAtual: ${paginaAtual}
+    ''';
   }
 }

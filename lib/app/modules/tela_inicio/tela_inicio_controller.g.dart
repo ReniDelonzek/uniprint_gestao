@@ -11,7 +11,8 @@ part of 'tela_inicio_controller.dart';
 mixin _$TelaInicioController on _TelaInicioBase, Store {
   @override
   String toString() {
-    final string = '';
-    return '{$string}';
+    return '''
+
+    ''';
   }
 }

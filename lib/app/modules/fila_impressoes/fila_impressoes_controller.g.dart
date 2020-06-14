@@ -11,7 +11,8 @@ part of 'fila_impressoes_controller.dart';
 mixin _$FilaImpressoesController on _FilaImpressoesBase, Store {
   @override
   String toString() {
-    final string = '';
-    return '{$string}';
+    return '''
+
+    ''';
   }
 }

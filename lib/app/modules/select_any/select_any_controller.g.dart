@@ -13,51 +13,45 @@ mixin _$SelectAnyController on _SelectAnyBase, Store {
 
   @override
   Icon get searchIcon {
-    _$searchIconAtom.context.enforceReadPolicy(_$searchIconAtom);
-    _$searchIconAtom.reportObserved();
+    _$searchIconAtom.reportRead();
     return super.searchIcon;
   }
 
   @override
   set searchIcon(Icon value) {
-    _$searchIconAtom.context.conditionallyRunInAction(() {
+    _$searchIconAtom.reportWrite(value, super.searchIcon, () {
       super.searchIcon = value;
-      _$searchIconAtom.reportChanged();
-    }, _$searchIconAtom, name: '${_$searchIconAtom.name}_set');
+    });
   }
 
   final _$appBarTitleAtom = Atom(name: '_SelectAnyBase.appBarTitle');
 
   @override
   Widget get appBarTitle {
-    _$appBarTitleAtom.context.enforceReadPolicy(_$appBarTitleAtom);
-    _$appBarTitleAtom.reportObserved();
+    _$appBarTitleAtom.reportRead();
     return super.appBarTitle;
   }
 
   @override
   set appBarTitle(Widget value) {
-    _$appBarTitleAtom.context.conditionallyRunInAction(() {
+    _$appBarTitleAtom.reportWrite(value, super.appBarTitle, () {
       super.appBarTitle = value;
-      _$appBarTitleAtom.reportChanged();
-    }, _$appBarTitleAtom, name: '${_$appBarTitleAtom.name}_set');
+    });
   }
 
   final _$listaExibidaAtom = Atom(name: '_SelectAnyBase.listaExibida');
 
   @override
   ObservableList<ItemSelect> get listaExibida {
-    _$listaExibidaAtom.context.enforceReadPolicy(_$listaExibidaAtom);
-    _$listaExibidaAtom.reportObserved();
+    _$listaExibidaAtom.reportRead();
     return super.listaExibida;
   }
 
   @override
   set listaExibida(ObservableList<ItemSelect> value) {
-    _$listaExibidaAtom.context.conditionallyRunInAction(() {
+    _$listaExibidaAtom.reportWrite(value, super.listaExibida, () {
       super.listaExibida = value;
-      _$listaExibidaAtom.reportChanged();
-    }, _$listaExibidaAtom, name: '${_$listaExibidaAtom.name}_set');
+    });
   }
 
   final _$_SelectAnyBaseActionController =
@@ -65,7 +59,8 @@ mixin _$SelectAnyController on _SelectAnyBase, Store {
 
   @override
   void pesquisar() {
-    final _$actionInfo = _$_SelectAnyBaseActionController.startAction();
+    final _$actionInfo = _$_SelectAnyBaseActionController.startAction(
+        name: '_SelectAnyBase.pesquisar');
     try {
       return super.pesquisar();
     } finally {
@@ -75,7 +70,8 @@ mixin _$SelectAnyController on _SelectAnyBase, Store {
 
   @override
   void clearList() {
-    final _$actionInfo = _$_SelectAnyBaseActionController.startAction();
+    final _$actionInfo = _$_SelectAnyBaseActionController.startAction(
+        name: '_SelectAnyBase.clearList');
     try {
       return super.clearList();
     } finally {
@@ -85,7 +81,8 @@ mixin _$SelectAnyController on _SelectAnyBase, Store {
 
   @override
   void setList(List<ItemSelect> list) {
-    final _$actionInfo = _$_SelectAnyBaseActionController.startAction();
+    final _$actionInfo = _$_SelectAnyBaseActionController.startAction(
+        name: '_SelectAnyBase.setList');
     try {
       return super.setList(list);
     } finally {
@@ -95,8 +92,10 @@ mixin _$SelectAnyController on _SelectAnyBase, Store {
 
   @override
   String toString() {
-    final string =
-        'searchIcon: ${searchIcon.toString()},appBarTitle: ${appBarTitle.toString()},listaExibida: ${listaExibida.toString()}';
-    return '{$string}';
+    return '''
+searchIcon: ${searchIcon},
+appBarTitle: ${appBarTitle},
+listaExibida: ${listaExibida}
+    ''';
   }
 }

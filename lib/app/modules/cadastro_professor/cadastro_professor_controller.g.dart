@@ -13,22 +13,21 @@ mixin _$CadastroProfessorController on _CadastroProfessorBase, Store {
 
   @override
   Usuario get usuario {
-    _$usuarioAtom.context.enforceReadPolicy(_$usuarioAtom);
-    _$usuarioAtom.reportObserved();
+    _$usuarioAtom.reportRead();
     return super.usuario;
   }
 
   @override
   set usuario(Usuario value) {
-    _$usuarioAtom.context.conditionallyRunInAction(() {
+    _$usuarioAtom.reportWrite(value, super.usuario, () {
       super.usuario = value;
-      _$usuarioAtom.reportChanged();
-    }, _$usuarioAtom, name: '${_$usuarioAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'usuario: ${usuario.toString()}';
-    return '{$string}';
+    return '''
+usuario: ${usuario}
+    ''';
   }
 }

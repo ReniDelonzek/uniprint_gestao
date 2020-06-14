@@ -13,40 +13,37 @@ mixin _$ItemSelect on _ItemSelect, Store {
 
   @override
   bool get isSelected {
-    _$isSelectedAtom.context.enforceReadPolicy(_$isSelectedAtom);
-    _$isSelectedAtom.reportObserved();
+    _$isSelectedAtom.reportRead();
     return super.isSelected;
   }
 
   @override
   set isSelected(bool value) {
-    _$isSelectedAtom.context.conditionallyRunInAction(() {
+    _$isSelectedAtom.reportWrite(value, super.isSelected, () {
       super.isSelected = value;
-      _$isSelectedAtom.reportChanged();
-    }, _$isSelectedAtom, name: '${_$isSelectedAtom.name}_set');
+    });
   }
 
   final _$deletadoAtom = Atom(name: '_ItemSelect.deletado');
 
   @override
   bool get deletado {
-    _$deletadoAtom.context.enforceReadPolicy(_$deletadoAtom);
-    _$deletadoAtom.reportObserved();
+    _$deletadoAtom.reportRead();
     return super.deletado;
   }
 
   @override
   set deletado(bool value) {
-    _$deletadoAtom.context.conditionallyRunInAction(() {
+    _$deletadoAtom.reportWrite(value, super.deletado, () {
       super.deletado = value;
-      _$deletadoAtom.reportChanged();
-    }, _$deletadoAtom, name: '${_$deletadoAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string =
-        'isSelected: ${isSelected.toString()},deletado: ${deletado.toString()}';
-    return '{$string}';
+    return '''
+isSelected: ${isSelected},
+deletado: ${deletado}
+    ''';
   }
 }

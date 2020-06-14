@@ -13,22 +13,21 @@ mixin _$ChipButtonController on _ChipButtonBase, Store {
 
   @override
   bool get isSelected {
-    _$isSelectedAtom.context.enforceReadPolicy(_$isSelectedAtom);
-    _$isSelectedAtom.reportObserved();
+    _$isSelectedAtom.reportRead();
     return super.isSelected;
   }
 
   @override
   set isSelected(bool value) {
-    _$isSelectedAtom.context.conditionallyRunInAction(() {
+    _$isSelectedAtom.reportWrite(value, super.isSelected, () {
       super.isSelected = value;
-      _$isSelectedAtom.reportChanged();
-    }, _$isSelectedAtom, name: '${_$isSelectedAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'isSelected: ${isSelected.toString()}';
-    return '{$string}';
+    return '''
+isSelected: ${isSelected}
+    ''';
   }
 }

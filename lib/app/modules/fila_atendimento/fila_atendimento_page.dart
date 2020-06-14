@@ -1,3 +1,4 @@
+import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -11,6 +12,7 @@ import 'package:uniprintgestao/app/modules/login/login_module.dart';
 import 'package:uniprintgestao/app/modules/select_any/models/select_model.dart';
 import 'package:uniprintgestao/app/modules/select_any/select_any_module.dart';
 import 'package:uniprintgestao/app/modules/select_any/select_any_page.dart';
+import 'package:uniprintgestao/app/services/sincronizar_dados_service.dart';
 import 'package:uniprintgestao/app/shared/api/querys.dart';
 import 'package:uniprintgestao/app/shared/graph/atendimento.dart';
 import 'package:uniprintgestao/app/shared/temas/tema.dart';
@@ -35,7 +37,8 @@ class FilaAtendimentoPage extends StatefulWidget {
   }
 }
 
-class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
+class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
+    with AfterLayoutMixin<FilaAtendimentoPage> {
   final FilaAtendimentoController _controller =
       FilaAtendimentoModule.to.bloc<FilaAtendimentoController>();
   List<Atendimento> atendimentos = List();
@@ -69,7 +72,6 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
         appBar: new AppBar(
           title: new Text(
             "Fila de atendimentos",
-            style: new TextStyle(color: Colors.black),
           ),
         ),
         floatingActionButton: new FloatingActionButton(
@@ -186,7 +188,11 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
   }
 
   Widget _getFragent(BuildContext context, AsyncSnapshot snap) {
-    atendimentos.clear();
+    if (snap.connectionState == ConnectionState.waiting) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     if (snap.hasError || !snap.hasData) {
       return FalhaWidget('Ops, houve uma falha ao recuperar os atendimentos');
     }
@@ -195,10 +201,9 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
           child: ListaVaziaWidget(
               'Nenhuma atendimento na fila',
               'Fila de atendimentos são mostrados aqui',
-              'imagens/reception.png') //Text('Nenhuma impressão na fila'),
-          //Text('Nenhum atendimento na fila'),
-          );
+              'imagens/reception.png'));
     }
+    atendimentos.clear();
     for (var data in snap.data['data']['atendimento']) {
       Atendimento atendimento = Atendimento.fromMap(data);
       atendimentos.add(atendimento);
@@ -219,7 +224,6 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
   }
 
   Widget _buildStoryPage(Atendimento atendimento, bool active, int index) {
-    // Animated Properties
     final double blur = active ? 30 : 30;
     final double offset = active ? 20 : 10;
     final double top = active ? 20 : 60;
@@ -425,4 +429,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage> {
       showSnack(context, 'Ops, houve uma falha ao marcar como em atendimento');
     }
   }
+
+  @override
+  void afterFirstLayout(BuildContext context) {}
 }

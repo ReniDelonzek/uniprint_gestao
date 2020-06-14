@@ -12,25 +12,24 @@ mixin _$SelecionarRangeDataController on _SelecionarRangeDataController, Store {
   Computed<String> _$dataComputed;
 
   @override
-  String get data =>
-      (_$dataComputed ??= Computed<String>(() => super.data)).value;
+  String get data => (_$dataComputed ??= Computed<String>(() => super.data,
+          name: '_SelecionarRangeDataController.data'))
+      .value;
 
   final _$dataInicialAtom =
       Atom(name: '_SelecionarRangeDataController.dataInicial');
 
   @override
   DateTime get dataInicial {
-    _$dataInicialAtom.context.enforceReadPolicy(_$dataInicialAtom);
-    _$dataInicialAtom.reportObserved();
+    _$dataInicialAtom.reportRead();
     return super.dataInicial;
   }
 
   @override
   set dataInicial(DateTime value) {
-    _$dataInicialAtom.context.conditionallyRunInAction(() {
+    _$dataInicialAtom.reportWrite(value, super.dataInicial, () {
       super.dataInicial = value;
-      _$dataInicialAtom.reportChanged();
-    }, _$dataInicialAtom, name: '${_$dataInicialAtom.name}_set');
+    });
   }
 
   final _$dataFinalAtom =
@@ -38,23 +37,23 @@ mixin _$SelecionarRangeDataController on _SelecionarRangeDataController, Store {
 
   @override
   DateTime get dataFinal {
-    _$dataFinalAtom.context.enforceReadPolicy(_$dataFinalAtom);
-    _$dataFinalAtom.reportObserved();
+    _$dataFinalAtom.reportRead();
     return super.dataFinal;
   }
 
   @override
   set dataFinal(DateTime value) {
-    _$dataFinalAtom.context.conditionallyRunInAction(() {
+    _$dataFinalAtom.reportWrite(value, super.dataFinal, () {
       super.dataFinal = value;
-      _$dataFinalAtom.reportChanged();
-    }, _$dataFinalAtom, name: '${_$dataFinalAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string =
-        'dataInicial: ${dataInicial.toString()},dataFinal: ${dataFinal.toString()},data: ${data.toString()}';
-    return '{$string}';
+    return '''
+dataInicial: ${dataInicial},
+dataFinal: ${dataFinal},
+data: ${data}
+    ''';
   }
 }

@@ -176,4 +176,13 @@ query somaAtendimentos {
   }
 }
 """;
+
+  static const String getSincronizacao = """
+  query valoresImpressao {
+  tipo_folha {
+    id
+    nome 
+  }
+}
+""";
 }

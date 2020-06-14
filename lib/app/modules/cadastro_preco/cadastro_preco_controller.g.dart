@@ -13,22 +13,21 @@ mixin _$CadastroPrecoController on _CadastroPrecoBase, Store {
 
   @override
   bool get colorido {
-    _$coloridoAtom.context.enforceReadPolicy(_$coloridoAtom);
-    _$coloridoAtom.reportObserved();
+    _$coloridoAtom.reportRead();
     return super.colorido;
   }
 
   @override
   set colorido(bool value) {
-    _$coloridoAtom.context.conditionallyRunInAction(() {
+    _$coloridoAtom.reportWrite(value, super.colorido, () {
       super.colorido = value;
-      _$coloridoAtom.reportChanged();
-    }, _$coloridoAtom, name: '${_$coloridoAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'colorido: ${colorido.toString()}';
-    return '{$string}';
+    return '''
+colorido: ${colorido}
+    ''';
   }
 }

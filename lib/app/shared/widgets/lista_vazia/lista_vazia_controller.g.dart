@@ -11,7 +11,8 @@ part of 'lista_vazia_controller.dart';
 mixin _$ListaVaziaController on _ListaVaziaBase, Store {
   @override
   String toString() {
-    final string = '';
-    return '{$string}';
+    return '''
+
+    ''';
   }
 }

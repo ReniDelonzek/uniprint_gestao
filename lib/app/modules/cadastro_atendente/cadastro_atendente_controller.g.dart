@@ -13,39 +13,37 @@ mixin _$CadastroAtendenteController on _CadastroAtendenteBase, Store {
 
   @override
   Usuario get user {
-    _$userAtom.context.enforceReadPolicy(_$userAtom);
-    _$userAtom.reportObserved();
+    _$userAtom.reportRead();
     return super.user;
   }
 
   @override
   set user(Usuario value) {
-    _$userAtom.context.conditionallyRunInAction(() {
+    _$userAtom.reportWrite(value, super.user, () {
       super.user = value;
-      _$userAtom.reportChanged();
-    }, _$userAtom, name: '${_$userAtom.name}_set');
+    });
   }
 
   final _$localAtom = Atom(name: '_CadastroAtendenteBase.local');
 
   @override
   PontoAtendimento get local {
-    _$localAtom.context.enforceReadPolicy(_$localAtom);
-    _$localAtom.reportObserved();
+    _$localAtom.reportRead();
     return super.local;
   }
 
   @override
   set local(PontoAtendimento value) {
-    _$localAtom.context.conditionallyRunInAction(() {
+    _$localAtom.reportWrite(value, super.local, () {
       super.local = value;
-      _$localAtom.reportChanged();
-    }, _$localAtom, name: '${_$localAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'user: ${user.toString()},local: ${local.toString()}';
-    return '{$string}';
+    return '''
+user: ${user},
+local: ${local}
+    ''';
   }
 }

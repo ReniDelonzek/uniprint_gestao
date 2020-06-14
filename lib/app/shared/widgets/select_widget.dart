@@ -16,7 +16,7 @@ class SelectWidget extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Text(
             title,
-            style: TextStyle(fontSize: 18, color: Colors.black),
+            style: TextStyle(fontSize: 18),
           ),
         ),
         InkWell(

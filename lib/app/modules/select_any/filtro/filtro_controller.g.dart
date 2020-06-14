@@ -13,22 +13,21 @@ mixin _$FiltroController on _FiltroBase, Store {
 
   @override
   Map<String, TextEditingController> get controllers {
-    _$controllersAtom.context.enforceReadPolicy(_$controllersAtom);
-    _$controllersAtom.reportObserved();
+    _$controllersAtom.reportRead();
     return super.controllers;
   }
 
   @override
   set controllers(Map<String, TextEditingController> value) {
-    _$controllersAtom.context.conditionallyRunInAction(() {
+    _$controllersAtom.reportWrite(value, super.controllers, () {
       super.controllers = value;
-      _$controllersAtom.reportChanged();
-    }, _$controllersAtom, name: '${_$controllersAtom.name}_set');
+    });
   }
 
   @override
   String toString() {
-    final string = 'controllers: ${controllers.toString()}';
-    return '{$string}';
+    return '''
+controllers: ${controllers}
+    ''';
   }
 }

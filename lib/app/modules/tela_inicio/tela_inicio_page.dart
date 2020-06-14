@@ -114,7 +114,7 @@ class TelaInicioPageState extends State<TelaInicioPage>
 
   @override
   Future<void> afterFirstLayout(BuildContext context) async {
-    Future.delayed(Duration(seconds: 3), () async {
+    Future.delayed(Duration(seconds: 2), () async {
       User user = await verificarLogin(context);
       if (user != null) {
         AppModule.to
@@ -125,11 +125,13 @@ class TelaInicioPageState extends State<TelaInicioPage>
                 builder: (context) => FilaAtendimentoModule());
             Navigator.pushReplacement(context, route);
           } else {
-            Route route =
-                MaterialPageRoute(builder: (context) => LoginModule());
-            Navigator.pushReplacement(context, route);
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => LoginModule()));
           }
         });
+      } else {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginModule()));
       }
     });
   }

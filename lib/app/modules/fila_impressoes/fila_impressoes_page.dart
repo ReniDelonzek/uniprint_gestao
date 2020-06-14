@@ -63,7 +63,6 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         appBar: new AppBar(
           title: new Text(
             "Lista de Impressões",
-            style: new TextStyle(color: Colors.black),
           ),
         ),
         body: Builder(builder: (BuildContext context) => _getBodyImpressoes()));

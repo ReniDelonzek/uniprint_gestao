@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:hive/hive.dart';
+import 'package:uniprintgestao/app/shared/db/tipo_folha.dart';
 import 'package:uniprintgestao/app/shared/db/usuario.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_platform.dart';
 
@@ -21,6 +22,7 @@ class HiveService extends Disposable {
       Hive.init(Directory.current.path);
     }
     Hive.registerAdapter(UsuarioHasuraAdapter());
+    Hive.registerAdapter(TipoFolhaAdapter());
     completer.complete(true);
   }
 

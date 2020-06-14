@@ -11,7 +11,8 @@ part of 'ler_qr_code_controller.dart';
 mixin _$LerQrCodeController on _LerQrCodeBase, Store {
   @override
   String toString() {
-    final string = '';
-    return '{$string}';
+    return '''
+
+    ''';
   }
 }
