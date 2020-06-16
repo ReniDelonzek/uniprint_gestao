@@ -89,13 +89,4 @@ mixin _$SelectAnyController on _SelectAnyBase, Store {
       _$_SelectAnyBaseActionController.endAction(_$actionInfo);
     }
   }
-
-  @override
-  String toString() {
-    return '''
-searchIcon: ${searchIcon},
-appBarTitle: ${appBarTitle},
-listaExibida: ${listaExibida}
-    ''';
-  }
 }

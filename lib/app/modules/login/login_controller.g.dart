@@ -23,11 +23,4 @@ mixin _$LoginController on _LoginBase, Store {
       super.exibirSenha = value;
     });
   }
-
-  @override
-  String toString() {
-    return '''
-exibirSenha: ${exibirSenha}
-    ''';
-  }
 }

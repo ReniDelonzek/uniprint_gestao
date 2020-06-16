@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 import 'package:uniprintgestao/app/shared/widgets/falha/falha_widget.dart';
@@ -273,33 +272,6 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
       widgets.add(_getLinha(item, obj));
     }
     return widgets;
-  }
-
-  List<ItemSelect> _gerarLista(List data) {
-    ObservableList<ItemSelect> lista = ObservableList();
-    for (var a in data) {
-      ItemSelect itemSelect = ItemSelect();
-      for (var linha in widget._selectModel.linhas) {
-        /*if (a[linha.chave] is List) {
-          String s = "";
-          */ /*for (var subItem in a[linha.chave]) {
-            s += "${subItem['package']}\n"; //todo fazer ser generico aqui
-          }*/ /*
-          itemSelect.strings[linha.chave] = s;
-        } else {*/
-        itemSelect.strings[linha.chave] = a[linha.chave].toString();
-        //}
-      }
-      itemSelect.id = a[widget._selectModel.id]; //int.parse(a[id]);
-      itemSelect.isSelected = false;
-      itemSelect.object = a;
-      lista.add(itemSelect);
-    }
-    controller.listaOriginal.clear();
-    controller.listaExibida.clear();
-    controller.listaOriginal.addAll(lista);
-    controller.listaExibida.addAll(lista);
-    return lista;
   }
 
   dynamic _getValorLinha(String coluna, Map<String, dynamic> map) {

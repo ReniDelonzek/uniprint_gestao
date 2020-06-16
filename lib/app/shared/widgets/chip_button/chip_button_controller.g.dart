@@ -23,11 +23,4 @@ mixin _$ChipButtonController on _ChipButtonBase, Store {
       super.isSelected = value;
     });
   }
-
-  @override
-  String toString() {
-    return '''
-isSelected: ${isSelected}
-    ''';
-  }
 }
