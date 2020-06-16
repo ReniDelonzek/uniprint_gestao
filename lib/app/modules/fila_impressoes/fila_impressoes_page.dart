@@ -69,9 +69,12 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
   }
 
   Widget _getFragentImpressoes(BuildContext context, AsyncSnapshot snap) {
-    listaImpressoes.clear();
-
-    if (snap.hasError || !snap.hasData) {
+    if (snap.connectionState == ConnectionState.waiting) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    if (snap.hasError) {
       return FalhaWidget('Ops, houve uma falha ao recuperar as impressões');
     }
     if (snap.data['data']['impressao'].isEmpty) {
@@ -82,6 +85,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
               'imagens/printer_icon.png') //Text('Nenhuma impressão na fila'),
           );
     }
+    listaImpressoes.clear();
     for (var data in snap.data['data']['impressao']) {
       Impressao atendimento = Impressao.fromMap(data);
       listaImpressoes.add(atendimento);
