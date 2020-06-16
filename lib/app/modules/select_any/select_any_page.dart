@@ -193,9 +193,11 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
                     },
                     value: itemSelect.isSelected)
                 : null,
-            title: _getLinha(itemSelect.strings.entries.first),
+            title:
+                _getLinha(itemSelect.strings.entries.first, itemSelect.object),
             subtitle: (itemSelect.strings.length > 1)
-                ? _getLinha(itemSelect.strings.entries.toList()[1])
+                ? _getLinha(
+                    itemSelect.strings.entries.toList()[1], itemSelect.object)
                 : null,
             onTap: () async {
               _tratarOnTap(itemSelect);
@@ -215,9 +217,8 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _getTexts(itemSelect.strings),
-          ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _getTexts(itemSelect.strings, itemSelect.object)),
         ),
       );
       /*return Padding(//layout com suporte a selecao
@@ -251,21 +252,25 @@ class _SelectAnyPageState extends State<SelectAnyPage> {
     }
   }
 
-  _getLinha(MapEntry item) {
+  Widget _getLinha(MapEntry item, Map map) {
     Linha linha = widget._selectModel.linhas
         .firstWhere((linha) => linha.chave == item.key);
-    if (linha != null && linha.involucro != null) {
-      return (Text(
-          linha.involucro.replaceAll('???', item.value?.toString() ?? '')));
+    if (linha != null &&
+        (linha.involucro != null || linha.personalizacao != null)) {
+      if (linha.personalizacao != null) {
+        return linha.personalizacao(map);
+      }
+      return (Text(linha.involucro.replaceAll(
+          '???', item.value?.toString() ?? linha.valorPadrao ?? '')));
     } else {
-      return (Text(item.value?.toString() ?? ''));
+      return (Text(item.value?.toString() ?? linha.valorPadrao ?? ''));
     }
   }
 
-  _getTexts(Map<String, dynamic> map) {
+  _getTexts(Map<String, dynamic> map, Map obj) {
     List<Widget> widgets = List();
     for (var item in map.entries) {
-      widgets.add(_getLinha(item));
+      widgets.add(_getLinha(item, obj));
     }
     return widgets;
   }

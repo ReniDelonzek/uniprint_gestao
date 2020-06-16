@@ -60,13 +60,6 @@ class SelecionarRangeDataWidget extends StatelessWidget {
   }
 
   Future _showDatePicked(BuildContext context) async {
-    //DateTime dataFinalPadrao = new DateTime.now().add(new Duration(days: 7));
-    //DateTime dataFinal = dataMax == null ? (dataFinalPadrao) : dataMax;
-    /*(dataMax.isBefore(dataFinalPadrao)
-            ? DateTime.fromMicrosecondsSinceEpoch(
-                    dataMax.millisecondsSinceEpoch)
-                .subtract(Duration(days: 1))
-            : (dataFinalPadrao));*/
     final List<DateTime> dates = await DateRagePicker.showDatePicker(
         context: context,
         initialFirstDate: controller.dataInicial ?? DateTime.now(),
@@ -77,10 +70,6 @@ class SelecionarRangeDataWidget extends StatelessWidget {
         lastDate: controller.dataMax ??
             new DateTime.now().add(new Duration(days: 365)));
     if (dates != null && dates.isNotEmpty) {
-      if (dates.length == 1) {
-        /*dates.add(DateTime(
-            dates.first.year, dates.first.month, dates.first.day, 23, 59, 59));*/
-      }
       this.controller.dataInicial = DateTime(
           dates.first.year, dates.first.month, dates.first.day, 0, 0, 0);
       if (dates.length > 1) {

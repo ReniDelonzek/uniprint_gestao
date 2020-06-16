@@ -9,6 +9,14 @@ mutation cadastrarAtendente(\$ponto_atendimento_id: Int!, \$usuario_id: Int!) {
 }
 """;
 
+  static const String cadastroProfessor =
+      """mutation cadastroProfessor(\$usuario_id: Int!) {
+  update_usuario(where: {id: {_eq: \$usuario_id}}, _set: {tipo_usuario_id: 3}) {
+    affected_rows
+  }
+}
+""";
+
   static const String cadastroMovimentacaoAtendimento = """
 mutation cadastroMovimentacaoAtendimento(\$data: timestamptz!, 
 \$tipo: Int!, \$usuario_id: Int!, \$atendimento_id: Int!, \$status: Int!) {

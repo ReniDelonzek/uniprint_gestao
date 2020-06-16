@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
+import 'package:uniprintgestao/app/shared/api/mutations.dart';
 import 'package:uniprintgestao/app/shared/api/querys.dart';
 import 'package:uniprintgestao/app/shared/graph/usuario.dart';
 import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
@@ -23,7 +24,7 @@ abstract class _CadastroProfessorBase with Store {
   Future<bool> enviarDadosServidor() async {
     try {
       var res = await GraphQlObject.hasuraConnect.mutation(
-          Querys.cadastroProfessor,
+          Mutations.cadastroProfessor,
           variables: {'usuario_id': usuario?.id});
 
       return (sucessoMutationAffectRows(res, 'update_usuario'));

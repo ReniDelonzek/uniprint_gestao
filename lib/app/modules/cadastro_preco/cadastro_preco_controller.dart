@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:uniprintgestao/app/shared/extensions/string.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/app/shared/api/mutations.dart';
 import 'package:uniprintgestao/app/shared/graph/tipo_folha.dart';
@@ -24,7 +25,7 @@ abstract class _CadastroPrecoBase with Store {
   bool colorido = false;
 
   String verificarDados() {
-    if (ctlDatas.dataInicial == null || ctlDatas.dataFinal == null) {
+    if (ctlDatas.dataInicial == null) {
       return 'Você precisa selecionar a validade do preço';
     } else if (tipoFolha == null) {
       return 'Você precisa selecionar o tipo de folha';
@@ -38,7 +39,7 @@ abstract class _CadastroPrecoBase with Store {
         valorImpressao = ValorImpressao();
       }
       valorImpressao.colorido = colorido;
-      valorImpressao.valor = 3; //ctlValor.text.toDouble();
+      valorImpressao.valor = ctlValor.text.toDouble();
       valorImpressao.dataInicio = ctlDatas.dataInicial;
       valorImpressao.dataFim = ctlDatas.dataFinal;
       valorImpressao.tipoFolhaId = tipoFolha.id;

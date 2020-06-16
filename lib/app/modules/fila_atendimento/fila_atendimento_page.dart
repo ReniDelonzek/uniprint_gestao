@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/app/app_module.dart';
+import 'package:uniprintgestao/app/shared/extensions/string.dart';
+
+import 'package:uniprintgestao/app/shared/extensions/date.dart';
 import 'package:uniprintgestao/app/modules/cadastro_atendente/cadastro_atendente_module.dart';
 import 'package:uniprintgestao/app/modules/cadastro_preco/cadastro_preco_module.dart';
 import 'package:uniprintgestao/app/modules/cadastro_professor/cadastro_professor_module.dart';
@@ -137,7 +140,28 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CadastroPrecoModule()));
+                            builder: (context) => SelectAnyModule(
+                                  SelectModel(
+                                      'Preços',
+                                      'id',
+                                      [
+                                        Linha('valor', involucro: 'Valor: ???'),
+                                        Linha('tipo_folha/nome',
+                                            involucro: 'Tipo de folha: ???'),
+                                        Linha('data_inicio',
+                                            personalizacao: (data) {
+                                          return Text(
+                                              '${data['data_inicio'].toString().dateFromHasura().string('dd/MM/yy')} até ${data['data_fim']?.toString()?.dateFromHasura()?.string('dd/MM/yy') ?? 'Data indeterminada'}');
+                                        })
+                                      ],
+                                      SelectAnyPage.TIPO_SELECAO_ACAO,
+                                      query: Querys.getListaPrecos,
+                                      chaveLista: 'valor_impressao',
+                                      botoes: [
+                                        Acao('Novo',
+                                            (context) => CadastroPrecoModule())
+                                      ]),
+                                )));
                   }),
               new ListTile(
                   title: new Text("Soma atendimentos"),

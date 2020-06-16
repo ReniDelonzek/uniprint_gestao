@@ -28,9 +28,14 @@ class Linha {
   String chave;
   Color color;
   String involucro;
+  String valorPadrao;
+  LinhaPersonalizada personalizacao;
 
-  Linha(this.chave, {this.color, this.involucro});
+  Linha(this.chave,
+      {this.color, this.involucro, this.valorPadrao, this.personalizacao});
 }
+
+typedef LinhaPersonalizada = Widget Function(dynamic dados);
 
 class Acao {
   Map<String, String>

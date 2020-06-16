@@ -169,14 +169,6 @@ query somaAtendimentos {
 }
 """;
 
-  static const String cadastroProfessor =
-      """mutation cadastroProfessor(\$usuario_id: Int!) {
-  update_usuario(where: {id: {_eq: \$usuario_id}}, _set: {tipo_usuario_id: 3}) {
-    affected_rows
-  }
-}
-""";
-
   static const String getSincronizacao = """
   query valoresImpressao {
   tipo_folha {
@@ -185,4 +177,18 @@ query somaAtendimentos {
   }
 }
 """;
+
+  static const String getListaPrecos = """
+  query getListaPrecos {
+  valor_impressao {
+		valor
+    data_inicio
+    data_fim
+    colorido
+    tipo_folha {
+      nome
+    }
+  }
+}
+  """;
 }

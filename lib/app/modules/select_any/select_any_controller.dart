@@ -36,10 +36,4 @@ abstract class _SelectAnyBase with Store {
   void setList(List<ItemSelect> list) {
     this.listaExibida.addAll(list);
   }
-
-  void dispose() {
-    listaOriginal.clear();
-    listaExibida.clear();
-    filter.clear();
-  }
 }

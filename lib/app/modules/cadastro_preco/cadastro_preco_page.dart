@@ -23,7 +23,8 @@ class CadastroPrecoPage extends StatefulWidget {
 }
 
 class _CadastroPrecoPageState extends State<CadastroPrecoPage> {
-  final _controller = CadastroPrecoModule.to.bloc<CadastroPrecoController>();
+  final CadastroPrecoController _controller =
+      CadastroPrecoModule.to.bloc<CadastroPrecoController>();
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +81,7 @@ class _CadastroPrecoPageState extends State<CadastroPrecoPage> {
                     progressDialog.hide();
                     if (sucesso) {
                       showSnack(context, 'Preço cadastrado com sucesso',
-                          dismiss: true);
+                          dismiss: true, data: true);
                     } else {
                       showSnack(context,
                           'Ops, houve uma falha ao cadastrar os dados');

@@ -54,6 +54,7 @@ class CadastroProfessorPageState extends State<CadastroProfessorPage> {
                       builder: (_) => SelectWidget(
                           'Selecione o Usuário',
                           _controller.usuario?.pessoa?.nome ??
+                              _controller.usuario?.email ??
                               'Clique para selecionar', () async {
                         var res = await Navigator.of(context).push(
                             new MaterialPageRoute(
@@ -61,7 +62,11 @@ class CadastroProfessorPageState extends State<CadastroProfessorPage> {
                                     new SelectAnyModule(SelectModel(
                                         'Selecione o Usuário',
                                         'id',
-                                        [Linha('pessoa/nome'), Linha('email')],
+                                        [
+                                          Linha('pessoa/nome',
+                                              valorPadrao: 'Nome não definido'),
+                                          Linha('email')
+                                        ],
                                         SelectAnyPage.TIPO_SELECAO_SIMPLES,
                                         query: Querys.getUsuariosProf,
                                         chaveLista: 'usuario'))));
@@ -70,14 +75,6 @@ class CadastroProfessorPageState extends State<CadastroProfessorPage> {
                         }
                       }),
                     ),
-
-                    // Expanded(
-                    //   child: ListView.builder(
-                    //       shrinkWrap: true,
-                    //       itemCount: list.length,
-                    //       itemBuilder: (BuildContext ctxt, int index) =>
-                    //           _getItemList(list[index])),
-                    // ),
                   ],
                 ),
               ),
@@ -104,22 +101,4 @@ class CadastroProfessorPageState extends State<CadastroProfessorPage> {
       showSnack(context, msg);
     }
   }
-
-  // Widget _getItemList(Map map) {
-  //   return Card(
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(15.0),
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: <Widget>[
-  //           Text('Turno: ${map['nomeTurno']}'),
-  //           Text('Disciplina: ${map['nomeDisciplina']}'),
-  //           Text('Periodo: ${map['nomePeriodo']}'),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
 }
