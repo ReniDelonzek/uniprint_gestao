@@ -373,12 +373,16 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
 
   Future<void> marcarComoImpresso(
       Impressao impressao, BuildContext context) async {
+    ProgressDialog progressDialog = ProgressDialog(context)
+      ..style(message: 'Marcando como impresso');
+    await progressDialog.show();
     bool result = await UtilsImpressao.gerarMovimentacao(
         Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA,
         Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA,
         impressao);
+    progressDialog.hide();
     if (result) {
-      showSnack(buildContext, 'Impressão autorizada com sucesso');
+      showSnack(buildContext, 'Impressão marca com impresso com sucesso');
     } else {
       showSnack(buildContext, 'Ops, houve uma falha ao autorizada a impressão');
     }

@@ -18,7 +18,10 @@ class ChipButtonState extends StatelessWidget {
           decoration: new BoxDecoration(
               color: controller.isSelected ? Colors.blue : Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(24.0)),
-              border: new Border.all(color: Colors.blue)),
+              border: new Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.transparent
+                      : Colors.blue)),
           child: Material(
               color: Colors.transparent,
               child: InkWell(
