@@ -69,7 +69,10 @@ class LoginEmailPage extends State<LoginPage> {
                               _controller.exibirSenha
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color: Colors.black54,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black54,
                             ),
                           ),
                         ),
