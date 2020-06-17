@@ -45,7 +45,7 @@ class ArquivoImpressao {
       'colorido': colorido,
       'quantidade': quantidade,
       'tipo_folha_id': tipo_folha_id,
-      'tipofolha': tipofolha.toMap(),
+      'tipo_folha': tipofolha.toMap(),
     };
   }
 
@@ -58,7 +58,7 @@ class ArquivoImpressao {
       colorido: map['colorido'],
       quantidade: map['quantidade'],
       tipo_folha_id: map['tipo_folha_id'],
-      tipofolha: TipoFolha.fromMap(map['tipofolha']),
+      tipofolha: TipoFolha.fromMap(map['tipo_folha']),
     );
   }
 

@@ -120,15 +120,13 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
       duration: Duration(milliseconds: 600),
       curve: Curves.easeOutQuint,
       margin: EdgeInsets.only(top: top, bottom: 10, right: 5, left: 5),
-      //color: Colors.cyan,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-          //    color: Colors.cyan,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black26,
-                blurRadius: blur,
-                offset: Offset(offset, offset))
-          ]),
+      decoration:
+          BoxDecoration(borderRadius: BorderRadius.circular(20), boxShadow: [
+        BoxShadow(
+            color: Colors.black26,
+            blurRadius: blur,
+            offset: Offset(offset, offset))
+      ]),
       child: _getCardImpressoes(impressao, index),
     );
   }
@@ -195,20 +193,9 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: impressao.arquivo_impressaos.map((e) {
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Text(
-                                    '-${e.quantidade} cópia${e.quantidade > 1 ? 's' : ''} ${e.tipofolha?.nome}'),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 5),
-                                  child: InkWell(
-                                      onTap: () {},
-                                      child: Text(
-                                        e.nome,
-                                      )),
-                                )
-                              ],
+                            return Text(
+                              '• ${e.quantidade} cópia${e.quantidade > 1 ? 's' : ''} ${e.tipofolha?.nome}: ' +
+                                  e.nome,
                             );
                           }).toList(),
                         ),
@@ -224,7 +211,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                   ),
                   Container(
                     padding: const EdgeInsets.only(top: 8),
-                    height: 120,
+                    //height: 120,
                     child: _getButtons(impressao),
                   )
                 ]),
@@ -320,7 +307,6 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
                 }
               }),
               _botaoCard(Icon(Icons.done), 'Autorizar', () async {
-                //imprimirArquivos(impressao, context);
                 bool result = await UtilsImpressao.gerarMovimentacao(
                     Constants.MOV_IMPRESSAO_AUTORIZADO,
                     Constants.STATUS_IMPRESSAO_AUTORIZADO,
@@ -339,7 +325,7 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
       List<Widget> widgets = List();
       if (UtilsPlatform.isMobile()) {
         widgets.add(_botaoCard(
-            Image.asset('imagens/qr_code.png', width: 50), 'Escanear QR',
+            Image.asset('imagens/qr_code.png', width: 42), 'Escanear QR',
             () async {
           var res = await Navigator.of(context).push(new MaterialPageRoute(
               builder: (BuildContext context) => new LerQrCodeModule()));
@@ -361,17 +347,20 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
         children: widgets,
       );
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_AUTORIZADO) {
-      return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        _botaoCard(Icon(Icons.print), 'Imprimir', () {
-          imprimirArquivos(impressao, context);
-        }),
-        _botaoCard(Icon(Icons.file_download), 'Ver arquivos', () {
-          abrirArquivosExplorador(impressao);
-        }),
-        _botaoCard(Icon(Icons.done), 'Impresso', () async {
-          marcarComoImpresso(impressao, context);
-        })
-      ]);
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+          _botaoCard(Icon(Icons.print), 'Imprimir', () {
+            imprimirArquivos(impressao, context);
+          }),
+          _botaoCard(Icon(Icons.file_download), 'Ver arquivos', () {
+            abrirArquivosExplorador(impressao);
+          }),
+          _botaoCard(Icon(Icons.done), 'Impresso', () async {
+            marcarComoImpresso(impressao, context);
+          })
+        ]),
+      );
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_RETIRADA) {
       return Center(child: Text('Impressão finalizada'));
     } else if (impressao.status == Constants.STATUS_IMPRESSAO_CANCELADO) {
@@ -398,27 +387,26 @@ class FilaImpressoesPageState extends State<FilaImpressoesPage> {
   Widget _botaoCard(Widget icone, String texto, GestureTapCallback onTap) {
     return Container(
       width: 120,
-      child: Expanded(
-        child: Card(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.white70, width: 1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 2,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  icone,
-                  Text(
-                    texto,
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
+      height: 100,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.white70, width: 1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 2,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                icone,
+                Text(
+                  texto,
+                  textAlign: TextAlign.center,
+                )
+              ],
             ),
           ),
         ),

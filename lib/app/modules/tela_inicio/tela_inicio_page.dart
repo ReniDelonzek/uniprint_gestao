@@ -1,4 +1,5 @@
 import 'package:firedart/auth/user_gateway.dart';
+import 'package:firedart/firedart.dart';
 import 'package:flutter/material.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:uniprintgestao/app/app_module.dart';
@@ -130,6 +131,9 @@ class TelaInicioPageState extends State<TelaInicioPage>
           }
         });
       } else {
+        try {
+          FirebaseAuth.instance.signOut();
+        } catch (_) {}
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => LoginModule()));
       }

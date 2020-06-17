@@ -6,8 +6,11 @@ import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uniprintgestao/app/app_module.dart';
+import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
+import 'package:uniprintgestao/app/shared/api/querys.dart';
 import 'package:uniprintgestao/app/shared/db/usuario.dart';
 import 'package:uniprintgestao/app/shared/services/utils_hive_service.dart';
+import 'package:uniprintgestao/app/shared/utils/utils_sentry.dart';
 
 class HasuraAuthService extends Disposable {
   UsuarioHasura usuario;
@@ -40,10 +43,10 @@ class HasuraAuthService extends Disposable {
             usuario.codAtendente != null) {
           onChanged(usuario);
         } else {
-          obterDadosFirebase(uid, onChanged);
+          obterDadosHasura(uid, onChanged);
         }
       } else {
-        obterDadosFirebase(uid, onChanged);
+        obterDadosHasura(uid, onChanged);
       }
     } else {
       onChanged(usuario);
@@ -51,29 +54,33 @@ class HasuraAuthService extends Disposable {
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    completer.future?.then((value) => value.close());
+  }
 
-  void obterDadosFirebase(String uid, onChanged) {
-    var l = Firestore.instance.collection('Usuarios').document(uid).stream;
-    l.listen((event) async {
-      if (event != null) {
-        if ((event.map?.containsKey('hasura_id') ?? false) &&
-            (event.map?.containsKey('ponto_id') ?? false) &&
-            (event.map?.containsKey('atendente_id') ?? false)) {
+  void obterDadosHasura(String uid, onChanged) {
+    GraphQlObject.hasuraConnect
+        .query(Querys.getUsuarioUID, variables: {'uid': uid}).then((value) {
+      if (validarRespostaQuery(value, 'usuario', podeSerVazia: false)) {
+        try {
+          Map data = value['data']['usuario'][0];
           if (usuario == null) {
             usuario = UsuarioHasura();
           }
-          usuario.codHasura = event.map['hasura_id'];
-          usuario.codAtendente = event.map['atendente_id'];
-          usuario.codPontoAtendimento = event.map['ponto_id'];
+          //Caso o usuario não seja atendente, a linha abaixo falhará
+          usuario.codAtendente = data['atendente']['id'];
+          usuario.codPontoAtendimento =
+              data['atendente']['ponto_atendimento_id'];
+          usuario.codHasura = data['id'];
           completer.future.then((box) {
             box.put('usuario', usuario);
             onChanged(usuario);
-          }).catchError((error) {
-            print(error);
+          }).catchError((error, stackTrace) {
+            UtilsSentry.reportError(error, stackTrace);
             onChanged(null);
           });
-        } else {
+        } catch (error, stackTrace) {
+          UtilsSentry.reportError(error, stackTrace);
           onChanged(null);
         }
       } else {
@@ -81,4 +88,33 @@ class HasuraAuthService extends Disposable {
       }
     });
   }
+
+  // void obterDadosFirebase(String uid, onChanged) {
+  //   var l = Firestore.instance.collection('Usuarios').document(uid).stream;
+  //   l.listen((event) async {
+  //     if (event != null) {
+  //       if ((event.map?.containsKey('hasura_id') ?? false) &&
+  //           (event.map?.containsKey('ponto_id') ?? false) &&
+  //           (event.map?.containsKey('atendente_id') ?? false)) {
+  //         if (usuario == null) {
+  //           usuario = UsuarioHasura();
+  //         }
+  //         usuario.codHasura = event.map['hasura_id'];
+  //         usuario.codAtendente = event.map['atendente_id'];
+  //         usuario.codPontoAtendimento = event.map['ponto_id'];
+  //         completer.future.then((box) {
+  //           box.put('usuario', usuario);
+  //           onChanged(usuario);
+  //         }).catchError((error) {
+  //           print(error);
+  //           onChanged(null);
+  //         });
+  //       } else {
+  //         onChanged(null);
+  //       }
+  //     } else {
+  //       onChanged(null);
+  //     }
+  //   });
+  // }
 }

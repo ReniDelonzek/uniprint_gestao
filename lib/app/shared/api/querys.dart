@@ -43,8 +43,7 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
     id
     comentario
     status
-    usuario {
-          uid
+    usuario { 
           email
           url_foto
           pessoa {
@@ -60,7 +59,6 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
               count(columns: id)
             }
           }
-          data_criacao
           nivel_usuarios {
             nivel_id
             pontuacao
@@ -71,7 +69,7 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
       nome
       quantidade
       url
-      tipofolha {
+      tipo_folha {
         nome
         id
       }
@@ -191,4 +189,17 @@ query somaAtendimentos {
   }
 }
   """;
+
+  static const String getUsuarioUID = """
+query getUsuarioUid(\$uid: String!) {
+  usuario(where: {uid: {_eq: \$uid}, atendente: {}}) {
+    id
+    atendente {
+      id
+      ponto_atendimento_id
+    }
+  }
+}
+
+""";
 }
