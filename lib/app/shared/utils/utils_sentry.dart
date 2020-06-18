@@ -87,11 +87,12 @@ class UtilsSentry {
 
   static Future<void> reportError(Object error, StackTrace stackTrace,
       {dynamic data}) async {
-    if (!UtilsPlatform.isDebug() || (UtilsPlatform.isWindows())) {
+    if (!UtilsPlatform.isDebug()) {
       try {
         final SentryClient sentry = new SentryClient(
-            dsn: 'https://7efd66bc0ba3428d86d1d8fbfd29a308@sentry.io/2827683');
-        // In production mode, report to the application zone to report to Sentry.
+            dsn:
+                'https://ea3848a09e1d419597b38290d2d85bef@o408228.ingest.sentry.io/5280823');
+
         final Event event = await getSentryEnvEvent(error, stackTrace);
         if (event.extra != null && data != null) {
           event.extra['json'] = data;
