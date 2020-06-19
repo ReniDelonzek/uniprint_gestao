@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Criar relatório de erros
 title: ''
 labels: bug
 assignees: ReniDelonzek
