@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:firedart/auth/firebase_auth.dart';
-import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uniprintgestao/app/app_module.dart';

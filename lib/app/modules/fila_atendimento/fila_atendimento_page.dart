@@ -281,6 +281,20 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   CabecalhoDetalhesUsuario(atendimento.usuario),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: RichText(
+                      text: TextSpan(
+                        text: 'Número do atendimento: ',
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: atendimento.id?.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 22)),
+                        ],
+                      ),
+                    ),
+                  ),
                   atendimento.status ==
                           Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO
                       ? Row(
