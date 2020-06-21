@@ -1,16 +1,14 @@
-# uniprintgestao
+# Uniprint Gestão
 
-A new Flutter project.
+Este aplicativo faz parte do sistema UniPrint, disponível em https://github.com/ReniDelonzek/uniprint
 
-## Getting Started
+## Contribuições
 
-This project is a starting point for a Flutter application.
+Contribuições são muito bem vindas ❤. Lembre-se de sempre seguir a estrutura do projeto e documentar as alterações.
 
-A few resources to get you started if this is your first Flutter project:
+### Como contribuir?
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Crie um fork do projeto
+- Faça as alterações necessárias
+- Teste e documente as alterações realizadas
+- Crie um Pull Request
