@@ -50,10 +50,10 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (UtilsPlatform.isDesktop()) {
-      // Isso está impedindo do teclado abrir corretamente em outras telas
-      FocusScope.of(context).requestFocus(_focusNode);
-    }
+    //if (UtilsPlatform.isDesktop()) {
+      //TODO Isso está impedindo do teclado abrir corretamente em outras telas
+      //FocusScope.of(context).requestFocus(_focusNode);
+    //}
   }
 
   @override
@@ -394,6 +394,24 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
 
   void onKey(RawKeyEvent event) {
     int keyCode = getBotaoPressionado(event);
+    if (UtilsPlatform.isWindows()){
+     switch (keyCode) {
+      case 39: //left
+        setState(() {
+          _pagecontroller.nextPage(
+              duration: Duration(milliseconds: 600), curve: Curves.ease);
+        });
+
+        break;
+      case 37:
+        setState(() {
+          _pagecontroller.previousPage(
+              duration: Duration(milliseconds: 600), curve: Curves.ease);
+        });
+
+        break;
+    } 
+    } else {
     switch (keyCode) {
       case 124: //left
         setState(() {
@@ -409,6 +427,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
         });
 
         break;
+    }
     }
   }
 

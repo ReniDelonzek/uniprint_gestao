@@ -5,11 +5,11 @@ class Tema {
     return ThemeData(
         brightness: darkMode ? Brightness.dark : Brightness.light,
         appBarTheme: AppBarTheme(
-            elevation: 0, color: darkMode ? Colors.black : Color(0xfdfdfdfd)),
+            elevation: 0, color: darkMode ? Colors.black : Colors.white),
         accentColor: getCorPadrao(),
         primaryColor: darkMode ? Colors.black : Colors.white,
         buttonColor: getCorPadrao(),
-        scaffoldBackgroundColor: darkMode ? Colors.black : Color(0xfdfdfdfd),
+        scaffoldBackgroundColor: darkMode ? Colors.black : Colors.white,
         buttonTheme: ButtonThemeData(buttonColor: getCorPadrao()),
         inputDecorationTheme: InputDecorationTheme(
             labelStyle:
