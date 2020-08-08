@@ -51,8 +51,8 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     //if (UtilsPlatform.isDesktop()) {
-      //TODO Isso está impedindo do teclado abrir corretamente em outras telas
-      //FocusScope.of(context).requestFocus(_focusNode);
+    //TODO Isso está impedindo do teclado abrir corretamente em outras telas
+    //FocusScope.of(context).requestFocus(_focusNode);
     //}
   }
 
@@ -95,11 +95,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
                 accountEmail:
                     new Text("", style: new TextStyle(color: Colors.white)),
                 currentAccountPicture: new GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(new MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            new CadastroProfessorModule()));
-                  },
+                  onTap: () {},
                   child: Hero(
                     tag: "imagem_perfil",
                     child: new CircleAvatar(
@@ -394,40 +390,40 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
 
   void onKey(RawKeyEvent event) {
     int keyCode = getBotaoPressionado(event);
-    if (UtilsPlatform.isWindows()){
-     switch (keyCode) {
-      case 39: //left
-        setState(() {
-          _pagecontroller.nextPage(
-              duration: Duration(milliseconds: 600), curve: Curves.ease);
-        });
+    if (UtilsPlatform.isWindows()) {
+      switch (keyCode) {
+        case 39: //left
+          setState(() {
+            _pagecontroller.nextPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
 
-        break;
-      case 37:
-        setState(() {
-          _pagecontroller.previousPage(
-              duration: Duration(milliseconds: 600), curve: Curves.ease);
-        });
+          break;
+        case 37:
+          setState(() {
+            _pagecontroller.previousPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
 
-        break;
-    } 
+          break;
+      }
     } else {
-    switch (keyCode) {
-      case 124: //left
-        setState(() {
-          _pagecontroller.nextPage(
-              duration: Duration(milliseconds: 600), curve: Curves.ease);
-        });
+      switch (keyCode) {
+        case 124: //left
+          setState(() {
+            _pagecontroller.nextPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
 
-        break;
-      case 123:
-        setState(() {
-          _pagecontroller.previousPage(
-              duration: Duration(milliseconds: 600), curve: Curves.ease);
-        });
+          break;
+        case 123:
+          setState(() {
+            _pagecontroller.previousPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
 
-        break;
-    }
+          break;
+      }
     }
   }
 
