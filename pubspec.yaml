@@ -16,7 +16,7 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
-dependencies: 
+dependencies:
   after_layout: ^1.0.7+2
   flutter_full_pdf_viewer: ^1.0.6
   device_info: ^0.4.1+5
@@ -25,7 +25,7 @@ dependencies:
   date_range_picker: ^1.0.6
   crypto: ^2.1.4
   dio: ^3.0.8
-  hasura_connect: 1.2.1+1
+  hasura_connect: 1.2.2+1
   flutter_mobx: ^1.0.1
   bloc_pattern: ^2.5.1
   path_provider: ^1.6.1
@@ -66,20 +66,17 @@ dependencies:
 
   mobx: ^1.0.2
 
-
 dev_dependencies:
-  hive_generator: ^0.7.0
+  hive_generator: ^0.7.1
   build_runner: ^1.7.2
   mobx_codegen: ^1.1.0
   #flutter_test:
-   # sdk: flutter
-
+  # sdk: flutter
 
 flutter:
   uses-material-design: true
   assets:
     - imagens/
-
 
 scripts:
   build: flutter pub run build_runner build --delete-conflicting-outputs

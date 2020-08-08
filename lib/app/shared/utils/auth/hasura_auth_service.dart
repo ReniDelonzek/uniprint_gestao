@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:firedart/auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hasura_connect/hasura_connect.dart';
 import 'package:hive/hive.dart';
 import 'package:uniprintgestao/app/app_module.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
@@ -30,6 +31,10 @@ class HasuraAuthService extends Disposable {
     usuario = null;
     Box box = await completer.future;
     await box.clear();
+
+    GraphQlObject.hasuraConnect
+        .cleanCache()
+        .then((value) => print('Cache limpo com sucesso'));
   }
 
   void obterDadosUsuario(
@@ -71,6 +76,8 @@ class HasuraAuthService extends Disposable {
           usuario.codPontoAtendimento =
               data['atendente']['ponto_atendimento_id'];
           usuario.codHasura = data['id'];
+          usuario.nomePontoAtendimento =
+              data["atendente"]["ponto_atendimento"]["nome"];
           completer.future.then((box) {
             box.put('usuario', usuario);
             onChanged(usuario);

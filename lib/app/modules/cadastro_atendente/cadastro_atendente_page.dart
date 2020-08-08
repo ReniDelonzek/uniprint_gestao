@@ -47,8 +47,9 @@ class CadastroAtendentePageState extends State<CadastroAtendentePage> {
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: Observer(
                     builder: (_) => SelectWidget(
-                        'Selecione o usuário', _controller.user?.pessoa?.nome,
-                        () async {
+                        'Selecione o usuário',
+                        _controller.user?.pessoa?.nome ??
+                            _controller.user?.email, () async {
                       var res = await Navigator.of(context).push(
                           new MaterialPageRoute(
                               builder: (BuildContext context) =>

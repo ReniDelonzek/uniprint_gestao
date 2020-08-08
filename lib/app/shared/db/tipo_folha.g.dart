@@ -8,13 +8,13 @@ part of 'tipo_folha.dart';
 
 class TipoFolhaAdapter extends TypeAdapter<TipoFolha> {
   @override
-  final typeId = 3;
+  final int typeId = 3;
 
   @override
   TipoFolha read(BinaryReader reader) {
-    var numOfFields = reader.readByte();
-    var fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TipoFolha(
       id: fields[0] as int,
@@ -31,4 +31,14 @@ class TipoFolhaAdapter extends TypeAdapter<TipoFolha> {
       ..writeByte(1)
       ..write(obj.nome);
   }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TipoFolhaAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

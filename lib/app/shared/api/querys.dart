@@ -194,6 +194,9 @@ query getUsuarioUid(\$uid: String!) {
     atendente {
       id
       ponto_atendimento_id
+      ponto_atendimento {
+        nome
+      }
     }
   }
 }

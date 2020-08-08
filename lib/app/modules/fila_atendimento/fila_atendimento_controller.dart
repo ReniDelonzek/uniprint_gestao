@@ -3,6 +3,7 @@ import 'package:mobx/mobx.dart';
 import 'package:uniprintgestao/app/app_module.dart';
 import 'package:uniprintgestao/app/shared/api/graph_ql_objetct.dart';
 import 'package:uniprintgestao/app/shared/api/querys.dart';
+import 'package:uniprintgestao/app/shared/graph/atendimento.dart';
 import 'package:uniprintgestao/app/shared/utils/auth/hasura_auth_service.dart';
 
 part 'fila_atendimento_controller.g.dart';
@@ -11,6 +12,8 @@ class FilaAtendimentoController = _FilaAtendimentoBase
     with _$FilaAtendimentoController;
 
 abstract class _FilaAtendimentoBase with Store {
+  @observable
+  ObservableList<Atendimento> atendimentos = ObservableList();
   @observable
   int paginaAtual = 0;
   Snapshot snapshot;
