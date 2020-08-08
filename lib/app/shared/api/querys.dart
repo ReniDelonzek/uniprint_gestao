@@ -43,7 +43,8 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
     id
     comentario
     status
-    usuario { 
+    usuario {
+          uid
           email
           url_foto
           pessoa {
@@ -139,18 +140,14 @@ query somaAtendimentos {
 ''';
 
   static const getUsuariosAtend = """query {
-  usuario(where:  { _not: { atendentes: {}}}) {
+  usuario(where:  { _not: { atendente: {}}}) {
     id
     uid
     email
     pessoa {
       nome
     }
-    atendentes_aggregate {
-      aggregate {
-        count(columns: id)
-      }
-    }
+    
   }
 }
 """;

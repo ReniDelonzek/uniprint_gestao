@@ -55,7 +55,11 @@ class CadastroAtendentePageState extends State<CadastroAtendentePage> {
                                   new SelectAnyModule(SelectModel(
                                       'Selecione o Usuário',
                                       'id',
-                                      [Linha('pessoa/nome'), Linha('email')],
+                                      [
+                                        Linha('pessoa/nome',
+                                            valorPadrao: 'Nome não definido'),
+                                        Linha('email', involucro: 'Email: ???')
+                                      ],
                                       SelectAnyPage.TIPO_SELECAO_SIMPLES,
                                       query: Querys.getUsuariosAtend,
                                       chaveLista: 'usuario'))));
