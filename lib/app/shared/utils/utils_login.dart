@@ -19,27 +19,3 @@ Future<User> verificarLogin(context) async {
   }
   return null;
 }
-
-/*
-void posLogin(AuthResult user, BuildContext context) {
-  if (user != null) {
-    SharedPreferences.getInstance().then((shared) {
-      Firestore.instance
-          .collection('Usuarios')
-          .document(user.user.uid)
-          .collection('tokens')
-          .add({'messaging_token': shared.getString('messaging_token')});
-      //FirebaseMessaging().subscribeToTopic('teste');
-      Route route = MaterialPageRoute(builder: (context) => MainPrinter());
-      Navigator.pushReplacement(context, route);
-    }).catchError((error) {
-      Scaffold.of(context).showSnackBar(new SnackBar(
-        content: new Text("Ops, houve uma falha na tentativa de login"),
-      ));
-    });
-  } else {
-    Scaffold.of(context).showSnackBar(new SnackBar(
-      content: new Text("Ops, houve uma falha na tentativa de login"),
-    ));
-  }
-}*/
