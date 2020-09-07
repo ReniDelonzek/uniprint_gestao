@@ -44,6 +44,8 @@ subscription getSubsAtendimentos(\$ponto_atendimento_id: Int!) {
     comentario
     status
     usuario { 
+          id
+          uid
           email
           url_foto
           pessoa {
