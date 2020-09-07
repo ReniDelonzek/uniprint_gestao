@@ -25,7 +25,9 @@ abstract class _CadastroPrecoBase with Store {
   bool colorido = false;
 
   String verificarDados() {
-    if (ctlDatas.dataInicial == null) {
+    if (ctlValor.text.isEmpty) {
+      return 'Você precisa inserir o preço';
+    } else if (ctlDatas.dataInicial == null) {
       return 'Você precisa selecionar a validade do preço';
     } else if (tipoFolha == null) {
       return 'Você precisa selecionar o tipo de folha';

@@ -19,7 +19,7 @@ class HiveService extends Disposable {
     if (UtilsPlatform.isMobile()) {
       await Hive.initFlutter();
     } else if (UtilsPlatform.isDesktop()) {
-      Hive.init(Directory.current.path);
+      Hive.init(Directory.current.path + '/.hivedb');
     }
     Hive.registerAdapter(UsuarioHasuraAdapter());
     Hive.registerAdapter(TipoFolhaAdapter());

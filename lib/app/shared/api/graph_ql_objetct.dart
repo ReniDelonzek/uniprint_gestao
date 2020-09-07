@@ -57,5 +57,3 @@ dynamic getValorLinha(var res, String chave, String variavel) {
   }
   return null;
 }
-
-GraphQlObject graphQlObject = new GraphQlObject();

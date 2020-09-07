@@ -8,13 +8,13 @@ part of 'usuario.dart';
 
 class UsuarioHasuraAdapter extends TypeAdapter<UsuarioHasura> {
   @override
-  final typeId = 2;
+  final int typeId = 2;
 
   @override
   UsuarioHasura read(BinaryReader reader) {
-    var numOfFields = reader.readByte();
-    var fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UsuarioHasura(
       id: fields[0] as int,
@@ -23,13 +23,14 @@ class UsuarioHasuraAdapter extends TypeAdapter<UsuarioHasura> {
       codProfessor: fields[3] as int,
       codAtendente: fields[4] as int,
       codPontoAtendimento: fields[5] as int,
+      nomePontoAtendimento: fields[6] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, UsuarioHasura obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,6 +42,18 @@ class UsuarioHasuraAdapter extends TypeAdapter<UsuarioHasura> {
       ..writeByte(4)
       ..write(obj.codAtendente)
       ..writeByte(5)
-      ..write(obj.codPontoAtendimento);
+      ..write(obj.codPontoAtendimento)
+      ..writeByte(6)
+      ..write(obj.nomePontoAtendimento);
   }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UsuarioHasuraAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

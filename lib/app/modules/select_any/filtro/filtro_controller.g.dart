@@ -23,4 +23,11 @@ mixin _$FiltroController on _FiltroBase, Store {
       super.controllers = value;
     });
   }
+
+  @override
+  String toString() {
+    return '''
+controllers: ${controllers}
+    ''';
+  }
 }

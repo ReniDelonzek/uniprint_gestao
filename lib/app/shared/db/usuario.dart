@@ -19,14 +19,17 @@ class UsuarioHasura extends HiveObject {
   @HiveField(5)
   int codPontoAtendimento;
 
-  UsuarioHasura({
-    this.id,
-    this.nome,
-    this.codHasura,
-    this.codProfessor,
-    this.codAtendente,
-    this.codPontoAtendimento,
-  });
+  @HiveField(6)
+  String nomePontoAtendimento;
+
+  UsuarioHasura(
+      {this.id,
+      this.nome,
+      this.codHasura,
+      this.codProfessor,
+      this.codAtendente,
+      this.codPontoAtendimento,
+      this.nomePontoAtendimento});
 
   UsuarioHasura copyWith({
     int id,
@@ -54,6 +57,7 @@ class UsuarioHasura extends HiveObject {
       'codProfessor': codProfessor,
       'codAtendente': codAtendente,
       'codPontoAtendimento': codPontoAtendimento,
+      'nomePontoAtendimento': nomePontoAtendimento
     };
   }
 
@@ -61,13 +65,13 @@ class UsuarioHasura extends HiveObject {
     if (map == null) return null;
 
     return UsuarioHasura(
-      id: map['id'],
-      nome: map['nome'],
-      codHasura: map['codHasura'],
-      codProfessor: map['codProfessor'],
-      codAtendente: map['codAtendente'],
-      codPontoAtendimento: map['codPontoAtendimento'],
-    );
+        id: map['id'],
+        nome: map['nome'],
+        codHasura: map['codHasura'],
+        codProfessor: map['codProfessor'],
+        codAtendente: map['codAtendente'],
+        codPontoAtendimento: map['codPontoAtendimento'],
+        nomePontoAtendimento: map['nomePontoAtendimento']);
   }
 
   String toJson() => json.encode(toMap());

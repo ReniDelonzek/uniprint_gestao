@@ -1,6 +1,7 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprintgestao/app/app_module.dart';
 import 'package:uniprintgestao/app/modules/cadastro_atendente/cadastro_atendente_module.dart';
@@ -42,7 +43,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
     with AfterLayoutMixin<FilaAtendimentoPage> {
   final FilaAtendimentoController _controller =
       FilaAtendimentoModule.to.bloc<FilaAtendimentoController>();
-  List<Atendimento> atendimentos = List();
+
   PageController _pagecontroller = PageController();
   BuildContext buildContext;
   final FocusNode _focusNode = FocusNode();
@@ -50,10 +51,10 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (UtilsPlatform.isDesktop()) {
-      // Isso está impedindo do teclado abrir corretamente em outras telas
-      FocusScope.of(context).requestFocus(_focusNode);
-    }
+    //if (UtilsPlatform.isDesktop()) {
+    //TODO Isso está impedindo do teclado abrir corretamente em outras telas
+    //FocusScope.of(context).requestFocus(_focusNode);
+    //}
   }
 
   @override
@@ -92,14 +93,15 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
                   "Uniguaçu",
                   style: new TextStyle(color: Colors.white),
                 ),
-                accountEmail:
-                    new Text("", style: new TextStyle(color: Colors.white)),
+                accountEmail: new Text(
+                    AppModule.to
+                            .getDependency<HasuraAuthService>()
+                            .usuario
+                            .nomePontoAtendimento ??
+                        '',
+                    style: new TextStyle(color: Colors.white)),
                 currentAccountPicture: new GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(new MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            new CadastroProfessorModule()));
-                  },
+                  onTap: () {},
                   child: Hero(
                     tag: "imagem_perfil",
                     child: new CircleAvatar(
@@ -225,17 +227,17 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
               'Fila de atendimentos são mostrados aqui',
               'imagens/reception.png'));
     }
-    atendimentos.clear();
+    _controller.atendimentos.clear();
     for (var data in snap.data['data']['atendimento']) {
       Atendimento atendimento = Atendimento.fromMap(data);
-      atendimentos.add(atendimento);
+      _controller.atendimentos.add(atendimento);
     }
-    if (atendimentos.isNotEmpty) {
-      return new PageView.builder(
+    if (_controller.atendimentos.isNotEmpty) {
+      return PageView.builder(
         controller: _pagecontroller,
-        itemCount: atendimentos.length,
+        itemCount: _controller.atendimentos.length,
         itemBuilder: (context, position) {
-          return _buildStoryPage(atendimentos[position],
+          return _buildStoryPage(_controller.atendimentos[position],
               position == _controller.paginaAtual.floor(), position);
         },
       );
@@ -282,18 +284,19 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
                 children: <Widget>[
                   CabecalhoDetalhesUsuario(atendimento.usuario),
                   Align(
-                    alignment: Alignment.centerLeft,
-                    child: RichText(
-                      text: TextSpan(
-                        text: 'Número do atendimento: ',
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: atendimento.id?.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 22)),
-                        ],
-                      ),
-                    ),
+                    alignment: Alignment.topRight,
+                    child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.only(
+                          left: 25,
+                        ),
+                        child: Observer(
+                            builder: (_) => Text(
+                                  '${index + 1} de ${_controller.atendimentos.length}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                ))),
                   ),
                   atendimento.status ==
                           Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO
@@ -309,39 +312,7 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
                           ],
                         )
                       : Container(),
-                  InkWell(
-                    onTap: () async {
-                      if (UtilsPlatform.isMobile()) {
-                        var res = await Navigator.of(context).push(
-                            new MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    new LerQrCodeModule()));
-                        if (res != null && res.isNotEmpty) {
-                          if (res == atendimento.id.toString()) {
-                            _marcarEmAtendimento(atendimento);
-                          } else {
-                            showSnack(
-                                buildContext, 'Oops, o QR não foi reconhecido');
-                          }
-                        }
-                      } else {
-                        showSnack(
-                            buildContext, 'Não é possível ler o qr por aqui');
-                      }
-                    },
-                    child: new Container(
-                      width: 200,
-                      height: 200,
-                      alignment: Alignment.center,
-                      child: Image.asset('imagens/qr_code.png',
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          color: isDarkMode(context)
-                              ? Colors.white
-                              : Colors.black),
-                    ),
-                  ),
+                  centerWidget(atendimento),
                   new Container(
                       alignment: Alignment.centerRight,
                       child: Row(
@@ -392,29 +363,88 @@ class FilaAtendimentoPageState extends State<FilaAtendimentoPage>
     );
   }
 
+/*
+ * Retorna o Widget do centro da página de acordo com o tipo de tela
+ */
+  Widget centerWidget(Atendimento atendimento) {
+    return InkWell(
+      onTap: () async {
+        if (UtilsPlatform.isMobile()) {
+          var res = await Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) => new LerQrCodeModule()));
+          if (res != null && res.isNotEmpty) {
+            if (res == atendimento.id.toString()) {
+              _marcarEmAtendimento(atendimento);
+            } else {
+              showSnack(buildContext, 'Oops, o QR não foi reconhecido');
+            }
+          }
+        } else {
+          showSnack(buildContext, 'Não é possível ler o qr por aqui');
+        }
+      },
+      child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              new Container(
+                width: 200,
+                height: 150,
+                alignment: Alignment.center,
+                child: Image.asset('imagens/qr_code.png',
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                    color: isDarkMode(context) ? Colors.white : Colors.black),
+              ),
+              Text('Número do atendimento: ${atendimento.id}'),
+            ],
+          )),
+    );
+  }
+
   void onKey(RawKeyEvent event) {
     int keyCode = getBotaoPressionado(event);
-    switch (keyCode) {
-      case 124: //left
-        setState(() {
-          _pagecontroller.nextPage(
-              duration: Duration(milliseconds: 600), curve: Curves.ease);
-        });
+    if (UtilsPlatform.isWindows()) {
+      switch (keyCode) {
+        case 39: //left
+          setState(() {
+            _pagecontroller.nextPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
 
-        break;
-      case 123:
-        setState(() {
-          _pagecontroller.previousPage(
-              duration: Duration(milliseconds: 600), curve: Curves.ease);
-        });
+          break;
+        case 37:
+          setState(() {
+            _pagecontroller.previousPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
 
-        break;
+          break;
+      }
+    } else {
+      switch (keyCode) {
+        case 124: //left
+          setState(() {
+            _pagecontroller.nextPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
+
+          break;
+        case 123:
+          setState(() {
+            _pagecontroller.previousPage(
+                duration: Duration(milliseconds: 600), curve: Curves.ease);
+          });
+
+          break;
+      }
     }
   }
 
   Future<void> _finalizarAtendimento(Atendimento atendimento) async {
     List<Atendimento> atendimentosCopia =
-        List.of(atendimentos); //faz uma copia dos
+        List.of(_controller.atendimentos); //faz uma copia dos
     //atendimentos pra nao rolar um erro quando a lista atualizar
     bool result = await UtilsAtendimento.gerarMovimentacao(
         Constants.MOV_ATENDIMENTO_ATENDIDO,

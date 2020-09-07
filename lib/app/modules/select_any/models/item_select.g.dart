@@ -38,4 +38,12 @@ mixin _$ItemSelect on _ItemSelect, Store {
       super.deletado = value;
     });
   }
+
+  @override
+  String toString() {
+    return '''
+isSelected: ${isSelected},
+deletado: ${deletado}
+    ''';
+  }
 }

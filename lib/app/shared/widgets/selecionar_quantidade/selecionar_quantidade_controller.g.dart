@@ -23,4 +23,11 @@ mixin _$SelecionarQuantidadeController on _SelecionarQuantidadeBase, Store {
       super.quantidade = value;
     });
   }
+
+  @override
+  String toString() {
+    return '''
+quantidade: ${quantidade}
+    ''';
+  }
 }

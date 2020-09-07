@@ -141,18 +141,14 @@ query somaAtendimentos {
 ''';
 
   static const getUsuariosAtend = """query {
-  usuario(where:  { _not: { atendentes: {}}}) {
+  usuario(where:  { _not: { atendente: {}}}) {
     id
     uid
     email
     pessoa {
       nome
     }
-    atendentes_aggregate {
-      aggregate {
-        count(columns: id)
-      }
-    }
+    
   }
 }
 """;
@@ -199,6 +195,9 @@ query getUsuarioUid(\$uid: String!) {
     atendente {
       id
       ponto_atendimento_id
+      ponto_atendimento {
+        nome
+      }
     }
   }
 }
